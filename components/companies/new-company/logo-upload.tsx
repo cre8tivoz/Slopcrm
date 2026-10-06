@@ -98,6 +98,7 @@ export default function LogoUpload({
             size="sm"
             onClick={() => inputRef.current?.click()}
             aria-describedby={hintId}
+            className="fine:min-h-0 min-h-11"
           >
             {value ? "Replace logo" : "Upload logo"}
           </Button>
@@ -109,6 +110,7 @@ export default function LogoUpload({
                 setError(null);
                 onChange(null);
               }}
+              className="fine:min-h-0 min-h-11"
             >
               Remove
             </Button>

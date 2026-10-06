@@ -3,6 +3,7 @@
 @plugin "tailwind-scrollbar";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant fine (@media (pointer: fine));
 
 @theme inline {
   --color-background: var(--background);
@@ -58,7 +59,8 @@
 }
 
 @theme static {
-  --shadow-overlay: 0px 16px 40px 0px rgba(0, 0, 0, 0.5), 0px 0px 0px 1px #0e0e0e;
+  --shadow-overlay:
+    0px 16px 40px 0px rgba(0, 0, 0, 0.5), 0px 0px 0px 1px #0e0e0e;
 
   --ease-power1-in: cubic-bezier(0.11, 0, 0.5, 0);
   --ease-power1-out: cubic-bezier(0.5, 1, 0.89, 1);
@@ -77,6 +79,19 @@
   --ease-power4-in-out: cubic-bezier(0.83, 0, 0.17, 1);
 
   --ease-smooth-in-out: cubic-bezier(0.7, 0, 0, 1);
+
+  --animate-rise: rise 420ms var(--ease-power2-out) both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 :root {
@@ -93,7 +108,7 @@
   --secondary: #1e1e1e;
   --secondary-foreground: #f9fbff;
   --muted: #2a2a2a;
-  --muted-foreground: #7f7f7f;
+  --muted-foreground: #8a8a8a;
   --accent: #2a2a2a;
   --accent-foreground: #f9fbff;
   --destructive: #f97373;
@@ -101,7 +116,7 @@
   --input: #393939;
   --ring: #676767;
   --sidebar: #171717;
-  --sidebar-foreground: #7f7f7f;
+  --sidebar-foreground: #8a8a8a;
   --sidebar-primary: #2a2a2a;
   --sidebar-primary-foreground: #f9fbff;
   --sidebar-accent: #181818;
@@ -109,7 +124,7 @@
   --sidebar-border: #232323;
   --sidebar-ring: #676767;
   --line-strong: #393939;
-  --subtle: #676767;
+  --subtle: #8f8f8f;
   --faint: #454545;
   --soft: #a4a4a4;
   --chip: #cfcfcf;
@@ -292,5 +307,55 @@ html[data-sidebar-resizing] * {
 @media (max-width: 300px) {
   html {
     font-size: 12px;
+  }
+}
+
+@utility tap-target {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -10px;
+    border-radius: inherit;
+  }
+}
+
+@utility stagger-children {
+  & > * {
+    animation: rise 420ms var(--ease-power2-out) both;
+  }
+  & > *:nth-child(1) {
+    animation-delay: 40ms;
+  }
+  & > *:nth-child(2) {
+    animation-delay: 90ms;
+  }
+  & > *:nth-child(3) {
+    animation-delay: 140ms;
+  }
+  & > *:nth-child(4) {
+    animation-delay: 190ms;
+  }
+  & > *:nth-child(5) {
+    animation-delay: 240ms;
+  }
+  & > *:nth-child(n + 6) {
+    animation-delay: 290ms;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html,
+  body {
+    scroll-behavior: auto !important;
   }
 }

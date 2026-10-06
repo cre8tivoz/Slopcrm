@@ -38,7 +38,10 @@ export default function Profile() {
         .sort((a, b) => b.pipelineValue - a.pipelineValue)
     : [];
 
-  const openDeals = accounts.reduce((sum, company) => sum + company.openDeals, 0);
+  const openDeals = accounts.reduce(
+    (sum, company) => sum + company.openDeals,
+    0,
+  );
   const pipeline = accounts.reduce(
     (sum, company) => sum + company.pipelineValue,
     0,
@@ -71,7 +74,9 @@ export default function Profile() {
         <SheetHeader>
           <div className="flex items-center gap-2">
             <UsersIcon aria-hidden className="text-icon size-3.5" />
-            <SheetTitle>{isCurrentUser ? "My Profile" : "Owner Profile"}</SheetTitle>
+            <SheetTitle>
+              {isCurrentUser ? "My Profile" : "Owner Profile"}
+            </SheetTitle>
           </div>
           <SheetDescription className="sr-only">
             Contact details, pipeline summary and assigned accounts
@@ -80,7 +85,7 @@ export default function Profile() {
             <Button
               variant="ghost"
               size="icon-sm"
-              className="-mr-1"
+              className="tap-target -mr-1"
               aria-label="Close profile"
             >
               <XIcon aria-hidden className="text-foreground size-4" />
@@ -90,83 +95,91 @@ export default function Profile() {
 
         {person && (
           <ScrollArea className="min-h-0 flex-1">
-            <div className="flex items-center gap-3 p-5 shadow-[inset_0_-1px_0_var(--line-strong)]">
-              <Avatar
-                src={person.avatar}
-                alt=""
-                className="size-[50px] shadow-[0px_6.25px_6.25px_0px_rgba(15,15,15,0.24),0px_0px_0px_1.563px_#232323]"
-              />
-              <div className="flex min-w-0 flex-col gap-2">
-                <h2 className="truncate">{person.name}</h2>
-                <span className="caption-style text-soft block truncate">
-                  {person.role}
-                </span>
+            <div className="stagger-children">
+              <div className="flex items-center gap-3 p-5 shadow-[inset_0_-1px_0_var(--line-strong)]">
+                <Avatar
+                  src={person.avatar}
+                  alt=""
+                  className="size-[50px] shadow-[0px_6.25px_6.25px_0px_rgba(15,15,15,0.24),0px_0px_0px_1.563px_#232323]"
+                />
+                <div className="flex min-w-0 flex-col gap-2">
+                  <h2 className="truncate">{person.name}</h2>
+                  <span className="caption-style text-soft block truncate">
+                    {person.role}
+                  </span>
+                </div>
               </div>
-            </div>
 
-            <DetailSection title="Contact">
-              <div className="lead-style flex flex-wrap items-center gap-x-4 gap-y-3">
-                <a
-                  href={`mailto:${person.email}`}
-                  className="hover:text-soft ease-power3-in-out flex items-center gap-1 transition-colors duration-150"
-                >
-                  <MailIcon aria-hidden className="text-soft size-3" />
-                  {person.email}
-                </a>
-                <a
-                  href={`tel:${person.phone.replace(/[^\d+]/g, "")}`}
-                  className="hover:text-soft ease-power3-in-out flex items-center gap-1 transition-colors duration-150"
-                >
-                  <PhoneIcon aria-hidden className="text-soft size-3" />
-                  {person.phone}
-                </a>
-              </div>
-            </DetailSection>
-
-            <DetailSection title={isCurrentUser ? "Team pipeline" : "Pipeline"}>
-              <div className="grid grid-cols-2 gap-2">
-                {stats.map((stat) => (
-                  <div
-                    key={stat.label}
-                    className="border-line-strong flex flex-col gap-3 rounded-lg border p-[11px]"
+              <DetailSection title="Contact">
+                <div className="lead-style flex flex-wrap items-center gap-x-4 gap-y-3">
+                  <a
+                    href={`mailto:${person.email}`}
+                    className="hover:text-soft ease-power3-in-out flex items-center gap-1 transition-colors duration-150"
                   >
-                    <span className="caption-style text-soft block">
-                      {stat.label}
-                    </span>
-                    <span className="lead-style block tabular-nums">
-                      {stat.value}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </DetailSection>
+                    <MailIcon aria-hidden className="text-soft size-3" />
+                    {person.email}
+                  </a>
+                  <a
+                    href={`tel:${person.phone.replace(/[^\d+]/g, "")}`}
+                    className="hover:text-soft ease-power3-in-out flex items-center gap-1 transition-colors duration-150"
+                  >
+                    <PhoneIcon aria-hidden className="text-soft size-3" />
+                    {person.phone}
+                  </a>
+                </div>
+              </DetailSection>
 
-            <DetailSection
-              title={isCurrentUser ? "Team accounts" : "Accounts"}
-              className="shadow-none"
-            >
-              {accounts.length > 0 ? (
-                <ul className="-mx-2 flex flex-col gap-0.5">
-                  {accounts.map((company) => (
-                    <ProfileAccount
-                      key={company.id}
-                      company={company}
-                      onOpen={() => openDetail(company.id)}
-                    />
+              <DetailSection
+                title={isCurrentUser ? "Team pipeline" : "Pipeline"}
+              >
+                <div className="grid grid-cols-2 gap-2">
+                  {stats.map((stat) => (
+                    <div
+                      key={stat.label}
+                      className="border-line-strong flex flex-col gap-3 rounded-lg border p-[11px]"
+                    >
+                      <span className="caption-style text-soft block">
+                        {stat.label}
+                      </span>
+                      <span className="lead-style block tabular-nums">
+                        {stat.value}
+                      </span>
+                    </div>
                   ))}
-                </ul>
-              ) : (
-                <span className="caption-style text-subtle block">
-                  No accounts assigned yet.
-                </span>
-              )}
-            </DetailSection>
+                </div>
+              </DetailSection>
+
+              <DetailSection
+                title={isCurrentUser ? "Team accounts" : "Accounts"}
+                className="shadow-none"
+              >
+                {accounts.length > 0 ? (
+                  <ul className="-mx-2 flex flex-col gap-0.5">
+                    {accounts.map((company) => (
+                      <ProfileAccount
+                        key={company.id}
+                        company={company}
+                        onOpen={() => openDetail(company.id)}
+                      />
+                    ))}
+                  </ul>
+                ) : (
+                  <span className="caption-style text-subtle block">
+                    No accounts assigned yet.
+                  </span>
+                )}
+              </DetailSection>
+            </div>
           </ScrollArea>
         )}
 
         <SheetFooter>
           <SheetClose asChild>
-            <Button variant="subtle" size="sm">
+            <Button
+              variant="subtle"
+              size="sm"
+              className="fine:min-h-0 min-h-11"
+            >
               Close
             </Button>
           </SheetClose>
@@ -175,6 +188,7 @@ export default function Profile() {
             size="sm"
             onClick={showAccounts}
             disabled={accounts.length === 0}
+            className="fine:min-h-0 min-h-11"
           >
             {isCurrentUser ? "Show all accounts" : "Filter table by owner"}
           </Button>

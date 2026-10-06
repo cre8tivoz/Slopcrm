@@ -74,7 +74,12 @@ export default function CompaniesToolbar() {
       </div>
 
       <div className="flex shrink-0 items-center gap-1">
-        <Button variant="secondary" size="sm" onClick={exportCsv}>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={exportCsv}
+          className="fine:min-h-0 min-h-11"
+        >
           <ShareIcon aria-hidden className="size-3" />
           Export
         </Button>
@@ -82,6 +87,7 @@ export default function CompaniesToolbar() {
           variant="primary"
           size="sm"
           onClick={() => setNewCompanyOpen(true)}
+          className="fine:min-h-0 min-h-11"
         >
           <PlusIcon aria-hidden className="size-3" />
           New Company

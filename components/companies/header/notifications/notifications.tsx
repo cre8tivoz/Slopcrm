@@ -53,13 +53,13 @@ export default function Notifications() {
               ? `Notifications, ${unreadCount} unread`
               : "Notifications"
           }
-          className="data-[state=open]:bg-muted relative"
+          className="tap-target fine:size-[30px] data-[state=open]:bg-muted relative size-11"
         >
           <BellIcon aria-hidden className="size-3.5" />
           {unreadCount > 0 && (
             <span
               aria-hidden
-              className="bg-danger ring-secondary absolute top-[7px] right-[7px] size-1.5 rounded-full ring-2"
+              className="bg-danger ring-secondary fine:top-[7px] fine:right-[7px] absolute top-[14px] right-[14px] size-1.5 rounded-full ring-2"
             />
           )}
         </Button>
@@ -81,7 +81,7 @@ export default function Notifications() {
             size="sm"
             disabled={unreadCount === 0}
             onClick={markAllRead}
-            className="-mr-1.5"
+            className="fine:min-h-0 -mr-1.5 min-h-11"
           >
             Mark all as read
           </Button>

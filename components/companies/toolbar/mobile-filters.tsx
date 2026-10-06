@@ -76,7 +76,10 @@ export default function MobileFilters({ className }: MobileFiltersProps) {
         aria-label={
           activeCount > 0 ? `Filters, ${activeCount} active` : "Filters"
         }
-        className={cn("data-[active=true]:bg-muted", className)}
+        className={cn(
+          "data-[active=true]:bg-muted fine:min-h-0 min-h-11",
+          className,
+        )}
         data-active={activeCount > 0}
       >
         <FilterIcon aria-hidden className="size-3" />
@@ -94,7 +97,7 @@ export default function MobileFilters({ className }: MobileFiltersProps) {
             <Button
               variant="ghost"
               size="icon-sm"
-              className="-mr-1"
+              className="tap-target -mr-1"
               aria-label="Close filters"
             >
               <XIcon aria-hidden className="text-foreground size-4" />
@@ -188,12 +191,16 @@ export default function MobileFilters({ className }: MobileFiltersProps) {
             size="sm"
             onClick={resetFilters}
             disabled={activeCount === 0 && sortBy === "pipelineValue"}
-            className="-ml-1.5"
+            className="fine:min-h-0 -ml-1.5 min-h-11"
           >
             Reset
           </Button>
           <SheetClose asChild>
-            <Button variant="primary" size="sm">
+            <Button
+              variant="primary"
+              size="sm"
+              className="fine:min-h-0 min-h-11"
+            >
               Show {resultCount} {resultCount === 1 ? "company" : "companies"}
             </Button>
           </SheetClose>

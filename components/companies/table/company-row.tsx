@@ -1,6 +1,6 @@
 "use client";
 
-import type { MouseEvent } from "react";
+import type { KeyboardEvent, MouseEvent } from "react";
 import Avatar from "@/components/_ui/avatar";
 import Button from "@/components/_ui/button";
 import { Checkbox } from "@/components/_ui/checkbox";
@@ -22,6 +22,7 @@ import DotsIcon from "@/public/assets/images/companies/table/dots-horizontal.svg
 
 type CompanyRowProps = {
   company: Company;
+  index: number;
   selected: boolean;
   active: boolean;
   onToggle: () => void;
@@ -37,8 +38,18 @@ function stop(event: MouseEvent) {
   event.stopPropagation();
 }
 
+function handleRowKeyDown(
+  event: KeyboardEvent<HTMLTableRowElement>,
+  onOpen: () => void,
+) {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  event.preventDefault();
+  onOpen();
+}
+
 export default function CompanyRow({
   company,
+  index,
   selected,
   active,
   onToggle,
@@ -51,11 +62,14 @@ export default function CompanyRow({
   return (
     <TableRow
       role="row"
+      tabIndex={0}
       onClick={onOpen}
+      onKeyDown={(event) => handleRowKeyDown(event, onOpen)}
       data-active={active || selected}
+      style={{ animationDelay: `${Math.min(index, 11) * 18}ms` }}
       className={cn(
         TABLE_ROW_CLASS,
-        "hover:bg-card/60 data-[active=true]:border-card data-[active=true]:bg-card cursor-pointer",
+        "animate-rise hover:bg-card/60 data-[active=true]:border-card data-[active=true]:bg-card cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2",
       )}
     >
       <TableCell role="cell" className={cellClass("name")}>
@@ -130,7 +144,7 @@ export default function CompanyRow({
         <Button
           variant="ghost"
           size="icon-sm"
-          className={cn("text-foreground", active && "bg-white/6")}
+          className={cn("tap-target text-foreground", active && "bg-white/6")}
           aria-label={`Open ${company.name} details`}
           onClick={onOpen}
         >

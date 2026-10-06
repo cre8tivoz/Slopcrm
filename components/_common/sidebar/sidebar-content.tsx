@@ -102,7 +102,7 @@ export default function SidebarContent() {
             Left on trials
           </span>
         </div>
-        <Button variant="muted" size="md">
+        <Button variant="muted" size="md" className="fine:min-h-0 min-h-11">
           <WalletIcon aria-hidden className="size-3.5" />
           Add Billings
         </Button>
