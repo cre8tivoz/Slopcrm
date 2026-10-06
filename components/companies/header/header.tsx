@@ -25,19 +25,19 @@ export default function CompaniesHeader() {
 
   return (
     <header className="shrink-0">
-      <div className="flex items-center justify-between gap-2 px-4 py-[14px]">
+      <div className="flex items-center justify-between gap-1.5 px-4 py-[14px] sm:gap-2">
         <div className="flex min-w-0 items-center gap-2">
           <Button
             variant="secondary"
             size="icon"
-            className="lg:hidden"
+            className="tap-target fine:size-[30px] size-11 lg:hidden"
             aria-label="Open navigation"
             onClick={() => setSidebarOpen(true)}
           >
             <MenuIcon aria-hidden className="size-3.5" />
           </Button>
           <h1 className="truncate">Companies</h1>
-          <span className="caption-style bg-muted inline-flex shrink-0 items-center gap-0.5 rounded-full border border-[#363636] py-[3px] pr-[5px] pl-[3px]">
+          <span className="caption-style bg-muted hidden shrink-0 items-center gap-0.5 rounded-full border border-[#363636] py-[3px] pr-[5px] pl-[3px] sm:inline-flex">
             <ActiveDot aria-hidden className="size-3" />
             Active
           </span>
@@ -47,6 +47,7 @@ export default function CompaniesHeader() {
           <Button
             variant="secondary"
             size="icon"
+            className="tap-target fine:size-[30px] size-11"
             aria-label="Search"
             aria-keyshortcuts="Meta+K Control+K"
             onClick={() => setSearchOpen(true)}
@@ -57,7 +58,7 @@ export default function CompaniesHeader() {
           <Button
             variant="secondary"
             size="none"
-            className="caption-style h-[30px] gap-1.5 py-[5px] pr-[7px] pl-[5px] font-normal"
+            className="caption-style tap-target fine:h-[30px] h-11 gap-1.5 py-[5px] pr-[7px] pl-[5px] font-normal"
             aria-label={`Open profile for ${CURRENT_USER.name}`}
             onClick={() => openProfile(CURRENT_USER.name)}
           >
@@ -70,7 +71,12 @@ export default function CompaniesHeader() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="border-border border-b px-4">
           {TABS.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value}>
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              disabled={tab.value !== "companies"}
+              title={tab.value !== "companies" ? "Coming soon" : undefined}
+            >
               {tab.label}
             </TabsTrigger>
           ))}

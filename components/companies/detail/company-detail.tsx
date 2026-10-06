@@ -64,7 +64,7 @@ export default function CompanyDetail() {
             <Button
               variant="ghost"
               size="icon-sm"
-              className="-mr-1"
+              className="tap-target -mr-1"
               aria-label="Close details"
             >
               <XIcon aria-hidden className="text-foreground size-4" />
@@ -74,96 +74,98 @@ export default function CompanyDetail() {
 
         {company && owner && (
           <ScrollArea className="min-h-0 flex-1">
-            <div className="flex items-start gap-3 p-5 shadow-[inset_0_-1px_0_var(--line-strong)]">
-              <span className="bg-muted flex size-[50px] shrink-0 items-center justify-center rounded-[12.5px] shadow-[0px_6.25px_6.25px_0px_rgba(15,15,15,0.24),0px_0px_0px_1.563px_#232323]">
-                {company.logo ? (
-                  <Asset
-                    type="image"
-                    src={company.logo}
-                    alt={`${company.name} logo`}
-                    width={1}
-                    height={1}
-                    fit="contain"
-                    className="size-8"
-                  />
-                ) : (
-                  <span className="h2-style text-soft">
-                    {company.name.slice(0, 1)}
-                  </span>
-                )}
-              </span>
-              <div className="flex min-w-0 flex-col gap-3">
-                <h2 className="truncate">{company.name}</h2>
-                <div className="flex flex-wrap items-center gap-[3px]">
-                  {company.tags.map((tag) => (
-                    <Tag key={tag} tone={TAG_TONES[tag]} size="sm">
-                      {tag}
-                    </Tag>
-                  ))}
+            <div className="stagger-children">
+              <div className="flex items-start gap-3 p-5 shadow-[inset_0_-1px_0_var(--line-strong)]">
+                <span className="bg-muted flex size-[50px] shrink-0 items-center justify-center rounded-[12.5px] shadow-[0px_6.25px_6.25px_0px_rgba(15,15,15,0.24),0px_0px_0px_1.563px_#232323]">
+                  {company.logo ? (
+                    <Asset
+                      type="image"
+                      src={company.logo}
+                      alt={`${company.name} logo`}
+                      width={1}
+                      height={1}
+                      fit="contain"
+                      className="size-8"
+                    />
+                  ) : (
+                    <span className="h2-style text-soft">
+                      {company.name.slice(0, 1)}
+                    </span>
+                  )}
+                </span>
+                <div className="flex min-w-0 flex-col gap-3">
+                  <h2 className="truncate">{company.name}</h2>
+                  <div className="flex flex-wrap items-center gap-[3px]">
+                    {company.tags.map((tag) => (
+                      <Tag key={tag} tone={TAG_TONES[tag]} size="sm">
+                        {tag}
+                      </Tag>
+                    ))}
+                  </div>
                 </div>
               </div>
+
+              <DetailSection title="Account summary">
+                <div className="lead-style flex flex-wrap items-center gap-x-4 gap-y-3">
+                  <Button
+                    variant="ghost"
+                    size="none"
+                    onClick={() => openProfile(owner.name)}
+                    aria-label={`Open ${owner.name} profile`}
+                    className="lead-style text-foreground -mx-1.5 gap-1.5 px-1.5 py-1 font-medium"
+                  >
+                    <Avatar src={owner.avatar} alt="" />
+                    {owner.name}
+                  </Button>
+                  <span className="flex items-center gap-1">
+                    <MailIcon aria-hidden className="text-soft size-3" />
+                    {owner.email}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <PhoneIcon aria-hidden className="text-soft size-3" />
+                    {owner.phone}
+                  </span>
+                </div>
+              </DetailSection>
+
+              <DetailSection title="Pipeline health">
+                <PipelineHealth company={company} />
+              </DetailSection>
+
+              <DetailSection
+                title="Activity trend"
+                action={
+                  <FilterMenu
+                    value={trendWindow}
+                    options={WINDOW_OPTIONS}
+                    onChange={setTrendWindow}
+                    align="end"
+                  />
+                }
+              >
+                <ActivityTrend company={company} />
+              </DetailSection>
+
+              <DetailSection
+                title="Score card"
+                className="gap-3 shadow-none"
+                action={
+                  <FilterMenu
+                    value={scoreWindow}
+                    options={WINDOW_OPTIONS}
+                    onChange={setScoreWindow}
+                    align="end"
+                    className="shadow-[0px_4px_4px_0px_rgba(15,15,15,0.24),0px_0px_0px_1px_#393939]"
+                  />
+                }
+              >
+                <div className="flex flex-col gap-2">
+                  {SCORE_CARDS.map((card, index) => (
+                    <ScoreCard key={`${card.title}-${index}`} card={card} />
+                  ))}
+                </div>
+              </DetailSection>
             </div>
-
-            <DetailSection title="Account summary">
-              <div className="lead-style flex flex-wrap items-center gap-x-4 gap-y-3">
-                <Button
-                  variant="ghost"
-                  size="none"
-                  onClick={() => openProfile(owner.name)}
-                  aria-label={`Open ${owner.name} profile`}
-                  className="lead-style text-foreground -mx-1.5 gap-1.5 px-1.5 py-1 font-medium"
-                >
-                  <Avatar src={owner.avatar} alt="" />
-                  {owner.name}
-                </Button>
-                <span className="flex items-center gap-1">
-                  <MailIcon aria-hidden className="text-soft size-3" />
-                  {owner.email}
-                </span>
-                <span className="flex items-center gap-1">
-                  <PhoneIcon aria-hidden className="text-soft size-3" />
-                  {owner.phone}
-                </span>
-              </div>
-            </DetailSection>
-
-            <DetailSection title="Pipeline health">
-              <PipelineHealth company={company} />
-            </DetailSection>
-
-            <DetailSection
-              title="Activity trend"
-              action={
-                <FilterMenu
-                  value={trendWindow}
-                  options={WINDOW_OPTIONS}
-                  onChange={setTrendWindow}
-                  align="end"
-                />
-              }
-            >
-              <ActivityTrend company={company} />
-            </DetailSection>
-
-            <DetailSection
-              title="Score card"
-              className="gap-3 shadow-none"
-              action={
-                <FilterMenu
-                  value={scoreWindow}
-                  options={WINDOW_OPTIONS}
-                  onChange={setScoreWindow}
-                  align="end"
-                  className="shadow-[0px_4px_4px_0px_rgba(15,15,15,0.24),0px_0px_0px_1px_#393939]"
-                />
-              }
-            >
-              <div className="flex flex-col gap-2">
-                {SCORE_CARDS.map((card, index) => (
-                  <ScoreCard key={`${card.title}-${index}`} card={card} />
-                ))}
-              </div>
-            </DetailSection>
           </ScrollArea>
         )}
 
@@ -173,11 +175,20 @@ export default function CompanyDetail() {
           </Button>
           <div className="flex items-center gap-2">
             <SheetClose asChild>
-              <Button variant="subtle" size="sm">
+              <Button
+                variant="subtle"
+                size="sm"
+                className="fine:min-h-0 min-h-11"
+              >
                 Cancel
               </Button>
             </SheetClose>
-            <Button variant="primary" size="sm" onClick={closeDetail}>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={closeDetail}
+              className="fine:min-h-0 min-h-11"
+            >
               Save Update
             </Button>
           </div>

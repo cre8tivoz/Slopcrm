@@ -4,7 +4,10 @@ import type { ComponentProps } from "react";
 import { Tabs as TabsPrimitive } from "radix-ui";
 import { cn } from "@/lib/utils";
 
-function Tabs({ className, ...props }: ComponentProps<typeof TabsPrimitive.Root>) {
+function Tabs({
+  className,
+  ...props
+}: ComponentProps<typeof TabsPrimitive.Root>) {
   return (
     <TabsPrimitive.Root
       data-slot="tabs"
@@ -36,7 +39,7 @@ function TabsTrigger({
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "group caption-style -mb-px grid cursor-pointer text-center border-b border-transparent py-4 text-subtle outline-none select-none transition-[color,border-color] duration-150 ease-power3-out hover:text-soft focus-visible:text-foreground data-[state=active]:border-foreground data-[state=active]:text-foreground",
+        "group caption-style text-subtle ease-power3-out hover:text-soft focus-visible:text-foreground data-[state=active]:border-foreground data-[state=active]:text-foreground data-[disabled]:text-muted-foreground/50 data-[disabled]:hover:text-muted-foreground/50 -mb-px grid cursor-pointer border-b border-transparent py-4 text-center transition-[color,border-color] duration-150 outline-none select-none data-[disabled]:cursor-default",
         className,
       )}
       {...props}

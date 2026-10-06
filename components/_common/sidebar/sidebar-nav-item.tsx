@@ -28,7 +28,7 @@ export default function SidebarNavItem({
         data-active={active}
         aria-current={active ? "page" : undefined}
         className={cn(
-          "group h-[30px] gap-1.5 py-0 data-[active=true]:h-8",
+          "group fine:min-h-0 h-[30px] min-h-11 gap-1.5 py-0 data-[active=true]:h-8",
           tone === "quiet" && "text-subtle",
         )}
       >

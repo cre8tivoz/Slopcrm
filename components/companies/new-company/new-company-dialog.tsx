@@ -317,11 +317,20 @@ export default function NewCompanyDialog() {
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="subtle" size="sm">
+              <Button
+                variant="subtle"
+                size="sm"
+                className="fine:min-h-0 min-h-11"
+              >
                 Cancel
               </Button>
             </DialogClose>
-            <Button variant="primary" size="sm" type="submit">
+            <Button
+              variant="primary"
+              size="sm"
+              type="submit"
+              className="fine:min-h-0 min-h-11"
+            >
               <PlusIcon aria-hidden className="size-3" />
               Create Company
             </Button>
