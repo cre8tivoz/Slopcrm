@@ -1,4 +1,11 @@
-export const SEGMENTS = ["Enterprise", "Mid-Market", "SMB", "Strategic"] as const;
+import { isoDaysAgo } from "@/lib/demo-clock";
+
+export const SEGMENTS = [
+  "Enterprise",
+  "Mid-Market",
+  "SMB",
+  "Strategic",
+] as const;
 
 export const STAGES = [
   "New Logo",
@@ -108,7 +115,6 @@ export type Company = {
   winProbability: number;
   trend: number[];
   lastInteraction: { date: string; label: string };
-  activityDays: number;
   logo?: string;
 };
 
@@ -136,7 +142,15 @@ const TREND_B = [4, 4, 5, 5, 2, 7, 11, 7, 5, 7, 5, 3, 7, 14];
 const TREND_C = [4, 4, 10, 5, 2, 7, 11, 7, 11, 7, 11, 7, 7, 14];
 const TREND_D = [4, 4, 5, 12, 5, 7, 11, 3, 11, 3, 11, 3, 7, 14];
 
-const COMPANY_RECORDS: Omit<Company, "logo">[] = [
+/**
+ * Seed records date their last interaction as "days before DEMO_TODAY" so
+ * the whole dataset stays internally consistent (see lib/demo-clock.ts).
+ */
+type CompanySeed = Omit<Company, "logo" | "lastInteraction"> & {
+  lastInteraction: { daysAgo: number; label: InteractionType };
+};
+
+const COMPANY_RECORDS: CompanySeed[] = [
   {
     id: "lvmh",
     name: "LVMH",
@@ -146,8 +160,7 @@ const COMPANY_RECORDS: Omit<Company, "logo">[] = [
     pipelineValue: 420000,
     winProbability: 70,
     trend: TREND_A,
-    lastInteraction: { date: "2026-02-21", label: "QBR Call" },
-    activityDays: 88,
+    lastInteraction: { daysAgo: 88, label: "QBR Call" },
   },
   {
     id: "disney",
@@ -158,8 +171,7 @@ const COMPANY_RECORDS: Omit<Company, "logo">[] = [
     pipelineValue: 311242,
     winProbability: 51,
     trend: TREND_B,
-    lastInteraction: { date: "2026-02-22", label: "Demo" },
-    activityDays: 87,
+    lastInteraction: { daysAgo: 87, label: "Demo" },
   },
   {
     id: "paypal",
@@ -170,8 +182,7 @@ const COMPANY_RECORDS: Omit<Company, "logo">[] = [
     pipelineValue: 124232,
     winProbability: 22,
     trend: TREND_C,
-    lastInteraction: { date: "2026-03-12", label: "Security" },
-    activityDays: 84,
+    lastInteraction: { daysAgo: 84, label: "Security" },
   },
   {
     id: "united-airlines",
@@ -182,8 +193,7 @@ const COMPANY_RECORDS: Omit<Company, "logo">[] = [
     pipelineValue: 221231,
     winProbability: 77,
     trend: TREND_D,
-    lastInteraction: { date: "2026-03-17", label: "Legal" },
-    activityDays: 81,
+    lastInteraction: { daysAgo: 81, label: "Legal" },
   },
   {
     id: "apple",
@@ -194,8 +204,7 @@ const COMPANY_RECORDS: Omit<Company, "logo">[] = [
     pipelineValue: 530111,
     winProbability: 82,
     trend: TREND_C,
-    lastInteraction: { date: "2026-03-12", label: "Exec" },
-    activityDays: 83,
+    lastInteraction: { daysAgo: 83, label: "Exec" },
   },
   {
     id: "microsoft",
@@ -206,8 +215,7 @@ const COMPANY_RECORDS: Omit<Company, "logo">[] = [
     pipelineValue: 320222,
     winProbability: 86,
     trend: TREND_C,
-    lastInteraction: { date: "2026-03-15", label: "Pilot" },
-    activityDays: 79,
+    lastInteraction: { daysAgo: 79, label: "Pilot" },
   },
   {
     id: "airbnb",
@@ -218,8 +226,7 @@ const COMPANY_RECORDS: Omit<Company, "logo">[] = [
     pipelineValue: 122230,
     winProbability: 51,
     trend: TREND_B,
-    lastInteraction: { date: "2026-03-18", label: "Pricing" },
-    activityDays: 78,
+    lastInteraction: { daysAgo: 78, label: "Pricing" },
   },
   {
     id: "intercom",
@@ -230,8 +237,7 @@ const COMPANY_RECORDS: Omit<Company, "logo">[] = [
     pipelineValue: 230112,
     winProbability: 61,
     trend: TREND_C,
-    lastInteraction: { date: "2026-03-28", label: "Product" },
-    activityDays: 74,
+    lastInteraction: { daysAgo: 74, label: "Product" },
   },
   {
     id: "attio",
@@ -242,8 +248,7 @@ const COMPANY_RECORDS: Omit<Company, "logo">[] = [
     pipelineValue: 420222,
     winProbability: 38,
     trend: TREND_C,
-    lastInteraction: { date: "2026-06-14", label: "Pricing" },
-    activityDays: 58,
+    lastInteraction: { daysAgo: 58, label: "Pricing" },
   },
   {
     id: "google",
@@ -254,8 +259,7 @@ const COMPANY_RECORDS: Omit<Company, "logo">[] = [
     pipelineValue: 112277,
     winProbability: 24,
     trend: TREND_B,
-    lastInteraction: { date: "2026-06-07", label: "Renewal" },
-    activityDays: 62,
+    lastInteraction: { daysAgo: 62, label: "Renewal" },
   },
   {
     id: "netflix",
@@ -266,8 +270,7 @@ const COMPANY_RECORDS: Omit<Company, "logo">[] = [
     pipelineValue: 221221,
     winProbability: 72,
     trend: TREND_C,
-    lastInteraction: { date: "2026-06-18", label: "Pilot" },
-    activityDays: 55,
+    lastInteraction: { daysAgo: 55, label: "Pilot" },
   },
   {
     id: "spotify",
@@ -278,8 +281,7 @@ const COMPANY_RECORDS: Omit<Company, "logo">[] = [
     pipelineValue: 170991,
     winProbability: 55,
     trend: TREND_C,
-    lastInteraction: { date: "2026-07-01", label: "Expansion" },
-    activityDays: 48,
+    lastInteraction: { daysAgo: 48, label: "Expansion" },
   },
   {
     id: "shopify",
@@ -290,8 +292,7 @@ const COMPANY_RECORDS: Omit<Company, "logo">[] = [
     pipelineValue: 139007,
     winProbability: 45,
     trend: TREND_C,
-    lastInteraction: { date: "2026-07-18", label: "Renewal" },
-    activityDays: 40,
+    lastInteraction: { daysAgo: 40, label: "Renewal" },
   },
   {
     id: "zoom",
@@ -302,8 +303,7 @@ const COMPANY_RECORDS: Omit<Company, "logo">[] = [
     pipelineValue: 289921,
     winProbability: 38,
     trend: TREND_D,
-    lastInteraction: { date: "2026-08-08", label: "Partner" },
-    activityDays: 27,
+    lastInteraction: { daysAgo: 27, label: "Partner" },
   },
   {
     id: "slack",
@@ -314,8 +314,7 @@ const COMPANY_RECORDS: Omit<Company, "logo">[] = [
     pipelineValue: 333221,
     winProbability: 23,
     trend: TREND_C,
-    lastInteraction: { date: "2026-08-12", label: "Discovery" },
-    activityDays: 24,
+    lastInteraction: { daysAgo: 24, label: "Discovery" },
   },
   {
     id: "stripe",
@@ -326,8 +325,7 @@ const COMPANY_RECORDS: Omit<Company, "logo">[] = [
     pipelineValue: 442231,
     winProbability: 44,
     trend: TREND_C,
-    lastInteraction: { date: "2026-09-09", label: "Demo" },
-    activityDays: 8,
+    lastInteraction: { daysAgo: 8, label: "Demo" },
   },
   {
     id: "snowflake",
@@ -338,8 +336,7 @@ const COMPANY_RECORDS: Omit<Company, "logo">[] = [
     pipelineValue: 520000,
     winProbability: 24,
     trend: TREND_C,
-    lastInteraction: { date: "2026-09-11", label: "Pricing" },
-    activityDays: 6,
+    lastInteraction: { daysAgo: 6, label: "Pricing" },
   },
   {
     id: "hubspot",
@@ -350,15 +347,20 @@ const COMPANY_RECORDS: Omit<Company, "logo">[] = [
     pipelineValue: 210123,
     winProbability: 52,
     trend: TREND_C,
-    lastInteraction: { date: "2026-09-18", label: "QBR Call" },
-    activityDays: 2,
+    lastInteraction: { daysAgo: 2, label: "QBR Call" },
   },
 ];
 
-export const COMPANIES: Company[] = COMPANY_RECORDS.map((company) => ({
-  ...company,
-  logo: `/assets/images/companies/logos/${company.id}.svg`,
-}));
+export const COMPANIES: Company[] = COMPANY_RECORDS.map(
+  ({ lastInteraction, ...company }) => ({
+    ...company,
+    lastInteraction: {
+      date: isoDaysAgo(lastInteraction.daysAgo),
+      label: lastInteraction.label,
+    },
+    logo: `/assets/images/companies/logos/${company.id}.svg`,
+  }),
+);
 
 export const SORT_OPTIONS = [
   { value: "pipelineValue", label: "Pipeline Value" },
@@ -385,11 +387,14 @@ export const INTERACTION_TYPES = [
   "Expansion",
 ] as const;
 
+export type InteractionType = (typeof INTERACTION_TYPES)[number];
+
 export const ACTIVITY_WINDOWS = [7, 30, 60, 90] as const;
 
 export type ActivityWindow = (typeof ACTIVITY_WINDOWS)[number];
 
-export const TREND_WINDOWS = ["Last 7 Days", "Last 30 Days", "Last 90 Days"];
+/** Period picker windows (days) on the company detail sheet. */
+export const TREND_WINDOWS = [7, 30, 90] as const;
 
 export type ScoreCard = {
   title: string;

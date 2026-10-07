@@ -16,6 +16,7 @@ import DetailSection from "../detail/detail-section";
 import ProfileAccount from "./profile-account";
 import { CURRENT_USER, profileByName } from "@/data/companies";
 import { ALL_OWNERS, formatMoney } from "@/lib/companies";
+import { summarise } from "@/lib/pipeline";
 import { useCompaniesStore } from "@/stores/companies-store";
 import UsersIcon from "@/public/assets/images/companies/sidebar/users.svg";
 import XIcon from "@/public/assets/images/companies/detail/x.svg";
@@ -38,26 +39,12 @@ export default function Profile() {
         .sort((a, b) => b.pipelineValue - a.pipelineValue)
     : [];
 
-  const openDeals = accounts.reduce(
-    (sum, company) => sum + company.openDeals,
-    0,
-  );
-  const pipeline = accounts.reduce(
-    (sum, company) => sum + company.pipelineValue,
-    0,
-  );
-  const avgWin = accounts.length
-    ? Math.round(
-        accounts.reduce((sum, company) => sum + company.winProbability, 0) /
-          accounts.length,
-      )
-    : 0;
-
+  const summary = summarise(accounts);
   const stats = [
-    { label: "Accounts", value: String(accounts.length) },
-    { label: "Open deals", value: String(openDeals) },
-    { label: "Pipeline", value: `$${formatMoney(pipeline)}` },
-    { label: "Avg. win", value: `${avgWin}%` },
+    { label: "Accounts", value: String(summary.companies) },
+    { label: "Open deals", value: String(summary.openDeals) },
+    { label: "Pipeline", value: `$${formatMoney(summary.total)}` },
+    { label: "Avg. win", value: `${summary.avgWin}%` },
   ];
 
   function showAccounts() {

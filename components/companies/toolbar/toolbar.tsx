@@ -10,7 +10,8 @@ import {
   STAGE_OPTIONS,
 } from "./filter-options";
 import type { SortKey } from "@/data/companies";
-import { TODAY, companiesCsvRows, filterCompanies } from "@/lib/companies";
+import { companiesCsvRows, filterCompanies } from "@/lib/companies";
+import { DEMO_TODAY } from "@/lib/demo-clock";
 import { downloadCsv } from "@/lib/csv";
 import { useCompaniesStore } from "@/stores/companies-store";
 import ShareIcon from "@/public/assets/images/companies/toolbar/share.svg";
@@ -39,7 +40,7 @@ export default function CompaniesToolbar() {
       stage,
       activityWindow,
     });
-    downloadCsv(`companies-${TODAY}.csv`, companiesCsvRows(visible));
+    downloadCsv(`companies-${DEMO_TODAY}.csv`, companiesCsvRows(visible));
   }
 
   return (

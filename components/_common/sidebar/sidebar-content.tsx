@@ -24,8 +24,6 @@ import UserPlusIcon from "@/public/assets/images/companies/sidebar/user-plus.svg
 import MessageQuestionIcon from "@/public/assets/images/companies/sidebar/message-question.svg";
 import WalletIcon from "@/public/assets/images/companies/sidebar/wallet.svg";
 
-const BASE_COMPANY_COUNT = 223;
-
 export default function SidebarContent() {
   const companyCount = useCompaniesStore((state) => state.companies.length);
   const activeTab = useCompaniesStore((state) => state.activeTab);
@@ -58,7 +56,7 @@ export default function SidebarContent() {
             <SidebarNavItem
               icon={BuildingIcon}
               label="Companies"
-              count={BASE_COMPANY_COUNT + companyCount}
+              count={companyCount}
               active={activeTab === "companies"}
               onClick={() => go("companies")}
             />
@@ -71,7 +69,6 @@ export default function SidebarContent() {
             <SidebarNavItem
               icon={BarChartIcon}
               label="Forecast"
-              count={9}
               active={activeTab === "forecast"}
               onClick={() => go("forecast")}
             />

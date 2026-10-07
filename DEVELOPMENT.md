@@ -54,12 +54,26 @@ Onboarding review (October 2026) targeted four axes:
 - **Navigation**: sidebar Companies/Deals Board/Forecast/Activities wired with active state (mobile nav sheet closes on navigate); header Deals/Forecast tabs enabled (no more "Coming soon"); header title follows the view; the "Active" pill only shows on Companies where it means something. Remaining sidebar items (Contacts, Email Sequences, Team, Reporting, Pipelines…) stay decorative — no data exists for them, so no fake screens.
 - **One stage rule**: shared `primaryStage()` in `lib/companies.ts` — every company counts in exactly one stage, so board columns, forecast stage rows and the KPI totals reconcile to the dollar (verified: stage rows sum to `$5,138,594` = Total pipeline KPI, weighted to `$2,681,163` across all three views).
 
+### Module pass — S1: domain core + tests (Matt Pocock Phase 9)
+
+Architecture review found the domain rules smeared across views and already drifting. S1 pulls them into small, deep, tested modules (glossary in `CONTEXT.md`):
+
+- **`lib/pipeline.ts`**: `summarise`, `byStage`, `byOwner`, `topByWeighted`, `primaryStage`, `weightedValue`, `stageTone`. Deals Board, Forecast and Owner Profile all read from it; 8 inline `reduce`s are gone. Fixes Forecast "Top opportunities" still using the old global stage rule (Spotify showed Expansion there, Land & Expand on the board).
+- **Recency has one source of truth.** The seed data stored `activityDays` _and_ `lastInteraction.date`, and they disagreed for all 18 companies (LVMH counted as 88 days old but showed a date 205 days back; HubSpot's last touch was in the future). `activityDays` is gone; seed records now date the last touch as days before **`DEMO_TODAY`** (`lib/demo-clock.ts`), keeping the old values, so the Last-activity filter gives 2 / 5 / 9 / 18 companies at 7 / 30 / 60 / 90 days and matches the dates on screen.
+- **Seeded interaction log** (`data/interactions.ts`): deterministic history per company (seeded PRNG, no `Math.random`, so the prerender and the browser agree). Each company's newest entry _is_ its Last Interaction. It drives:
+  - **Activities**: now a real timeline grouped by day (last 90 days), with KPIs for touches in 7 and 30 days, accounts touched and the most frequent touch type.
+  - **Detail sheet → Activity trend**: email / meeting / call / note counts come from the log, and the Last 7/30/90 picker now actually changes them (it was decorative). The made-up `companyActivity()` multipliers are gone.
+  - **New Company** logs its first touch, so a new company appears in Activities straight away.
+- **Why a fixed demo clock, not `new Date()`:** the page is prerendered at build time, so a moving clock would render different dates on the server and the client (a hydration mismatch). To re-date the whole demo, change one line.
+- **Tests:** Vitest (node env), 32 tests across the pipeline, demo clock, filters, interaction log, activity selectors and CSV escaping (including the formula-injection guard). Added to CI as `npm test`. `@types/node` bumped 20 → 24 to match the CI runtime (Vitest 5 requires ≥22).
+- **Honest numbers:** the sidebar Companies count is the real count (it was `223 +` a fake base); the hard-coded Forecast badge `9` is gone.
+
 ## Discovered while working
 
 - **`CONVENTIONS.md` and `OPTIMIZATION.md` are missing.** `CLAUDE.md` includes `@CONVENTIONS.md` and the README's docs table lists both. Agents following those pointers currently fail. Either restore the files or update the references.
 - **README/`package.json` still say "Kargul Starter"** (`name: kargul-starter`) while the browser metadata says "Sales CRM". Naming is unreconciled.
 - **`SlidingNumber` shipped unused** — a complete Motion primitive with no consumer until this pass. It now drives the footer count.
-- **No test suite.** `package.json` has no `test` script. CI (`ci.yml`, PR #3) gates every PR on lint + build, but there are no behavioural tests.
+- **Test suite is unit-level only.** Vitest covers the pure domain modules (`lib/`, `data/`); there are no component or browser tests. Journeys are verified by hand/headless QA on each PR.
 - **`selectedIds` has no bulk-action consumer.** Row checkboxes drive visual selection only; nothing acts on a selection. Either a bulk toolbar is planned or the selection UI is dead weight.
 - **Headless QA caveat:** in automation the browser is frame-starved — CSS animations freeze at `currentTime: 0` and ResizeObserver callbacks don't fire until a frame is forced (e.g. a screenshot). Radix sheets appear stuck "closing" and animated counters appear blank; this is environmental, not a product bug. Force a frame before judging animation state. `pointer: fine` also never matches headless, and Radix `DropdownMenu` **and Radix `TabsTrigger`** open/activate on `pointerdown` (real pointer-event sequences, not synthetic `.click()` or `.focus()`).
 - **Build emits a deprecation warning** (`module.register()` → `module.registerHooks()`) from Next.js internals — upstream, not ours.
