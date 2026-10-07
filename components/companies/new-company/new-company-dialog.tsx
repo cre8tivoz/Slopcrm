@@ -35,7 +35,7 @@ import {
   type Segment,
   type Stage,
 } from "@/data/companies";
-import { TODAY, daysSince } from "@/lib/companies";
+import { DEMO_TODAY } from "@/lib/demo-clock";
 import { slugify } from "@/lib/utils";
 import { useCompaniesStore } from "@/stores/companies-store";
 import PlusIcon from "@/public/assets/images/_common/plus.svg";
@@ -62,7 +62,7 @@ const EMPTY_FORM: FormState = {
   pipelineValue: "",
   openDeals: "1",
   winProbability: 50,
-  interactionDate: TODAY,
+  interactionDate: DEMO_TODAY,
   interactionType: INTERACTION_TYPES[0],
 };
 
@@ -98,10 +98,9 @@ export default function NewCompanyDialog() {
       winProbability: form.winProbability,
       trend: DEFAULT_TREND,
       lastInteraction: {
-        date: form.interactionDate || TODAY,
+        date: form.interactionDate || DEMO_TODAY,
         label: form.interactionType,
       },
-      activityDays: daysSince(form.interactionDate || TODAY),
     };
 
     addCompany(company);
@@ -287,7 +286,7 @@ export default function NewCompanyDialog() {
                 <Input
                   id="company-interaction-date"
                   type="date"
-                  max={TODAY}
+                  max={DEMO_TODAY}
                   value={form.interactionDate}
                   onChange={(event) =>
                     update("interactionDate", event.target.value)

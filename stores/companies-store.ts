@@ -1,10 +1,21 @@
 import { create } from "zustand";
-import { COMPANIES, type Company, type SortKey } from "@/data/companies";
+import {
+  COMPANIES,
+  type Company,
+  type InteractionType,
+  type SortKey,
+} from "@/data/companies";
+import {
+  CHANNEL_OF,
+  INTERACTIONS,
+  type Interaction,
+} from "@/data/interactions";
 import { NOTIFICATIONS } from "@/data/notifications";
 import { DEFAULT_FILTERS } from "@/lib/companies";
 
 type CompaniesState = {
   companies: Company[];
+  interactions: Interaction[];
   sortBy: SortKey;
   owner: string;
   stage: string;
@@ -41,6 +52,7 @@ type CompaniesState = {
 
 export const useCompaniesStore = create<CompaniesState>((set) => ({
   companies: COMPANIES,
+  interactions: INTERACTIONS,
   ...DEFAULT_FILTERS,
   selectedIds: ["microsoft"],
   detailId: null,
@@ -84,8 +96,24 @@ export const useCompaniesStore = create<CompaniesState>((set) => ({
   markAllNotificationsRead: () => set({ unreadNotificationIds: [] }),
   setActiveTab: (activeTab) => set({ activeTab }),
   addCompany: (company) =>
-    set((state) => ({
-      companies: [company, ...state.companies],
-      newCompanyOpen: false,
-    })),
+    set((state) => {
+      // A new company arrives with its first logged touch, so it shows up in
+      // the Activities feed and the detail sheet counts straight away.
+      const type = company.lastInteraction.label as InteractionType;
+      const first: Interaction = {
+        id: `${company.id}-0`,
+        companyId: company.id,
+        date: company.lastInteraction.date,
+        type,
+        channel: CHANNEL_OF[type] ?? "note",
+        owner: company.owner,
+      };
+      return {
+        companies: [company, ...state.companies],
+        interactions: [first, ...state.interactions].sort((a, b) =>
+          b.date.localeCompare(a.date),
+        ),
+        newCompanyOpen: false,
+      };
+    }),
 }));

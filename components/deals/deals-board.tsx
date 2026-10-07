@@ -2,8 +2,9 @@ import Avatar from "@/components/_ui/avatar";
 import Asset from "@/components/_ui/asset";
 import Tag from "@/components/_ui/tag";
 import SegmentBar from "@/components/_common/segment-bar";
-import { STAGES, TAG_TONES, ownerByName } from "@/data/companies";
-import { UNSTAGED, formatMoney, primaryStage } from "@/lib/companies";
+import { ownerByName } from "@/data/companies";
+import { formatMoney } from "@/lib/companies";
+import { byStage, stageTone, summarise } from "@/lib/pipeline";
 import { useCompaniesStore } from "@/stores/companies-store";
 import { cn } from "@/lib/utils";
 
@@ -18,24 +19,8 @@ export default function DealsBoard() {
   const companies = useCompaniesStore((state) => state.companies);
   const openDetail = useCompaniesStore((state) => state.openDetail);
 
-  const columns = [
-    ...STAGES.map((stage) => ({
-      stage,
-      companies: companies.filter((c) => primaryStage(c) === stage),
-    })),
-    {
-      stage: UNSTAGED,
-      companies: companies.filter((c) => primaryStage(c) === UNSTAGED),
-    },
-  ];
-
-  const totalPipeline = companies.reduce((sum, c) => sum + c.pipelineValue, 0);
-  // Per-company rounding, identical to the forecast KPI — totals always agree.
-  const weighted = companies.reduce(
-    (sum, c) => sum + Math.round((c.pipelineValue * c.winProbability) / 100),
-    0,
-  );
-  const totalDeals = companies.reduce((sum, c) => sum + c.openDeals, 0);
+  const columns = byStage(companies);
+  const summary = summarise(companies);
 
   return (
     <section aria-label="Deals board" className="flex min-h-0 flex-1 flex-col">
@@ -43,17 +28,17 @@ export default function DealsBoard() {
         <span className="caption-style text-muted-foreground">
           Total pipeline{" "}
           <span className="lead-style text-foreground font-medium tabular-nums">
-            ${formatMoney(totalPipeline)}
+            ${formatMoney(summary.total)}
           </span>
         </span>
         <span className="caption-style text-muted-foreground">
           Weighted{" "}
           <span className="lead-style text-foreground font-medium tabular-nums">
-            ${formatMoney(weighted)}
+            ${formatMoney(summary.weighted)}
           </span>
         </span>
         <span className="caption-style text-muted-foreground tabular-nums">
-          {totalDeals} open deals
+          {summary.openDeals} open deals
         </span>
       </div>
 
@@ -64,21 +49,11 @@ export default function DealsBoard() {
             className="flex w-[272px] shrink-0 flex-col gap-2"
           >
             <div className="flex items-center justify-between gap-2 px-0.5">
-              <Tag
-                tone={
-                  column.stage === UNSTAGED
-                    ? "neutral"
-                    : TAG_TONES[column.stage as keyof typeof TAG_TONES]
-                }
-                size="sm"
-              >
+              <Tag tone={stageTone(column.stage)} size="sm">
                 {column.stage}
               </Tag>
               <span className="caption-style text-muted-foreground tabular-nums">
-                {column.companies.length} · $
-                {formatMoney(
-                  column.companies.reduce((sum, c) => sum + c.pipelineValue, 0),
-                )}
+                {column.companies.length} · ${formatMoney(column.summary.total)}
               </span>
             </div>
 

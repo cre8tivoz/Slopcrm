@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Asset from "@/components/_ui/asset";
 import Avatar from "@/components/_ui/avatar";
 import Button from "@/components/_ui/button";
@@ -32,19 +32,28 @@ import XIcon from "@/public/assets/images/companies/detail/x.svg";
 import MailIcon from "@/public/assets/images/companies/detail/mail-04.svg";
 import PhoneIcon from "@/public/assets/images/companies/detail/phone.svg";
 
-const WINDOW_OPTIONS = TREND_WINDOWS.map((label) => ({ value: label, label }));
+const WINDOW_OPTIONS = TREND_WINDOWS.map((days) => ({
+  value: String(days),
+  label: `Last ${days} Days`,
+}));
+const DEFAULT_WINDOW = String(TREND_WINDOWS[1]);
 
 export default function CompanyDetail() {
   const detailId = useCompaniesStore((state) => state.detailId);
   const detailOpen = useCompaniesStore((state) => state.detailOpen);
   const companies = useCompaniesStore((state) => state.companies);
+  const interactions = useCompaniesStore((state) => state.interactions);
   const closeDetail = useCompaniesStore((state) => state.closeDetail);
   const openProfile = useCompaniesStore((state) => state.openProfile);
-  const [trendWindow, setTrendWindow] = useState(TREND_WINDOWS[1]);
-  const [scoreWindow, setScoreWindow] = useState(TREND_WINDOWS[1]);
+  const [trendWindow, setTrendWindow] = useState(DEFAULT_WINDOW);
+  const [scoreWindow, setScoreWindow] = useState(DEFAULT_WINDOW);
 
   const company = companies.find((item) => item.id === detailId);
   const owner = company ? ownerByName(company.owner) : null;
+  const companyLog = useMemo(
+    () => interactions.filter((item) => item.companyId === detailId),
+    [interactions, detailId],
+  );
 
   return (
     <Sheet
@@ -143,7 +152,11 @@ export default function CompanyDetail() {
                   />
                 }
               >
-                <ActivityTrend company={company} />
+                <ActivityTrend
+                  company={company}
+                  interactions={companyLog}
+                  days={Number(trendWindow)}
+                />
               </DetailSection>
 
               <DetailSection

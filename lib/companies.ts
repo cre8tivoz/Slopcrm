@@ -1,4 +1,5 @@
-import { STAGES, type Company, type SortKey } from "@/data/companies";
+import type { Company, SortKey } from "@/data/companies";
+import { daysSince } from "./demo-clock";
 
 export type CompanyFilters = {
   sortBy: SortKey;
@@ -6,8 +7,6 @@ export type CompanyFilters = {
   stage: string;
   activityWindow: number;
 };
-
-export const TODAY = "2026-09-14";
 
 export const ALL_OWNERS = "all";
 export const ANY_STAGE = "any";
@@ -18,21 +17,6 @@ export const DEFAULT_FILTERS: CompanyFilters = {
   stage: ANY_STAGE,
   activityWindow: 90,
 };
-
-export const UNSTAGED = "Unstaged";
-
-/**
- * First stage tag wins — a company counts in exactly one stage, so the
- * board, forecast breakdown and KPI totals always agree. Ordered by the
- * company's own tag order, not the global STAGES order (Spotify's
- * [Land & Expand, Expansion] belongs to Land & Expand, not Expansion).
- */
-export function primaryStage(company: Company): string {
-  return (
-    company.tags.find((tag) => (STAGES as readonly string[]).includes(tag)) ??
-    UNSTAGED
-  );
-}
 
 export function activeFilterCount({
   owner,
@@ -57,7 +41,7 @@ export function filterCompanies(
     if (stage !== ANY_STAGE && !company.tags.some((tag) => tag === stage)) {
       return false;
     }
-    return company.activityDays <= activityWindow;
+    return daysSince(company.lastInteraction.date) <= activityWindow;
   });
 
   return filtered.sort((a, b) => {
@@ -116,22 +100,16 @@ export function splitTags(tags: Company["tags"]) {
   return { visible, hidden: tags.length - visible.length };
 }
 
+/**
+ * Illustrative stage-health split for the detail sheet. The seed data has no
+ * per-stage deal records, so these are fixed fractions of win probability —
+ * demo presentation, not forecasting logic.
+ */
 export function companyHealth(company: Company) {
   return {
     discovery: Math.round(company.winProbability * 0.372),
     evaluation: Math.round(company.winProbability * 0.651),
     procurement: Math.round(company.winProbability * 0.372),
-  };
-}
-
-export function companyActivity(company: Company) {
-  const deals = company.openDeals;
-  return {
-    total: deals * 15,
-    touches: deals * 4,
-    emails: deals + 4,
-    meetings: Math.ceil(deals / 2),
-    calls: deals + 1,
   };
 }
 
@@ -156,9 +134,4 @@ export function formatDate(iso: string) {
 
 export function formatMoney(value: number) {
   return value.toLocaleString("en-US");
-}
-
-export function daysSince(iso: string) {
-  const day = 24 * 60 * 60 * 1000;
-  return Math.max(0, Math.round((Date.parse(TODAY) - Date.parse(iso)) / day));
 }
