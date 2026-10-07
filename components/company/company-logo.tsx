@@ -1,4 +1,4 @@
-import Asset from "@/components/_ui/asset";
+import Asset from "@/kit/asset";
 import type { Company } from "@/data/companies";
 import { cn } from "@/lib/utils";
 

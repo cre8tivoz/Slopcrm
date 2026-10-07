@@ -7,7 +7,7 @@ import {
   type ChangeEvent,
   type DragEvent,
 } from "react";
-import Asset from "@/components/_ui/asset";
+import Asset from "@/kit/asset";
 import Button from "@/components/_ui/button";
 import { cn } from "@/lib/utils";
 import BuildingIcon from "@/public/assets/images/companies/sidebar/building.svg";

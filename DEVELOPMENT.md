@@ -85,6 +85,13 @@ Architecture review found the domain rules smeared across views and already drif
 - `activeTab` is renamed `activeView`. The New Company dialog closes itself after `addCompany` (data no longer reaches into UI state).
 - 8 store tests (sheet exclusivity, filter set and reset, selection, the new company's first touch, notification reads). **44 tests total.**
 
+### Module pass — S4: leftovers removed, kit capabilities labelled
+
+- **Deleted, 5 true leftovers** (no references in code, config or docs): `components/_common/header.tsx` (empty file), `stores/example-store.ts`, `data/socials.ts`, `hooks/use-mobile-breakpoints.ts`, `components/_ui/lazy-lottie.tsx` (superseded by `Asset`'s Lottie branch).
+- **Moved to `kit/`, not deleted.** The architecture review first called these dead, but `CLAUDE.md` documents them as starter-kit capabilities. Billy chose to keep them, clearly labelled: `kit/asset/` (the whole `Asset` family, including `video.tsx`), `kit/lightbox/`, `kit/inline-asset.ts`, `kit/easings.ts`. All are moved with `git mv`, contents unchanged except one import path. The CRM imports only `Asset` (images) from `@/kit/asset`. `kit/README.md` explains what each piece is and whether the CRM uses it.
+- **Left in `scripts/`:** the AVIF and Rive-frame tooling. `rive-frame.mjs` hard-codes its own `/scripts/` URL and couldn't be exercised here, so it wasn't moved.
+- **Bundle:** initial JS **301.2 KB gz**, up 3.4 KB from 297.8 after PR #2. That growth landed somewhere in S1–S3, which weren't measured individually. No Rive, Lottie or PhotoSwipe runtime appears in initial chunks.
+
 ## Discovered while working
 
 - **`CONVENTIONS.md` and `OPTIMIZATION.md` are missing.** `CLAUDE.md` includes `@CONVENTIONS.md` and the README's docs table lists both. Agents following those pointers currently fail. Either restore the files or update the references.
@@ -95,7 +102,7 @@ Architecture review found the domain rules smeared across views and already drif
 - **Headless QA caveat:** in automation the browser is frame-starved — CSS animations freeze at `currentTime: 0` and ResizeObserver callbacks don't fire until a frame is forced (e.g. a screenshot). Radix sheets appear stuck "closing" and animated counters appear blank; this is environmental, not a product bug. Force a frame before judging animation state. `pointer: fine` also never matches headless, and Radix `DropdownMenu` **and Radix `TabsTrigger`** open/activate on `pointerdown` (real pointer-event sequences, not synthetic `.click()` or `.focus()`).
 - **Build emits a deprecation warning** (`module.register()` → `module.registerHooks()`) from Next.js internals — upstream, not ours.
 - **`next dev` and `next build` share `.next/`.** Running a production build while the dev server is up interleaves writes — measurements (and the dev server itself) get flaky. Stop the dev server before building. Related: an orphaned `next-server` process can hold port 3000 after its wrapper is killed; find it via `ss -ltnp`.
-- **`components/_ui/lightbox/` has no consumers** but is still type-checked, which is why `photoswipe` cannot be dropped from `package.json` without touching those files. It ships zero bytes today.
+- **The lightbox, Rive/Lottie/video, image inlining and Motion easings have no CRM consumers, but they aren't dead code.** `CLAUDE.md` documents them as starter-kit capabilities. Since S4 they live in `kit/` (see `kit/README.md`), which is why `photoswipe`, `@rive-app/*` and `lottie-react` stay in `package.json`. None of them ship in the initial bundle (verified: no runtime fingerprints in initial chunks).
 
 ## Unfixable for now
 
