@@ -16,6 +16,13 @@ const TABS = [
   { value: "forecast", label: "Forecast" },
 ];
 
+const VIEW_TITLES: Record<string, string> = {
+  companies: "Companies",
+  deals: "Deals Board",
+  forecast: "Forecast",
+  activities: "Activities",
+};
+
 export default function CompaniesHeader() {
   const activeTab = useCompaniesStore((state) => state.activeTab);
   const setActiveTab = useCompaniesStore((state) => state.setActiveTab);
@@ -30,24 +37,26 @@ export default function CompaniesHeader() {
           <Button
             variant="secondary"
             size="icon"
-            className="size-11 fine:size-[30px] lg:hidden"
+            className="fine:size-[30px] size-11 lg:hidden"
             aria-label="Open navigation"
             onClick={() => setSidebarOpen(true)}
           >
             <MenuIcon aria-hidden className="size-3.5" />
           </Button>
-          <h1 className="truncate">Companies</h1>
-          <span className="caption-style bg-muted hidden shrink-0 items-center gap-0.5 rounded-full border border-[#363636] py-[3px] pr-[5px] pl-[3px] sm:inline-flex">
-            <ActiveDot aria-hidden className="size-3" />
-            Active
-          </span>
+          <h1 className="truncate">{VIEW_TITLES[activeTab] ?? "Companies"}</h1>
+          {activeTab === "companies" && (
+            <span className="caption-style bg-muted hidden shrink-0 items-center gap-0.5 rounded-full border border-[#363636] py-[3px] pr-[5px] pl-[3px] sm:inline-flex">
+              <ActiveDot aria-hidden className="size-3" />
+              Active
+            </span>
+          )}
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
           <Button
             variant="secondary"
             size="icon"
-            className="size-11 fine:size-[30px]"
+            className="fine:size-[30px] size-11"
             aria-label="Search"
             aria-keyshortcuts="Meta+K Control+K"
             onClick={() => setSearchOpen(true)}
@@ -58,7 +67,7 @@ export default function CompaniesHeader() {
           <Button
             variant="secondary"
             size="none"
-            className="caption-style h-11 fine:h-[30px] min-w-11 fine:min-w-0 gap-1.5 py-[5px] pr-[7px] pl-[5px] font-normal"
+            className="caption-style fine:h-[30px] fine:min-w-0 h-11 min-w-11 gap-1.5 py-[5px] pr-[7px] pl-[5px] font-normal"
             aria-label={`Open profile for ${CURRENT_USER.name}`}
             onClick={() => openProfile(CURRENT_USER.name)}
           >
@@ -71,12 +80,7 @@ export default function CompaniesHeader() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="border-border border-b px-4">
           {TABS.map((tab) => (
-            <TabsTrigger
-              key={tab.value}
-              value={tab.value}
-              disabled={tab.value !== "companies"}
-              title={tab.value !== "companies" ? "Coming soon" : undefined}
-            >
+            <TabsTrigger key={tab.value} value={tab.value}>
               {tab.label}
             </TabsTrigger>
           ))}

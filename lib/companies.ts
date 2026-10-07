@@ -1,4 +1,4 @@
-import type { Company, SortKey } from "@/data/companies";
+import { STAGES, type Company, type SortKey } from "@/data/companies";
 
 export type CompanyFilters = {
   sortBy: SortKey;
@@ -18,6 +18,16 @@ export const DEFAULT_FILTERS: CompanyFilters = {
   stage: ANY_STAGE,
   activityWindow: 90,
 };
+
+export const UNSTAGED = "Unstaged";
+
+/**
+ * First stage tag wins — a company counts in exactly one stage, so the
+ * board, forecast breakdown and KPI totals always agree.
+ */
+export function primaryStage(company: Company): string {
+  return STAGES.find((stage) => company.tags.includes(stage)) ?? UNSTAGED;
+}
 
 export function activeFilterCount({
   owner,

@@ -45,14 +45,23 @@ Onboarding review (October 2026) targeted four axes:
 - **Verified:** lint ✓, build ✓, prod QA — cold Ctrl+K opens focused, close/reopen cycle, New Company + Profile open/close, row → detail instant, mobile 390px (18 cards, no overflow), no heavy markers in initial chunks.
 - **Left alone deliberately:** react/next/Motion/Radix core, the 38.5 KB polyfill chunk (only loaded by legacy browsers — modern clients skip it), CSS (13.7 KB gz) and the single font (29.6 KB) — all already lean.
 
+### Missing screens wired up (PR #4)
+
+- **View router** (`components/shell.tsx`): the app header, global panels (detail sheet, profile, new-company, ⌘K menu) and view switch now live in a shell that renders on `activeTab` — the store field the header tabs always had but nothing consumed. Each view swap replays the `rise` entrance.
+- **Deals Board** (`components/deals/`): kanban columns by primary stage (7 stages + Unstaged, empty columns get an honest state), summary strip (total/weighted/open deals), cards → company detail sheet. Horizontal scroll-snap board on mobile.
+- **Forecast** (`components/forecast/`): KPIs (total pipeline, weighted, avg win %, open deals), pipeline-by-stage bars, top-8 opportunities (→ detail), forecast-by-owner (→ profile).
+- **Activities** (`components/activities/`): date-sorted interaction feed from `lastInteraction`, KPI strip, rows → detail.
+- **Navigation**: sidebar Companies/Deals Board/Forecast/Activities wired with active state (mobile nav sheet closes on navigate); header Deals/Forecast tabs enabled (no more "Coming soon"); header title follows the view; the "Active" pill only shows on Companies where it means something. Remaining sidebar items (Contacts, Email Sequences, Team, Reporting, Pipelines…) stay decorative — no data exists for them, so no fake screens.
+- **One stage rule**: shared `primaryStage()` in `lib/companies.ts` — every company counts in exactly one stage, so board columns, forecast stage rows and the KPI totals reconcile to the dollar (verified: stage rows sum to `$5,138,594` = Total pipeline KPI, weighted to `$2,681,163` across all three views).
+
 ## Discovered while working
 
 - **`CONVENTIONS.md` and `OPTIMIZATION.md` are missing.** `CLAUDE.md` includes `@CONVENTIONS.md` and the README's docs table lists both. Agents following those pointers currently fail. Either restore the files or update the references.
 - **README/`package.json` still say "Kargul Starter"** (`name: kargul-starter`) while the browser metadata says "Sales CRM". Naming is unreconciled.
 - **`SlidingNumber` shipped unused** — a complete Motion primitive with no consumer until this pass. It now drives the footer count.
-- **No test suite and no CI.** `package.json` has no `test` script; the repo has no workflows, so PRs merge with no checks. Lint + `next build` are the only gates.
+- **No test suite.** `package.json` has no `test` script. CI (`ci.yml`, PR #3) gates every PR on lint + build, but there are no behavioural tests.
 - **`selectedIds` has no bulk-action consumer.** Row checkboxes drive visual selection only; nothing acts on a selection. Either a bulk toolbar is planned or the selection UI is dead weight.
-- **Headless QA caveat:** in automation the browser is frame-starved — CSS animations freeze at `currentTime: 0` and ResizeObserver callbacks don't fire until a frame is forced (e.g. a screenshot). Radix sheets appear stuck "closing" and animated counters appear blank; this is environmental, not a product bug. Force a frame before judging animation state. `pointer: fine` also never matches headless, and Radix `DropdownMenu` opens on `pointerdown` (real pointer events, not synthetic `.click()`).
+- **Headless QA caveat:** in automation the browser is frame-starved — CSS animations freeze at `currentTime: 0` and ResizeObserver callbacks don't fire until a frame is forced (e.g. a screenshot). Radix sheets appear stuck "closing" and animated counters appear blank; this is environmental, not a product bug. Force a frame before judging animation state. `pointer: fine` also never matches headless, and Radix `DropdownMenu` **and Radix `TabsTrigger`** open/activate on `pointerdown` (real pointer-event sequences, not synthetic `.click()` or `.focus()`).
 - **Build emits a deprecation warning** (`module.register()` → `module.registerHooks()`) from Next.js internals — upstream, not ours.
 - **`next dev` and `next build` share `.next/`.** Running a production build while the dev server is up interleaves writes — measurements (and the dev server itself) get flaky. Stop the dev server before building. Related: an orphaned `next-server` process can hold port 3000 after its wrapper is killed; find it via `ss -ltnp`.
 - **`components/_ui/lightbox/` has no consumers** but is still type-checked, which is why `photoswipe` cannot be dropped from `package.json` without touching those files. It ships zero bytes today.
@@ -66,5 +75,4 @@ Onboarding review (October 2026) targeted four axes:
 ## Next moves (from the original audit, not yet actioned)
 
 - Reconcile README/docs/naming with the actual product.
-- Consider a minimal CI gate (lint + build on PR) — there is currently nothing preventing a broken merge.
-- Deeper UX: Deals/Forecast screens (honest placeholders now), pagination/virtualisation if company counts grow, loading/empty states beyond the filters case.
+- Deeper UX: pagination/virtualisation if company counts grow, loading/empty states beyond the filters case, and Contacts/Email Sequences if real data ever arrives.
