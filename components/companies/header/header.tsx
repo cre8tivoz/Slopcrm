@@ -6,17 +6,17 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/_ui/tabs";
 import Notifications from "./notifications/notifications";
 import { CURRENT_USER } from "@/data/companies";
 import { HEADER_TABS, isViewId, viewById } from "@/lib/views";
-import { useCompaniesStore } from "@/stores/companies-store";
+import { useUiStore } from "@/stores/ui-store";
 import MenuIcon from "@/public/assets/images/_common/menu.svg";
 import ActiveDot from "@/public/assets/images/companies/header/active-dot.svg";
 import SearchIcon from "@/public/assets/images/_common/search.svg";
 
 export default function CompaniesHeader() {
-  const activeTab = useCompaniesStore((state) => state.activeTab);
-  const setActiveTab = useCompaniesStore((state) => state.setActiveTab);
-  const setSidebarOpen = useCompaniesStore((state) => state.setSidebarOpen);
-  const setSearchOpen = useCompaniesStore((state) => state.setSearchOpen);
-  const openProfile = useCompaniesStore((state) => state.openProfile);
+  const activeView = useUiStore((state) => state.activeView);
+  const navigate = useUiStore((state) => state.navigate);
+  const setSidebarOpen = useUiStore((state) => state.setSidebarOpen);
+  const setSearchOpen = useUiStore((state) => state.setSearchOpen);
+  const openProfile = useUiStore((state) => state.openProfile);
 
   return (
     <header className="shrink-0">
@@ -31,8 +31,8 @@ export default function CompaniesHeader() {
           >
             <MenuIcon aria-hidden className="size-3.5" />
           </Button>
-          <h1 className="truncate">{viewById(activeTab).title}</h1>
-          {activeTab === "companies" && (
+          <h1 className="truncate">{viewById(activeView).title}</h1>
+          {activeView === "companies" && (
             <span className="caption-style bg-muted hidden shrink-0 items-center gap-0.5 rounded-full border border-[#363636] py-[3px] pr-[5px] pl-[3px] sm:inline-flex">
               <ActiveDot aria-hidden className="size-3" />
               Active
@@ -66,8 +66,8 @@ export default function CompaniesHeader() {
       </div>
 
       <Tabs
-        value={activeTab}
-        onValueChange={(value) => isViewId(value) && setActiveTab(value)}
+        value={activeView}
+        onValueChange={(value) => isViewId(value) && navigate(value)}
       >
         <TabsList className="border-border border-b px-4">
           {HEADER_TABS.map((view) => (

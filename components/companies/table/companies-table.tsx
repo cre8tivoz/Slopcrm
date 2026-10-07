@@ -1,5 +1,4 @@
 "use client";
-import { useMemo } from "react";
 import Button from "@/components/_ui/button";
 import { Checkbox } from "@/components/_ui/checkbox";
 import { ScrollArea } from "@/components/_ui/scroll-area";
@@ -19,13 +18,13 @@ import {
   TABLE_GRID_CLASS,
   TABLE_ROW_CLASS,
 } from "./table-columns";
-import { filterCompanies } from "@/lib/companies";
 import { cn } from "@/lib/utils";
-import { useCompaniesStore } from "@/stores/companies-store";
+import { useUiStore } from "@/stores/ui-store";
+import { useVisibleCompanies } from "@/hooks/use-visible-companies";
 import FilterIcon from "@/public/assets/images/_common/filter.svg";
 
 function EmptyState() {
-  const resetFilters = useCompaniesStore((state) => state.resetFilters);
+  const resetFilters = useUiStore((state) => state.resetFilters);
 
   return (
     <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
@@ -54,23 +53,15 @@ function EmptyState() {
 }
 
 export default function CompaniesTable() {
-  const companies = useCompaniesStore((state) => state.companies);
-  const sortBy = useCompaniesStore((state) => state.sortBy);
-  const owner = useCompaniesStore((state) => state.owner);
-  const stage = useCompaniesStore((state) => state.stage);
-  const activityWindow = useCompaniesStore((state) => state.activityWindow);
-  const selectedIds = useCompaniesStore((state) => state.selectedIds);
-  const detailId = useCompaniesStore((state) => state.detailId);
-  const detailOpen = useCompaniesStore((state) => state.detailOpen);
-  const toggleSelected = useCompaniesStore((state) => state.toggleSelected);
-  const setSelected = useCompaniesStore((state) => state.setSelected);
-  const openDetail = useCompaniesStore((state) => state.openDetail);
-  const openProfile = useCompaniesStore((state) => state.openProfile);
+  const selectedIds = useUiStore((state) => state.selectedIds);
+  const detailId = useUiStore((state) => state.detailId);
+  const detailOpen = useUiStore((state) => state.detailOpen);
+  const toggleSelected = useUiStore((state) => state.toggleSelected);
+  const setSelected = useUiStore((state) => state.setSelected);
+  const openDetail = useUiStore((state) => state.openDetail);
+  const openProfile = useUiStore((state) => state.openProfile);
 
-  const visible = useMemo(
-    () => filterCompanies(companies, { sortBy, owner, stage, activityWindow }),
-    [companies, sortBy, owner, stage, activityWindow],
-  );
+  const visible = useVisibleCompanies();
 
   const selectedVisible = visible.filter((company) =>
     selectedIds.includes(company.id),

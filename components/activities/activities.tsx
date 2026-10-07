@@ -7,6 +7,7 @@ import { groupByDay, withinDays } from "@/lib/activity";
 import { formatDate } from "@/lib/companies";
 import { daysSince } from "@/lib/demo-clock";
 import { useCompaniesStore } from "@/stores/companies-store";
+import { useUiStore } from "@/stores/ui-store";
 
 const KPI_CARD =
   "border-border bg-card/50 flex flex-col gap-1 rounded-xl border p-3.5";
@@ -31,7 +32,7 @@ function dayHeading(date: string) {
 export default function Activities() {
   const companies = useCompaniesStore((state) => state.companies);
   const interactions = useCompaniesStore((state) => state.interactions);
-  const openDetail = useCompaniesStore((state) => state.openDetail);
+  const openDetail = useUiStore((state) => state.openDetail);
 
   const companyById = new Map(companies.map((c) => [c.id, c]));
   const lastWeek = withinDays(interactions, 7);

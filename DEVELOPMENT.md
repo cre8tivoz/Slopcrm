@@ -75,6 +75,16 @@ Architecture review found the domain rules smeared across views and already drif
 - **`lib/views.ts`**: the one place a view is declared (id, page title, nav label, header tab). The header tabs, page title, sidebar and the shell's view switch all read from it. Components and nav icons are mapped with `Record<ViewId, …>`, so **adding a view without wiring it is a type error**. `activeTab` is now `ViewId`, not `string`. Tabs guard unknown values with `isViewId`.
 - **Deliberately not built:** `OwnerChip` and `StageTag`. Owner display varies too much between surfaces, and the stage tag is already a one-liner (`<Tag tone={stageTone(stage)}>`). Wrapping either would add interface without hiding anything ("depth over shallowness").
 
+### Module pass — S3: state
+
+- **Store split by reason to change.** `stores/companies-store.ts` now holds only business data: companies, the interaction log, notification read state and `addCompany`. It's the part a real backend would replace. The new **`stores/ui-store.ts`** holds what the interface is doing: current view, open panels, filters and row selection. The old store mixed both in 31 members.
+- **Filters are one object.** `filters: CompanyFilters` with one `setFilter(key, value)` and `resetFilters()` replaces four fields and four setters. Before, those were read separately and re-assembled in three components, each re-running the filter.
+- **`hooks/use-visible-companies.ts`** is the single "what the table shows" answer, used by the table, the mobile filter sheet's "Show N" button and the CSV export. What you export is, by definition, what you see.
+- **`navigate(view)`** replaces `setActiveTab`, and it also closes the mobile nav, so callers can't forget to.
+- **Bug fixed:** Owner Profile → "Filter table by owner" used to set a filter on the Companies table even when you were on Deals or Forecast, so nothing visibly happened. It now navigates to Companies too.
+- `activeTab` is renamed `activeView`. The New Company dialog closes itself after `addCompany` (data no longer reaches into UI state).
+- 8 store tests (sheet exclusivity, filter set and reset, selection, the new company's first touch, notification reads). **44 tests total.**
+
 ## Discovered while working
 
 - **`CONVENTIONS.md` and `OPTIMIZATION.md` are missing.** `CLAUDE.md` includes `@CONVENTIONS.md` and the README's docs table lists both. Agents following those pointers currently fail. Either restore the files or update the references.

@@ -27,6 +27,7 @@ import {
   ownerByName,
 } from "@/data/companies";
 import { useCompaniesStore } from "@/stores/companies-store";
+import { useUiStore } from "@/stores/ui-store";
 import BuildingIcon from "@/public/assets/images/companies/detail/building.svg";
 import XIcon from "@/public/assets/images/companies/detail/x.svg";
 import MailIcon from "@/public/assets/images/companies/detail/mail-04.svg";
@@ -39,12 +40,12 @@ const WINDOW_OPTIONS = TREND_WINDOWS.map((days) => ({
 const DEFAULT_WINDOW = String(TREND_WINDOWS[1]);
 
 export default function CompanyDetail() {
-  const detailId = useCompaniesStore((state) => state.detailId);
-  const detailOpen = useCompaniesStore((state) => state.detailOpen);
+  const detailId = useUiStore((state) => state.detailId);
+  const detailOpen = useUiStore((state) => state.detailOpen);
   const companies = useCompaniesStore((state) => state.companies);
   const interactions = useCompaniesStore((state) => state.interactions);
-  const closeDetail = useCompaniesStore((state) => state.closeDetail);
-  const openProfile = useCompaniesStore((state) => state.openProfile);
+  const closeDetail = useUiStore((state) => state.closeDetail);
+  const openProfile = useUiStore((state) => state.openProfile);
   const [trendWindow, setTrendWindow] = useState(DEFAULT_WINDOW);
   const [scoreWindow, setScoreWindow] = useState(DEFAULT_WINDOW);
 

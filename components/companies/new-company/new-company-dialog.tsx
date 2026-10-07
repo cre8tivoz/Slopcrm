@@ -38,6 +38,7 @@ import {
 import { DEMO_TODAY } from "@/lib/demo-clock";
 import { slugify } from "@/lib/utils";
 import { useCompaniesStore } from "@/stores/companies-store";
+import { useUiStore } from "@/stores/ui-store";
 import PlusIcon from "@/public/assets/images/_common/plus.svg";
 
 type FormState = {
@@ -67,8 +68,8 @@ const EMPTY_FORM: FormState = {
 };
 
 export default function NewCompanyDialog() {
-  const open = useCompaniesStore((state) => state.newCompanyOpen);
-  const setOpen = useCompaniesStore((state) => state.setNewCompanyOpen);
+  const open = useUiStore((state) => state.newCompanyOpen);
+  const setOpen = useUiStore((state) => state.setNewCompanyOpen);
   const addCompany = useCompaniesStore((state) => state.addCompany);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [nameError, setNameError] = useState<string | null>(null);
@@ -104,6 +105,7 @@ export default function NewCompanyDialog() {
     };
 
     addCompany(company);
+    setOpen(false);
   }
 
   return (

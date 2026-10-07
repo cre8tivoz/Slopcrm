@@ -13,6 +13,7 @@ import {
   weightedValue,
 } from "@/lib/pipeline";
 import { useCompaniesStore } from "@/stores/companies-store";
+import { useUiStore } from "@/stores/ui-store";
 
 const KPI_CARD =
   "border-border bg-card/50 flex flex-col gap-1 rounded-xl border p-3.5";
@@ -25,8 +26,8 @@ const ROW_BUTTON =
 
 export default function Forecast() {
   const companies = useCompaniesStore((state) => state.companies);
-  const openDetail = useCompaniesStore((state) => state.openDetail);
-  const openProfile = useCompaniesStore((state) => state.openProfile);
+  const openDetail = useUiStore((state) => state.openDetail);
+  const openProfile = useUiStore((state) => state.openProfile);
 
   const summary = summarise(companies);
   const byStageRows = byStage(companies).filter(
