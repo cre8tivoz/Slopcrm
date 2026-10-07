@@ -16,7 +16,7 @@ const PANEL =
   "border-border bg-card/50 rounded-xl border p-3.5 flex flex-col gap-3";
 
 const ROW_BUTTON =
-  "ease-power3-out flex w-full items-center gap-3 rounded-lg px-2 py-1.5 text-left transition-[background-color,transform] duration-150 hover:bg-white/4 active:scale-[0.99] focus-visible:ring-ring/60 focus-visible:ring-2 focus-visible:outline-none";
+  "ease-power3-out flex min-h-11 fine:min-h-0 w-full items-center gap-3 rounded-lg px-2 py-1.5 text-left transition-[background-color,transform] duration-150 hover:bg-white/4 active:scale-[0.99] focus-visible:ring-ring/60 focus-visible:ring-2 focus-visible:outline-none";
 
 export default function Forecast() {
   const companies = useCompaniesStore((state) => state.companies);
