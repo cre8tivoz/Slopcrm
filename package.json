@@ -1,10 +1,11 @@
 {
-  "name": "kargul-starter",
+  "name": "slopcrm",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:static": "STATIC_EXPORT=1 next build",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",

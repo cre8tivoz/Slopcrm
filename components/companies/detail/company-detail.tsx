@@ -138,7 +138,6 @@ export default function CompanyDetail() {
                 }
               >
                 <ActivityTrend
-                  company={company}
                   interactions={companyLog}
                   days={Number(trendWindow)}
                 />

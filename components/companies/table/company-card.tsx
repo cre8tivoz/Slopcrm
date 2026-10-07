@@ -1,6 +1,7 @@
 import Avatar from "@/components/_ui/avatar";
 import SegmentBar from "@/components/_common/segment-bar";
 import Sparkline from "@/components/_common/sparkline";
+import { useWeeklyTouches } from "@/hooks/use-weekly-touches";
 import CompanyLogo from "@/components/company/company-logo";
 import CompanyTagList from "@/components/company/company-tag-list";
 import { ownerByName, type Company } from "@/data/companies";
@@ -20,6 +21,7 @@ export default function CompanyCard({
   onOpen,
 }: CompanyCardProps) {
   const owner = ownerByName(company.owner);
+  const trend = useWeeklyTouches(company.id);
 
   return (
     <li
@@ -74,7 +76,7 @@ export default function CompanyCard({
             {company.openDeals === 1 ? "deal" : "deals"}
           </span>
           <span className="flex min-w-0 items-center gap-1.5">
-            <Sparkline values={company.trend} className="shrink-0" />
+            <Sparkline values={trend} className="shrink-0" />
             <span aria-hidden className="h-2.5 w-px bg-white/15" />
             <span className="flex min-w-0 items-center gap-1">
               <CalendarIcon aria-hidden className="size-3.5 shrink-0" />

@@ -18,7 +18,6 @@ function company(overrides: Partial<Company>): Company {
     openDeals: 2,
     pipelineValue: 1000,
     winProbability: 50,
-    trend: [],
     lastInteraction: { date: "2026-09-01", label: "Demo" },
     ...overrides,
   };

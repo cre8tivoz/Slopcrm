@@ -26,7 +26,6 @@ import SegmentBar from "@/components/_common/segment-bar";
 import FormSection from "./form-section";
 import LogoUpload from "./logo-upload";
 import {
-  DEFAULT_TREND,
   INTERACTION_TYPES,
   OWNERS,
   SEGMENTS,
@@ -97,7 +96,6 @@ export default function NewCompanyDialog() {
       openDeals: Math.max(0, Math.round(Number(form.openDeals) || 0)),
       pipelineValue: Math.max(0, Math.round(Number(form.pipelineValue) || 0)),
       winProbability: form.winProbability,
-      trend: DEFAULT_TREND,
       lastInteraction: {
         date: form.interactionDate || DEMO_TODAY,
         label: form.interactionType,

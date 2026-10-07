@@ -32,3 +32,8 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Static export (subfolder)
+        run: npm run build:static
+        env:
+          NEXT_PUBLIC_BASE_PATH: /slopcrm

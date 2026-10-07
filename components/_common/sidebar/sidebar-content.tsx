@@ -66,7 +66,7 @@ export default function SidebarContent() {
                 onClick={() => navigate(view.id)}
               />
             ))}
-            <SidebarNavItem icon={BookClosedIcon} label="Contacts" count={38} />
+            <SidebarNavItem icon={BookClosedIcon} label="Contacts" />
             <SidebarNavItem icon={MailIcon} label="Email Sequences" />
           </SidebarSection>
 
