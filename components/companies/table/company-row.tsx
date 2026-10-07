@@ -4,12 +4,12 @@ import type { KeyboardEvent, MouseEvent } from "react";
 import Avatar from "@/components/_ui/avatar";
 import Button from "@/components/_ui/button";
 import { Checkbox } from "@/components/_ui/checkbox";
-import Tag from "@/components/_ui/tag";
 import { TableCell, TableRow } from "@/components/_ui/table";
 import SegmentBar from "@/components/_common/segment-bar";
 import Sparkline from "@/components/_common/sparkline";
-import { TAG_TONES, ownerByName, type Company } from "@/data/companies";
-import { formatDate, formatMoney, splitTags } from "@/lib/companies";
+import CompanyTagList from "@/components/company/company-tag-list";
+import { ownerByName, type Company } from "@/data/companies";
+import { formatDate, formatMoney } from "@/lib/companies";
 import { cn } from "@/lib/utils";
 import {
   TABLE_CELL_CLASS,
@@ -58,7 +58,6 @@ export default function CompanyRow({
   onOpenOwner,
 }: CompanyRowProps) {
   const owner = ownerByName(company.owner);
-  const { visible, hidden } = splitTags(company.tags);
 
   return (
     <TableRow
@@ -86,16 +85,7 @@ export default function CompanyRow({
       </TableCell>
       <TableCell role="cell" className={cellClass("segment")}>
         <span className="flex items-center gap-[3px]">
-          {visible.map((tag) => (
-            <Tag key={tag} tone={TAG_TONES[tag]}>
-              {tag}
-            </Tag>
-          ))}
-          {hidden > 0 && (
-            <Tag tone="neutral" size="sm">
-              +{hidden}
-            </Tag>
-          )}
+          <CompanyTagList tags={company.tags} />
         </span>
       </TableCell>
       <TableCell role="cell" className={cellClass("owner")} onClick={stop}>

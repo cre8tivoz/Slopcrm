@@ -5,23 +5,11 @@ import Button from "@/components/_ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/_ui/tabs";
 import Notifications from "./notifications/notifications";
 import { CURRENT_USER } from "@/data/companies";
+import { HEADER_TABS, isViewId, viewById } from "@/lib/views";
 import { useCompaniesStore } from "@/stores/companies-store";
 import MenuIcon from "@/public/assets/images/_common/menu.svg";
 import ActiveDot from "@/public/assets/images/companies/header/active-dot.svg";
 import SearchIcon from "@/public/assets/images/_common/search.svg";
-
-const TABS = [
-  { value: "companies", label: "Companies" },
-  { value: "deals", label: "Deals" },
-  { value: "forecast", label: "Forecast" },
-];
-
-const VIEW_TITLES: Record<string, string> = {
-  companies: "Companies",
-  deals: "Deals Board",
-  forecast: "Forecast",
-  activities: "Activities",
-};
 
 export default function CompaniesHeader() {
   const activeTab = useCompaniesStore((state) => state.activeTab);
@@ -43,7 +31,7 @@ export default function CompaniesHeader() {
           >
             <MenuIcon aria-hidden className="size-3.5" />
           </Button>
-          <h1 className="truncate">{VIEW_TITLES[activeTab] ?? "Companies"}</h1>
+          <h1 className="truncate">{viewById(activeTab).title}</h1>
           {activeTab === "companies" && (
             <span className="caption-style bg-muted hidden shrink-0 items-center gap-0.5 rounded-full border border-[#363636] py-[3px] pr-[5px] pl-[3px] sm:inline-flex">
               <ActiveDot aria-hidden className="size-3" />
@@ -77,11 +65,14 @@ export default function CompaniesHeader() {
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => isViewId(value) && setActiveTab(value)}
+      >
         <TabsList className="border-border border-b px-4">
-          {TABS.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value}>
-              {tab.label}
+          {HEADER_TABS.map((view) => (
+            <TabsTrigger key={view.id} value={view.id}>
+              {view.tab}
             </TabsTrigger>
           ))}
         </TabsList>

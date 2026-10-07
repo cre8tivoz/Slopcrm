@@ -12,6 +12,7 @@ import {
 } from "@/data/interactions";
 import { NOTIFICATIONS } from "@/data/notifications";
 import { DEFAULT_FILTERS } from "@/lib/companies";
+import { DEFAULT_VIEW, type ViewId } from "@/lib/views";
 
 type CompaniesState = {
   companies: Company[];
@@ -29,7 +30,7 @@ type CompaniesState = {
   sidebarOpen: boolean;
   searchOpen: boolean;
   unreadNotificationIds: string[];
-  activeTab: string;
+  activeTab: ViewId;
   setSortBy: (sortBy: SortKey) => void;
   setOwner: (owner: string) => void;
   setStage: (stage: string) => void;
@@ -46,7 +47,7 @@ type CompaniesState = {
   setSearchOpen: (open: boolean) => void;
   markNotificationRead: (id: string) => void;
   markAllNotificationsRead: () => void;
-  setActiveTab: (tab: string) => void;
+  setActiveTab: (tab: ViewId) => void;
   addCompany: (company: Company) => void;
 };
 
@@ -65,7 +66,7 @@ export const useCompaniesStore = create<CompaniesState>((set) => ({
   unreadNotificationIds: NOTIFICATIONS.filter((item) => item.unread).map(
     (item) => item.id,
   ),
-  activeTab: "companies",
+  activeTab: DEFAULT_VIEW,
   setSortBy: (sortBy) => set({ sortBy }),
   setOwner: (owner) => set({ owner }),
   setStage: (stage) => set({ stage }),

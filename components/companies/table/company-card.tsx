@@ -1,10 +1,10 @@
 import Avatar from "@/components/_ui/avatar";
-import Asset from "@/components/_ui/asset";
-import Tag from "@/components/_ui/tag";
 import SegmentBar from "@/components/_common/segment-bar";
 import Sparkline from "@/components/_common/sparkline";
-import { TAG_TONES, ownerByName, type Company } from "@/data/companies";
-import { formatDate, formatMoney, splitTags } from "@/lib/companies";
+import CompanyLogo from "@/components/company/company-logo";
+import CompanyTagList from "@/components/company/company-tag-list";
+import { ownerByName, type Company } from "@/data/companies";
+import { formatDate, formatMoney } from "@/lib/companies";
 import { cn } from "@/lib/utils";
 import CalendarIcon from "@/public/assets/images/_common/calendar.svg";
 
@@ -20,7 +20,6 @@ export default function CompanyCard({
   onOpen,
 }: CompanyCardProps) {
   const owner = ownerByName(company.owner);
-  const { visible, hidden } = splitTags(company.tags);
 
   return (
     <li
@@ -38,23 +37,7 @@ export default function CompanyCard({
         )}
       >
         <div className="flex items-start gap-3">
-          <span className="bg-muted flex size-9 shrink-0 items-center justify-center rounded-[10px] shadow-[0px_4px_4px_0px_rgba(15,15,15,0.24),0px_0px_0px_1px_#232323]">
-            {company.logo ? (
-              <Asset
-                type="image"
-                src={company.logo}
-                alt={`${company.name} logo`}
-                width={1}
-                height={1}
-                fit="contain"
-                className="size-6"
-              />
-            ) : (
-              <span className="lead-style text-soft">
-                {company.name.slice(0, 1)}
-              </span>
-            )}
-          </span>
+          <CompanyLogo company={company} size="lg" labelled />
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline justify-between gap-2">
               <span className="lead-style truncate font-medium">
@@ -65,16 +48,7 @@ export default function CompanyCard({
               </span>
             </div>
             <div className="mt-2 flex items-center gap-[3px] overflow-hidden">
-              {visible.map((tag) => (
-                <Tag key={tag} tone={TAG_TONES[tag]} size="sm">
-                  {tag}
-                </Tag>
-              ))}
-              {hidden > 0 && (
-                <Tag tone="neutral" size="sm">
-                  +{hidden}
-                </Tag>
-              )}
+              <CompanyTagList tags={company.tags} size="sm" />
             </div>
           </div>
         </div>

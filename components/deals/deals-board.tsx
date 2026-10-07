@@ -1,7 +1,7 @@
 import Avatar from "@/components/_ui/avatar";
-import Asset from "@/components/_ui/asset";
 import Tag from "@/components/_ui/tag";
 import SegmentBar from "@/components/_common/segment-bar";
+import CompanyLogo from "@/components/company/company-logo";
 import { ownerByName } from "@/data/companies";
 import { formatMoney } from "@/lib/companies";
 import { byStage, stageTone, summarise } from "@/lib/pipeline";
@@ -75,23 +75,7 @@ export default function DealsBoard() {
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="flex min-w-0 items-center gap-2">
-                          <span className="bg-muted flex size-7 shrink-0 items-center justify-center rounded-lg shadow-[0px_0px_0px_1px#232323]">
-                            {company.logo ? (
-                              <Asset
-                                type="image"
-                                src={company.logo}
-                                alt=""
-                                width={1}
-                                height={1}
-                                fit="contain"
-                                className="size-4"
-                              />
-                            ) : (
-                              <span className="caption-style text-soft">
-                                {company.name.slice(0, 1)}
-                              </span>
-                            )}
-                          </span>
+                          <CompanyLogo company={company} size="sm" />
                           <span className="lead-style truncate font-medium">
                             {company.name}
                           </span>

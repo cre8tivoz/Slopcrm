@@ -68,6 +68,13 @@ Architecture review found the domain rules smeared across views and already drif
 - **Tests:** Vitest (node env), 32 tests across the pipeline, demo clock, filters, interaction log, activity selectors and CSV escaping (including the formula-injection guard). Added to CI as `npm test`. `@types/node` bumped 20 → 24 to match the CI runtime (Vitest 5 requires ≥22).
 - **Honest numbers:** the sidebar Companies count is the real count (it was `223 +` a fake base); the hard-coded Forecast badge `9` is gone.
 
+### Module pass — S2: UI atoms + view registry
+
+- **`components/company/company-logo.tsx`**: one logo tile (logo, or the name's initial) with six sizes (`2xs`–`xl`). It replaces **7 hand-copied tiles** (card, table/command row, detail header, profile row, deal card, Activities row, notification badge). Two of those copies had a broken class (`1px#232323`, missing `_`), so their outline never rendered on deal cards; it does now.
+- **`components/company/company-tag-list.tsx`**: the trimmed tag list with a "+N" chip, replacing 3 copies of the `splitTags` + `Tag` loop. It renders tags only, so each surface keeps its own wrapper.
+- **`lib/views.ts`**: the one place a view is declared (id, page title, nav label, header tab). The header tabs, page title, sidebar and the shell's view switch all read from it. Components and nav icons are mapped with `Record<ViewId, …>`, so **adding a view without wiring it is a type error**. `activeTab` is now `ViewId`, not `string`. Tabs guard unknown values with `isViewId`.
+- **Deliberately not built:** `OwnerChip` and `StageTag`. Owner display varies too much between surfaces, and the stage tag is already a one-liner (`<Tag tone={stageTone(stage)}>`). Wrapping either would add interface without hiding anything ("depth over shallowness").
+
 ## Discovered while working
 
 - **`CONVENTIONS.md` and `OPTIMIZATION.md` are missing.** `CLAUDE.md` includes `@CONVENTIONS.md` and the README's docs table lists both. Agents following those pointers currently fail. Either restore the files or update the references.

@@ -1,13 +1,13 @@
 "use client";
 
 import { useCommandState } from "cmdk";
-import Asset from "@/components/_ui/asset";
 import Avatar from "@/components/_ui/avatar";
 import { CommandItem } from "@/components/_ui/command";
-import Tag from "@/components/_ui/tag";
 import SegmentBar from "@/components/_common/segment-bar";
-import { TAG_TONES, ownerByName, type Company } from "@/data/companies";
-import { formatDate, formatMoney, splitTags } from "@/lib/companies";
+import CompanyLogo from "@/components/company/company-logo";
+import CompanyTagList from "@/components/company/company-tag-list";
+import { ownerByName, type Company } from "@/data/companies";
+import { formatDate, formatMoney } from "@/lib/companies";
 import { cn } from "@/lib/utils";
 import CalendarIcon from "@/public/assets/images/_common/calendar.svg";
 
@@ -55,7 +55,6 @@ export function CommandCompanyRow({
   onSelect,
 }: CommandCompanyRowProps) {
   const owner = ownerByName(company.owner);
-  const { visible, hidden } = splitTags(company.tags);
 
   return (
     <CommandItem
@@ -65,37 +64,12 @@ export function CommandCompanyRow({
       className={cn(COMMAND_TABLE_GRID, "text-foreground h-11 gap-x-4")}
     >
       <span className="flex min-w-0 items-center gap-2.5">
-        <span className="bg-muted flex size-6 shrink-0 items-center justify-center rounded-md shadow-[0px_0px_0px_1px_#232323]">
-          {company.logo ? (
-            <Asset
-              type="image"
-              src={company.logo}
-              alt=""
-              width={1}
-              height={1}
-              fit="contain"
-              className="size-3.5"
-            />
-          ) : (
-            <span className="caption-style text-soft">
-              {company.name.slice(0, 1)}
-            </span>
-          )}
-        </span>
+        <CompanyLogo company={company} size="xs" />
         <span className="truncate">{company.name}</span>
       </span>
 
       <span className="hidden min-w-0 items-center gap-[3px] overflow-hidden md:flex">
-        {visible.map((tag) => (
-          <Tag key={tag} tone={TAG_TONES[tag]} size="sm">
-            {tag}
-          </Tag>
-        ))}
-        {hidden > 0 && (
-          <Tag tone="neutral" size="sm">
-            +{hidden}
-          </Tag>
-        )}
+        <CompanyTagList tags={company.tags} size="sm" />
       </span>
 
       <span className="text-soft hidden min-w-0 items-center gap-1.5 md:flex">

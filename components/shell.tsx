@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentType } from "react";
 import dynamic from "next/dynamic";
 import CompaniesHeader from "./companies/header/header";
 import Companies from "./companies/companies";
@@ -8,7 +8,16 @@ import CompanyDetail from "./companies/detail/company-detail";
 import DealsBoard from "./deals/deals-board";
 import Forecast from "./forecast/forecast";
 import Activities from "./activities/activities";
+import type { ViewId } from "@/lib/views";
 import { useCompaniesStore } from "@/stores/companies-store";
+
+/** Every view must have a screen — a missing entry fails the type check. */
+const VIEW_COMPONENTS: Record<ViewId, ComponentType> = {
+  companies: Companies,
+  deals: DealsBoard,
+  forecast: Forecast,
+  activities: Activities,
+};
 
 // Interaction-only panels: their code (incl. cmdk) is split out of the
 // initial bundle and fetched on first open, then kept mounted so exit
@@ -59,6 +68,8 @@ export default function Shell() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  const View = VIEW_COMPONENTS[activeTab];
+
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <CompaniesHeader />
@@ -67,15 +78,7 @@ export default function Shell() {
         key={activeTab}
         className="animate-rise flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
       >
-        {activeTab === "deals" ? (
-          <DealsBoard />
-        ) : activeTab === "forecast" ? (
-          <Forecast />
-        ) : activeTab === "activities" ? (
-          <Activities />
-        ) : (
-          <Companies />
-        )}
+        <View />
       </div>
       <CompanyDetail />
       {showProfile && <Profile />}
