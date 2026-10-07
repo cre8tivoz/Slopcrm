@@ -1,4 +1,4 @@
-import Video from "@/components/_ui/video";
+import Video from "./video";
 import { assetMediaClass } from "./asset-frame";
 import type { AssetVideoProps } from "./asset-types";
 
