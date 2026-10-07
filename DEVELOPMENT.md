@@ -104,6 +104,19 @@ Architecture review found the domain rules smeared across views and already drif
   - CI also runs the static export with a base path, so a server-only API can't sneak back in unnoticed.
 - **Verified:** lint, **50 tests**, normal build (robots still dynamic) and static export. The export was served from a `/slopcrm/` subfolder: 18 rows, all 55 images load from `/slopcrm/assets/…`, sparklines labelled with real counts, no console errors, vision check clean.
 
+### Reporting screens
+
+- **Domain module `lib/reporting.ts` (tested, +7 tests, 57 total):**
+  - `getStageConversionFunnel()`: ordered lifecycle progression from New Logo to Renewal, deal counts, pipeline share %, win probability %, yield ($ weighted) and at-risk value ($ unweighted − weighted).
+  - `getPipelineVelocity()`: 14-week touch volume with 4-week rolling moving average, deal health classification (`active` ≤ 14d, `at-risk` 15–45d, `slipping` > 45d), and dormancy rankings.
+  - `getRepPerformance()`: owner scorecard aggregating managed accounts, deals, pipeline, weighted forecast, win rate, 30d/90d touch volume, and activity-per-deal ratios; ranks by weighted pipeline.
+- **Reporting view `components/reports/`:**
+  - Executive KPI ribbon: Pipeline Win Rate (51%), Total Pipeline ($5.14M / $2.68M wtd), 4-Wk Touch Pace (3.8/wk), Deals Needing Attention (15).
+  - Sub-navigation tabs: Overview, Conversion & Funnel, Pipeline Velocity, Rep Performance.
+  - Interactive cross-linking: clicking any account chip opens `openDetail(company.id)`; clicking any rep row opens `openProfile(rep.owner.name)`.
+  - Wired into `lib/views.ts` (Header Tabs) and `sidebar-content.tsx` (primary nav + "Q1 Forecast" and "Slipping Deals" shortcuts).
+- **Verified:** 57 tests passing, lint clean, `npm run build` and `npm run build:static` clean, desktop (1440/1280) and mobile (390) browser QA and vision QA clean.
+
 ## Discovered while working
 
 - **`CONVENTIONS.md` and `OPTIMIZATION.md` are missing.** `CLAUDE.md` includes `@CONVENTIONS.md` and the README's docs table lists both. Agents following those pointers currently fail. Either restore the files or update the references.

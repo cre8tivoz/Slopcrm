@@ -55,6 +55,12 @@ describe("ui store", () => {
     });
   });
 
+  it("sets the reporting sub-tab", () => {
+    const { setReportingTab } = useUiStore.getState();
+    setReportingTab("velocity");
+    expect(useUiStore.getState().reportingTab).toBe("velocity");
+  });
+
   it("toggles row selection", () => {
     const { toggleSelected, setSelected } = useUiStore.getState();
     setSelected([]);

@@ -31,6 +31,7 @@ const VIEW_ICONS: Record<ViewId, typeof BuildingIcon> = {
   companies: BuildingIcon,
   deals: ClipboardIcon,
   forecast: BarChartIcon,
+  reports: BarChartAltIcon,
   activities: ListIcon,
 };
 
@@ -38,6 +39,7 @@ export default function SidebarContent() {
   const companyCount = useCompaniesStore((state) => state.companies.length);
   const activeView = useUiStore((state) => state.activeView);
   const navigate = useUiStore((state) => state.navigate);
+  const setReportingTab = useUiStore((state) => state.setReportingTab);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -83,8 +85,21 @@ export default function SidebarContent() {
             title="Reporting"
             className="border-sidebar-border border-b"
           >
-            <SidebarNavItem icon={BarChartAltIcon} label="Q1 Forecast" />
-            <SidebarNavItem icon={AlertTriangleIcon} label="Slipping Deals" />
+            <SidebarNavItem
+              icon={BarChartAltIcon}
+              label="Q1 Forecast"
+              active={activeView === "forecast"}
+              onClick={() => navigate("forecast")}
+            />
+            <SidebarNavItem
+              icon={AlertTriangleIcon}
+              label="Slipping Deals"
+              active={activeView === "reports"}
+              onClick={() => {
+                navigate("reports");
+                setReportingTab("velocity");
+              }}
+            />
           </SidebarSection>
 
           <SidebarSection title="Pipelines">

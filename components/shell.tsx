@@ -7,6 +7,7 @@ import Companies from "./companies/companies";
 import CompanyDetail from "./companies/detail/company-detail";
 import DealsBoard from "./deals/deals-board";
 import Forecast from "./forecast/forecast";
+import Reports from "./reports/reports";
 import Activities from "./activities/activities";
 import type { ViewId } from "@/lib/views";
 import { useUiStore } from "@/stores/ui-store";
@@ -16,6 +17,7 @@ const VIEW_COMPONENTS: Record<ViewId, ComponentType> = {
   companies: Companies,
   deals: DealsBoard,
   forecast: Forecast,
+  reports: Reports,
   activities: Activities,
 };
 

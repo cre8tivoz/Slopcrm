@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { DEFAULT_FILTERS, type CompanyFilters } from "@/lib/companies";
 import { DEFAULT_VIEW, type ViewId } from "@/lib/views";
 
+export type ReportingTab = "overview" | "conversion" | "velocity" | "reps";
+
 /**
  * What the interface is doing: current view, open panels, table filters and
  * selection. Nothing here is business data — that lives in
@@ -9,6 +11,7 @@ import { DEFAULT_VIEW, type ViewId } from "@/lib/views";
  */
 type UiState = {
   activeView: ViewId;
+  reportingTab: ReportingTab;
   sidebarOpen: boolean;
   searchOpen: boolean;
   newCompanyOpen: boolean;
@@ -22,6 +25,7 @@ type UiState = {
 
   /** Switch view; also closes the mobile nav sheet. */
   navigate: (view: ViewId) => void;
+  setReportingTab: (tab: ReportingTab) => void;
   setSidebarOpen: (open: boolean) => void;
   setSearchOpen: (open: boolean) => void;
   setNewCompanyOpen: (open: boolean) => void;
@@ -41,6 +45,7 @@ type UiState = {
 
 export const useUiStore = create<UiState>((set) => ({
   activeView: DEFAULT_VIEW,
+  reportingTab: "overview",
   sidebarOpen: false,
   searchOpen: false,
   newCompanyOpen: false,
@@ -52,6 +57,7 @@ export const useUiStore = create<UiState>((set) => ({
   selectedIds: ["microsoft"],
 
   navigate: (activeView) => set({ activeView, sidebarOpen: false }),
+  setReportingTab: (reportingTab) => set({ reportingTab }),
   setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
   setSearchOpen: (searchOpen) => set({ searchOpen }),
   setNewCompanyOpen: (newCompanyOpen) => set({ newCompanyOpen }),

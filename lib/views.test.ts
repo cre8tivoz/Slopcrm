@@ -17,6 +17,7 @@ describe("views registry", () => {
       "companies",
       "deals",
       "forecast",
+      "reports",
     ]);
   });
 
