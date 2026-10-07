@@ -20,7 +20,7 @@ export default function RepPerformance() {
   const repSummary = getRepPerformance(companies, interactions);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex w-full max-w-full min-w-0 flex-col gap-4">
       {/* Highlights / Podium Cards */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {repSummary.topProducer && (

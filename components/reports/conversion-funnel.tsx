@@ -8,6 +8,7 @@ import {
 } from "@/lib/reporting";
 import { useCompaniesStore } from "@/stores/companies-store";
 import { useUiStore } from "@/stores/ui-store";
+import { cn } from "@/lib/utils";
 
 const PANEL =
   "border-border bg-card/50 rounded-xl border p-3.5 flex flex-col gap-3";
@@ -23,9 +24,9 @@ export default function ConversionFunnel() {
   const maxTotal = Math.max(1, ...activeStages.map((s) => s.summary.total));
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex w-full max-w-full min-w-0 flex-col gap-4">
       {/* Funnel Visualisation */}
-      <div className={PANEL}>
+      <div className={cn(PANEL, "w-full max-w-full min-w-0")}>
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="lead-style font-medium">Stage Conversion Funnel</h2>
