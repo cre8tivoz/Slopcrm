@@ -28,6 +28,15 @@ const BASE_COMPANY_COUNT = 223;
 
 export default function SidebarContent() {
   const companyCount = useCompaniesStore((state) => state.companies.length);
+  const activeTab = useCompaniesStore((state) => state.activeTab);
+  const setActiveTab = useCompaniesStore((state) => state.setActiveTab);
+  const setSidebarOpen = useCompaniesStore((state) => state.setSidebarOpen);
+
+  /** Navigate to a view and close the mobile nav sheet if it's open. */
+  function go(tab: string) {
+    setActiveTab(tab);
+    setSidebarOpen(false);
+  }
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -50,11 +59,28 @@ export default function SidebarContent() {
               icon={BuildingIcon}
               label="Companies"
               count={BASE_COMPANY_COUNT + companyCount}
-              active
+              active={activeTab === "companies"}
+              onClick={() => go("companies")}
             />
-            <SidebarNavItem icon={ClipboardIcon} label="Deals Board" />
-            <SidebarNavItem icon={BarChartIcon} label="Forecast" count={9} />
-            <SidebarNavItem icon={ListIcon} label="Activities" />
+            <SidebarNavItem
+              icon={ClipboardIcon}
+              label="Deals Board"
+              active={activeTab === "deals"}
+              onClick={() => go("deals")}
+            />
+            <SidebarNavItem
+              icon={BarChartIcon}
+              label="Forecast"
+              count={9}
+              active={activeTab === "forecast"}
+              onClick={() => go("forecast")}
+            />
+            <SidebarNavItem
+              icon={ListIcon}
+              label="Activities"
+              active={activeTab === "activities"}
+              onClick={() => go("activities")}
+            />
             <SidebarNavItem icon={BookClosedIcon} label="Contacts" count={38} />
             <SidebarNavItem icon={MailIcon} label="Email Sequences" />
           </SidebarSection>
