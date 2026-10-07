@@ -15,16 +15,15 @@ import {
 } from "@/components/_ui/command";
 import { CommandCompanyRow, CommandTableHeader } from "./command-table";
 import { useCompaniesStore } from "@/stores/companies-store";
+import { useUiStore } from "@/stores/ui-store";
 import PlusIcon from "@/public/assets/images/_common/plus.svg";
 
 export default function CommandMenu() {
-  const open = useCompaniesStore((state) => state.searchOpen);
-  const setOpen = useCompaniesStore((state) => state.setSearchOpen);
+  const open = useUiStore((state) => state.searchOpen);
+  const setOpen = useUiStore((state) => state.setSearchOpen);
   const companies = useCompaniesStore((state) => state.companies);
-  const openDetail = useCompaniesStore((state) => state.openDetail);
-  const setNewCompanyOpen = useCompaniesStore(
-    (state) => state.setNewCompanyOpen,
-  );
+  const openDetail = useUiStore((state) => state.openDetail);
+  const setNewCompanyOpen = useUiStore((state) => state.setNewCompanyOpen);
   const [query, setQuery] = useState("");
   const actionRan = useRef(false);
 

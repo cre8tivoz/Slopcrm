@@ -6,6 +6,7 @@ import { ownerByName } from "@/data/companies";
 import { formatMoney } from "@/lib/companies";
 import { byStage, stageTone, summarise } from "@/lib/pipeline";
 import { useCompaniesStore } from "@/stores/companies-store";
+import { useUiStore } from "@/stores/ui-store";
 import { cn } from "@/lib/utils";
 
 const CARD_CLASS = cn(
@@ -17,7 +18,7 @@ const CARD_CLASS = cn(
 
 export default function DealsBoard() {
   const companies = useCompaniesStore((state) => state.companies);
-  const openDetail = useCompaniesStore((state) => state.openDetail);
+  const openDetail = useUiStore((state) => state.openDetail);
 
   const columns = byStage(companies);
   const summary = summarise(companies);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Avatar from "@/components/_ui/avatar";
 import Button from "@/components/_ui/button";
 import CountBadge from "@/components/_ui/count-badge";
@@ -29,13 +29,10 @@ import {
   STAGE_OPTIONS,
 } from "./filter-options";
 import { ownerByName, type SortKey } from "@/data/companies";
-import {
-  ALL_OWNERS,
-  activeFilterCount,
-  filterCompanies,
-} from "@/lib/companies";
+import { ALL_OWNERS, activeFilterCount } from "@/lib/companies";
 import { cn } from "@/lib/utils";
-import { useCompaniesStore } from "@/stores/companies-store";
+import { useUiStore } from "@/stores/ui-store";
+import { useVisibleCompanies } from "@/hooks/use-visible-companies";
 import FilterIcon from "@/public/assets/images/_common/filter.svg";
 import XIcon from "@/public/assets/images/companies/detail/x.svg";
 
@@ -45,27 +42,11 @@ type MobileFiltersProps = {
 
 export default function MobileFilters({ className }: MobileFiltersProps) {
   const [open, setOpen] = useState(false);
-  const companies = useCompaniesStore((state) => state.companies);
-  const sortBy = useCompaniesStore((state) => state.sortBy);
-  const owner = useCompaniesStore((state) => state.owner);
-  const stage = useCompaniesStore((state) => state.stage);
-  const activityWindow = useCompaniesStore((state) => state.activityWindow);
-  const setSortBy = useCompaniesStore((state) => state.setSortBy);
-  const setOwner = useCompaniesStore((state) => state.setOwner);
-  const setStage = useCompaniesStore((state) => state.setStage);
-  const setActivityWindow = useCompaniesStore(
-    (state) => state.setActivityWindow,
-  );
-  const resetFilters = useCompaniesStore((state) => state.resetFilters);
-
-  const filters = { sortBy, owner, stage, activityWindow };
+  const filters = useUiStore((state) => state.filters);
+  const setFilter = useUiStore((state) => state.setFilter);
+  const resetFilters = useUiStore((state) => state.resetFilters);
+  const resultCount = useVisibleCompanies().length;
   const activeCount = activeFilterCount(filters);
-  const resultCount = useMemo(
-    () =>
-      filterCompanies(companies, { sortBy, owner, stage, activityWindow })
-        .length,
-    [companies, sortBy, owner, stage, activityWindow],
-  );
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -109,8 +90,8 @@ export default function MobileFilters({ className }: MobileFiltersProps) {
           <div className="flex flex-col gap-4 p-4">
             <Field label="Sort by" htmlFor="mobile-sort">
               <Select
-                value={sortBy}
-                onValueChange={(value) => setSortBy(value as SortKey)}
+                value={filters.sortBy}
+                onValueChange={(value) => setFilter("sortBy", value as SortKey)}
               >
                 <SelectTrigger id="mobile-sort">
                   <SelectValue />
@@ -126,7 +107,10 @@ export default function MobileFilters({ className }: MobileFiltersProps) {
             </Field>
 
             <Field label="Account owner" htmlFor="mobile-owner">
-              <Select value={owner} onValueChange={setOwner}>
+              <Select
+                value={filters.owner}
+                onValueChange={(value) => setFilter("owner", value)}
+              >
                 <SelectTrigger id="mobile-owner">
                   <SelectValue />
                 </SelectTrigger>
@@ -151,7 +135,10 @@ export default function MobileFilters({ className }: MobileFiltersProps) {
             </Field>
 
             <Field label="Stage" htmlFor="mobile-stage">
-              <Select value={stage} onValueChange={setStage}>
+              <Select
+                value={filters.stage}
+                onValueChange={(value) => setFilter("stage", value)}
+              >
                 <SelectTrigger id="mobile-stage">
                   <SelectValue />
                 </SelectTrigger>
@@ -167,8 +154,10 @@ export default function MobileFilters({ className }: MobileFiltersProps) {
 
             <Field label="Last activity" htmlFor="mobile-activity">
               <Select
-                value={String(activityWindow)}
-                onValueChange={(value) => setActivityWindow(Number(value))}
+                value={String(filters.activityWindow)}
+                onValueChange={(value) =>
+                  setFilter("activityWindow", Number(value))
+                }
               >
                 <SelectTrigger id="mobile-activity">
                   <SelectValue />
@@ -190,7 +179,7 @@ export default function MobileFilters({ className }: MobileFiltersProps) {
             variant="ghost"
             size="sm"
             onClick={resetFilters}
-            disabled={activeCount === 0 && sortBy === "pipelineValue"}
+            disabled={activeCount === 0 && filters.sortBy === "pipelineValue"}
             className="fine:min-h-0 -ml-1.5 min-h-11"
           >
             Reset

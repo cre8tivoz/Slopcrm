@@ -9,7 +9,7 @@ import DealsBoard from "./deals/deals-board";
 import Forecast from "./forecast/forecast";
 import Activities from "./activities/activities";
 import type { ViewId } from "@/lib/views";
-import { useCompaniesStore } from "@/stores/companies-store";
+import { useUiStore } from "@/stores/ui-store";
 
 /** Every view must have a screen — a missing entry fails the type check. */
 const VIEW_COMPONENTS: Record<ViewId, ComponentType> = {
@@ -43,10 +43,10 @@ function useEver(open: boolean) {
 }
 
 export default function Shell() {
-  const activeTab = useCompaniesStore((state) => state.activeTab);
-  const searchOpen = useCompaniesStore((state) => state.searchOpen);
-  const profileOpen = useCompaniesStore((state) => state.profileOpen);
-  const newCompanyOpen = useCompaniesStore((state) => state.newCompanyOpen);
+  const activeView = useUiStore((state) => state.activeView);
+  const searchOpen = useUiStore((state) => state.searchOpen);
+  const profileOpen = useUiStore((state) => state.profileOpen);
+  const newCompanyOpen = useUiStore((state) => state.newCompanyOpen);
 
   const showCommand = useEver(searchOpen);
   const showProfile = useEver(profileOpen);
@@ -61,21 +61,21 @@ export default function Shell() {
         return;
       }
       event.preventDefault();
-      const { searchOpen: open, setSearchOpen } = useCompaniesStore.getState();
+      const { searchOpen: open, setSearchOpen } = useUiStore.getState();
       setSearchOpen(!open);
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const View = VIEW_COMPONENTS[activeTab];
+  const View = VIEW_COMPONENTS[activeView];
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <CompaniesHeader />
-      {/* key on tab: remounts the view so its entrance rise replays */}
+      {/* key on view: remounts the view so its entrance rise replays */}
       <div
-        key={activeTab}
+        key={activeView}
         className="animate-rise flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
       >
         <View />

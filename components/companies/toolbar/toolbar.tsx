@@ -10,36 +10,21 @@ import {
   STAGE_OPTIONS,
 } from "./filter-options";
 import type { SortKey } from "@/data/companies";
-import { companiesCsvRows, filterCompanies } from "@/lib/companies";
+import { companiesCsvRows } from "@/lib/companies";
 import { DEMO_TODAY } from "@/lib/demo-clock";
 import { downloadCsv } from "@/lib/csv";
-import { useCompaniesStore } from "@/stores/companies-store";
+import { useUiStore } from "@/stores/ui-store";
+import { useVisibleCompanies } from "@/hooks/use-visible-companies";
 import ShareIcon from "@/public/assets/images/companies/toolbar/share.svg";
 import PlusIcon from "@/public/assets/images/_common/plus.svg";
 
 export default function CompaniesToolbar() {
-  const sortBy = useCompaniesStore((state) => state.sortBy);
-  const owner = useCompaniesStore((state) => state.owner);
-  const stage = useCompaniesStore((state) => state.stage);
-  const activityWindow = useCompaniesStore((state) => state.activityWindow);
-  const setSortBy = useCompaniesStore((state) => state.setSortBy);
-  const setOwner = useCompaniesStore((state) => state.setOwner);
-  const setStage = useCompaniesStore((state) => state.setStage);
-  const setActivityWindow = useCompaniesStore(
-    (state) => state.setActivityWindow,
-  );
-  const setNewCompanyOpen = useCompaniesStore(
-    (state) => state.setNewCompanyOpen,
-  );
+  const filters = useUiStore((state) => state.filters);
+  const setFilter = useUiStore((state) => state.setFilter);
+  const visible = useVisibleCompanies();
+  const setNewCompanyOpen = useUiStore((state) => state.setNewCompanyOpen);
 
   function exportCsv() {
-    const { companies } = useCompaniesStore.getState();
-    const visible = filterCompanies(companies, {
-      sortBy,
-      owner,
-      stage,
-      activityWindow,
-    });
     downloadCsv(`companies-${DEMO_TODAY}.csv`, companiesCsvRows(visible));
   }
 
@@ -50,27 +35,27 @@ export default function CompaniesToolbar() {
       <div className="hidden min-w-0 flex-wrap gap-2 sm:flex">
         <FilterMenu
           label="Sort by"
-          value={sortBy}
+          value={filters.sortBy}
           options={SORT_MENU_OPTIONS}
-          onChange={(value) => setSortBy(value as SortKey)}
+          onChange={(value) => setFilter("sortBy", value as SortKey)}
         />
         <FilterMenu
           label="Filter"
-          value={owner}
+          value={filters.owner}
           options={OWNER_OPTIONS}
-          onChange={setOwner}
+          onChange={(value) => setFilter("owner", value)}
         />
         <FilterMenu
           label="Stage"
-          value={stage}
+          value={filters.stage}
           options={STAGE_OPTIONS}
-          onChange={setStage}
+          onChange={(value) => setFilter("stage", value)}
         />
         <FilterMenu
           label="Last Activity"
-          value={String(activityWindow)}
+          value={String(filters.activityWindow)}
           options={ACTIVITY_OPTIONS}
-          onChange={(value) => setActivityWindow(Number(value))}
+          onChange={(value) => setFilter("activityWindow", Number(value))}
         />
       </div>
 

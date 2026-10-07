@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/_ui/scroll-area";
 import SidebarNavItem from "./sidebar-nav-item";
 import SidebarSection from "./sidebar-section";
 import { useCompaniesStore } from "@/stores/companies-store";
+import { useUiStore } from "@/stores/ui-store";
 import Logo from "@/public/assets/images/_common/logo.svg";
 import BuildingIcon from "@/public/assets/images/companies/sidebar/building.svg";
 import ClipboardIcon from "@/public/assets/images/companies/sidebar/clipboard.svg";
@@ -35,15 +36,8 @@ const VIEW_ICONS: Record<ViewId, typeof BuildingIcon> = {
 
 export default function SidebarContent() {
   const companyCount = useCompaniesStore((state) => state.companies.length);
-  const activeTab = useCompaniesStore((state) => state.activeTab);
-  const setActiveTab = useCompaniesStore((state) => state.setActiveTab);
-  const setSidebarOpen = useCompaniesStore((state) => state.setSidebarOpen);
-
-  /** Navigate to a view and close the mobile nav sheet if it's open. */
-  function go(view: ViewId) {
-    setActiveTab(view);
-    setSidebarOpen(false);
-  }
+  const activeView = useUiStore((state) => state.activeView);
+  const navigate = useUiStore((state) => state.navigate);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -68,8 +62,8 @@ export default function SidebarContent() {
                 icon={VIEW_ICONS[view.id]}
                 label={view.navLabel}
                 count={view.id === "companies" ? companyCount : undefined}
-                active={activeTab === view.id}
-                onClick={() => go(view.id)}
+                active={activeView === view.id}
+                onClick={() => navigate(view.id)}
               />
             ))}
             <SidebarNavItem icon={BookClosedIcon} label="Contacts" count={38} />

@@ -18,18 +18,20 @@ import { CURRENT_USER, profileByName } from "@/data/companies";
 import { ALL_OWNERS, formatMoney } from "@/lib/companies";
 import { summarise } from "@/lib/pipeline";
 import { useCompaniesStore } from "@/stores/companies-store";
+import { useUiStore } from "@/stores/ui-store";
 import UsersIcon from "@/public/assets/images/companies/sidebar/users.svg";
 import XIcon from "@/public/assets/images/companies/detail/x.svg";
 import MailIcon from "@/public/assets/images/companies/detail/mail-04.svg";
 import PhoneIcon from "@/public/assets/images/companies/detail/phone.svg";
 
 export default function Profile() {
-  const profileName = useCompaniesStore((state) => state.profileName);
-  const profileOpen = useCompaniesStore((state) => state.profileOpen);
+  const profileName = useUiStore((state) => state.profileName);
+  const profileOpen = useUiStore((state) => state.profileOpen);
   const companies = useCompaniesStore((state) => state.companies);
-  const closeProfile = useCompaniesStore((state) => state.closeProfile);
-  const openDetail = useCompaniesStore((state) => state.openDetail);
-  const setOwner = useCompaniesStore((state) => state.setOwner);
+  const closeProfile = useUiStore((state) => state.closeProfile);
+  const openDetail = useUiStore((state) => state.openDetail);
+  const setFilter = useUiStore((state) => state.setFilter);
+  const navigate = useUiStore((state) => state.navigate);
 
   const person = profileName ? profileByName(profileName) : null;
   const isCurrentUser = person?.name === CURRENT_USER.name;
@@ -48,7 +50,9 @@ export default function Profile() {
   ];
 
   function showAccounts() {
-    setOwner(isCurrentUser || !person ? ALL_OWNERS : person.name);
+    setFilter("owner", isCurrentUser || !person ? ALL_OWNERS : person.name);
+    // The filter lives on the Companies table — take the user there to see it.
+    navigate("companies");
     closeProfile();
   }
 

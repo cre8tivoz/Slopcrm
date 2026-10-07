@@ -13,6 +13,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/_ui/tabs";
 import NotificationItem from "./notification-item";
 import { NOTIFICATIONS } from "@/data/notifications";
 import { useCompaniesStore } from "@/stores/companies-store";
+import { useUiStore } from "@/stores/ui-store";
 import BellIcon from "@/public/assets/images/companies/header/bell.svg";
 
 type Filter = "all" | "unread";
@@ -27,7 +28,7 @@ export default function Notifications() {
   const markAllRead = useCompaniesStore(
     (state) => state.markAllNotificationsRead,
   );
-  const openDetail = useCompaniesStore((state) => state.openDetail);
+  const openDetail = useUiStore((state) => state.openDetail);
 
   const unreadCount = unreadIds.length;
   const visible = NOTIFICATIONS.filter(
