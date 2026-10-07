@@ -74,7 +74,7 @@ export default function PipelineMovement() {
 
         {/* 14-Week Bar + Moving Average visual */}
         <div className="border-border bg-card/30 flex w-full max-w-full min-w-0 flex-col gap-3 rounded-lg border p-3 sm:p-4">
-          <div className="w-full max-w-full min-w-0 overflow-x-auto [scrollbar-width:none]">
+          <div className="w-full max-w-full min-w-0 overflow-x-auto pt-8 [scrollbar-width:none]">
             <div className="flex h-36 min-w-[280px] items-end gap-1 sm:gap-2.5">
               {velocity.weeklyPoints.map((pt) => {
                 const barHeightPct = Math.max(
