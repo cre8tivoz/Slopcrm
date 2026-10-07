@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Asset from "@/components/_ui/asset";
 import Avatar from "@/components/_ui/avatar";
 import Button from "@/components/_ui/button";
 import Tag from "@/components/_ui/tag";
@@ -16,6 +15,7 @@ import {
   SheetTitle,
 } from "@/components/_ui/sheet";
 import FilterMenu from "@/components/_common/filter-menu";
+import CompanyLogo from "@/components/company/company-logo";
 import DetailSection from "./detail-section";
 import PipelineHealth from "./pipeline-health";
 import ActivityTrend from "./activity-trend";
@@ -85,23 +85,7 @@ export default function CompanyDetail() {
           <ScrollArea className="min-h-0 flex-1">
             <div className="stagger-children">
               <div className="flex items-start gap-3 p-5 shadow-[inset_0_-1px_0_var(--line-strong)]">
-                <span className="bg-muted flex size-[50px] shrink-0 items-center justify-center rounded-[12.5px] shadow-[0px_6.25px_6.25px_0px_rgba(15,15,15,0.24),0px_0px_0px_1.563px_#232323]">
-                  {company.logo ? (
-                    <Asset
-                      type="image"
-                      src={company.logo}
-                      alt={`${company.name} logo`}
-                      width={1}
-                      height={1}
-                      fit="contain"
-                      className="size-8"
-                    />
-                  ) : (
-                    <span className="h2-style text-soft">
-                      {company.name.slice(0, 1)}
-                    </span>
-                  )}
-                </span>
+                <CompanyLogo company={company} size="xl" labelled />
                 <div className="flex min-w-0 flex-col gap-3">
                   <h2 className="truncate">{company.name}</h2>
                   <div className="flex flex-wrap items-center gap-[3px]">

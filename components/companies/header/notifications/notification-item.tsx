@@ -1,9 +1,8 @@
-import Asset from "@/components/_ui/asset";
 import Avatar from "@/components/_ui/avatar";
 import Button from "@/components/_ui/button";
+import CompanyLogo from "@/components/company/company-logo";
 import { ownerByName, type Company } from "@/data/companies";
 import type { Notification } from "@/data/notifications";
-import { cn } from "@/lib/utils";
 
 type NotificationItemProps = {
   notification: Notification;
@@ -11,39 +10,6 @@ type NotificationItemProps = {
   unread: boolean;
   onSelect: () => void;
 };
-
-function CompanyMark({
-  company,
-  className,
-}: {
-  company?: Company;
-  className?: string;
-}) {
-  return (
-    <span
-      className={cn(
-        "bg-muted flex shrink-0 items-center justify-center overflow-hidden shadow-[0px_0px_0px_1px_#232323]",
-        className,
-      )}
-    >
-      {company?.logo ? (
-        <Asset
-          type="image"
-          src={company.logo}
-          alt=""
-          width={1}
-          height={1}
-          fit="contain"
-          className="size-[60%]"
-        />
-      ) : (
-        <span className="caption-style text-soft">
-          {company?.name.slice(0, 1) ?? "?"}
-        </span>
-      )}
-    </span>
-  );
-}
 
 export default function NotificationItem({
   notification,
@@ -66,13 +32,14 @@ export default function NotificationItem({
           {actor ? (
             <>
               <Avatar src={actor.avatar} alt="" className="size-8" />
-              <CompanyMark
+              <CompanyLogo
                 company={company}
-                className="ring-popover absolute -right-1 -bottom-1 size-4 rounded-[5px] ring-2"
+                size="2xs"
+                className="ring-popover absolute -right-1 -bottom-1 ring-2"
               />
             </>
           ) : (
-            <CompanyMark company={company} className="size-8 rounded-lg" />
+            <CompanyLogo company={company} size="md" />
           )}
         </span>
         <span className="flex min-w-0 flex-1 flex-col gap-2 pr-4">

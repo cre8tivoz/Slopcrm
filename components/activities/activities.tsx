@@ -1,6 +1,6 @@
 import Avatar from "@/components/_ui/avatar";
-import Asset from "@/components/_ui/asset";
 import Tag from "@/components/_ui/tag";
+import CompanyLogo from "@/components/company/company-logo";
 import { ownerByName } from "@/data/companies";
 import type { InteractionChannel } from "@/data/interactions";
 import { groupByDay, withinDays } from "@/lib/activity";
@@ -100,23 +100,7 @@ export default function Activities() {
                           onClick={() => openDetail(company.id)}
                           className="ease-power3-out focus-visible:ring-ring/60 flex min-h-11 w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition-[background-color,transform] duration-150 hover:bg-white/4 focus-visible:ring-2 focus-visible:outline-none active:scale-[0.99]"
                         >
-                          <span className="bg-muted flex size-9 shrink-0 items-center justify-center rounded-[10px] shadow-[0px_4px_4px_0px_rgba(15,15,15,0.24),0px_0px_0px_1px_#232323]">
-                            {company.logo ? (
-                              <Asset
-                                type="image"
-                                src={company.logo}
-                                alt=""
-                                width={1}
-                                height={1}
-                                fit="contain"
-                                className="size-6"
-                              />
-                            ) : (
-                              <span className="lead-style text-soft">
-                                {company.name.slice(0, 1)}
-                              </span>
-                            )}
-                          </span>
+                          <CompanyLogo company={company} size="lg" />
                           <span className="min-w-0 flex-1">
                             <span className="flex items-center gap-2">
                               <span className="lead-style truncate font-medium">

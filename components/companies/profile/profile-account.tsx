@@ -1,6 +1,6 @@
-import Asset from "@/components/_ui/asset";
 import Button from "@/components/_ui/button";
 import SegmentBar from "@/components/_common/segment-bar";
+import CompanyLogo from "@/components/company/company-logo";
 import type { Company } from "@/data/companies";
 import { formatMoney } from "@/lib/companies";
 
@@ -9,7 +9,10 @@ type ProfileAccountProps = {
   onOpen: () => void;
 };
 
-export default function ProfileAccount({ company, onOpen }: ProfileAccountProps) {
+export default function ProfileAccount({
+  company,
+  onOpen,
+}: ProfileAccountProps) {
   return (
     <li>
       <Button
@@ -19,23 +22,7 @@ export default function ProfileAccount({ company, onOpen }: ProfileAccountProps)
         aria-label={`Open ${company.name} details`}
         className="items-center px-2 py-2"
       >
-        <span className="bg-muted flex size-8 shrink-0 items-center justify-center rounded-lg shadow-[0px_0px_0px_1px_#232323]">
-          {company.logo ? (
-            <Asset
-              type="image"
-              src={company.logo}
-              alt=""
-              width={1}
-              height={1}
-              fit="contain"
-              className="size-4"
-            />
-          ) : (
-            <span className="caption-style text-soft">
-              {company.name.slice(0, 1)}
-            </span>
-          )}
-        </span>
+        <CompanyLogo company={company} size="md" />
         <span className="flex min-w-0 flex-1 flex-col gap-1">
           <span className="truncate">{company.name}</span>
           <span className="caption-style text-subtle truncate">

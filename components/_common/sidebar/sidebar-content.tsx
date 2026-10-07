@@ -23,6 +23,15 @@ import DotPurple from "@/public/assets/images/companies/sidebar/dot-purple.svg";
 import UserPlusIcon from "@/public/assets/images/companies/sidebar/user-plus.svg";
 import MessageQuestionIcon from "@/public/assets/images/companies/sidebar/message-question.svg";
 import WalletIcon from "@/public/assets/images/companies/sidebar/wallet.svg";
+import { VIEWS, type ViewId } from "@/lib/views";
+
+/** Every view needs a nav icon — a missing entry fails the type check. */
+const VIEW_ICONS: Record<ViewId, typeof BuildingIcon> = {
+  companies: BuildingIcon,
+  deals: ClipboardIcon,
+  forecast: BarChartIcon,
+  activities: ListIcon,
+};
 
 export default function SidebarContent() {
   const companyCount = useCompaniesStore((state) => state.companies.length);
@@ -31,8 +40,8 @@ export default function SidebarContent() {
   const setSidebarOpen = useCompaniesStore((state) => state.setSidebarOpen);
 
   /** Navigate to a view and close the mobile nav sheet if it's open. */
-  function go(tab: string) {
-    setActiveTab(tab);
+  function go(view: ViewId) {
+    setActiveTab(view);
     setSidebarOpen(false);
   }
 
@@ -53,31 +62,16 @@ export default function SidebarContent() {
       <ScrollArea className="min-h-0 flex-1">
         <nav aria-label="Primary">
           <SidebarSection className="border-sidebar-border border-b">
-            <SidebarNavItem
-              icon={BuildingIcon}
-              label="Companies"
-              count={companyCount}
-              active={activeTab === "companies"}
-              onClick={() => go("companies")}
-            />
-            <SidebarNavItem
-              icon={ClipboardIcon}
-              label="Deals Board"
-              active={activeTab === "deals"}
-              onClick={() => go("deals")}
-            />
-            <SidebarNavItem
-              icon={BarChartIcon}
-              label="Forecast"
-              active={activeTab === "forecast"}
-              onClick={() => go("forecast")}
-            />
-            <SidebarNavItem
-              icon={ListIcon}
-              label="Activities"
-              active={activeTab === "activities"}
-              onClick={() => go("activities")}
-            />
+            {VIEWS.map((view) => (
+              <SidebarNavItem
+                key={view.id}
+                icon={VIEW_ICONS[view.id]}
+                label={view.navLabel}
+                count={view.id === "companies" ? companyCount : undefined}
+                active={activeTab === view.id}
+                onClick={() => go(view.id)}
+              />
+            ))}
             <SidebarNavItem icon={BookClosedIcon} label="Contacts" count={38} />
             <SidebarNavItem icon={MailIcon} label="Email Sequences" />
           </SidebarSection>
