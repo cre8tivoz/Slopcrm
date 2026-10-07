@@ -39,9 +39,9 @@ export default function PipelineMovement() {
   );
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex w-full max-w-full min-w-0 flex-col gap-4">
       {/* Velocity and 14-week trend */}
-      <div className={PANEL}>
+      <div className={cn(PANEL, "w-full max-w-full min-w-0")}>
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="lead-style font-medium">
@@ -73,55 +73,57 @@ export default function PipelineMovement() {
         </div>
 
         {/* 14-Week Bar + Moving Average visual */}
-        <div className="border-border bg-card/30 flex flex-col gap-3 rounded-lg border p-4">
-          <div className="flex h-36 items-end gap-2 sm:gap-3">
-            {velocity.weeklyPoints.map((pt) => {
-              const barHeightPct = Math.max(
-                4,
-                Math.round((pt.touches / maxWeeklyTouches) * 100),
-              );
-              const maHeightPct = Math.max(
-                4,
-                Math.round((pt.movingAverage4w / maxWeeklyTouches) * 100),
-              );
+        <div className="border-border bg-card/30 flex w-full max-w-full min-w-0 flex-col gap-3 rounded-lg border p-3 sm:p-4">
+          <div className="w-full max-w-full min-w-0 overflow-x-auto [scrollbar-width:none]">
+            <div className="flex h-36 min-w-[280px] items-end gap-1 sm:gap-2.5">
+              {velocity.weeklyPoints.map((pt) => {
+                const barHeightPct = Math.max(
+                  4,
+                  Math.round((pt.touches / maxWeeklyTouches) * 100),
+                );
+                const maHeightPct = Math.max(
+                  4,
+                  Math.round((pt.movingAverage4w / maxWeeklyTouches) * 100),
+                );
 
-              return (
-                <div
-                  key={pt.label}
-                  className="group relative flex h-full flex-1 flex-col items-center justify-end gap-1.5"
-                >
-                  {/* Tooltip on hover */}
-                  <div className="border-border bg-popover/90 text-popover-foreground pointer-events-none absolute -top-8 z-10 hidden rounded border px-2 py-0.5 text-[10px] whitespace-nowrap shadow group-hover:block">
-                    {pt.label}: {pt.touches} touches (4w MA:{" "}
-                    {pt.movingAverage4w})
+                return (
+                  <div
+                    key={pt.label}
+                    className="group relative flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1.5"
+                  >
+                    {/* Tooltip on hover */}
+                    <div className="border-border bg-popover/90 text-popover-foreground pointer-events-none absolute -top-8 z-10 hidden rounded border px-2 py-0.5 text-[10px] whitespace-nowrap shadow group-hover:block">
+                      {pt.label}: {pt.touches} touches (4w MA:{" "}
+                      {pt.movingAverage4w})
+                    </div>
+
+                    {/* 4w Moving Average tick marker */}
+                    <div
+                      className="bg-primary/90 absolute z-10 h-1 w-full rounded-full transition-all"
+                      style={{ bottom: `${maHeightPct}%` }}
+                      title={`4-week MA: ${pt.movingAverage4w}`}
+                    />
+
+                    {/* Weekly touch bar */}
+                    <div
+                      className={cn(
+                        "w-full rounded-t transition-all duration-300",
+                        pt.touches > 0 ? "bg-trend" : "bg-trend-muted",
+                      )}
+                      style={{ height: `${barHeightPct}%` }}
+                    />
+
+                    <span className="text-muted-foreground block truncate text-[9px] tabular-nums sm:text-[10px]">
+                      {pt.label === "This week" ? "Now" : pt.label}
+                    </span>
                   </div>
-
-                  {/* 4w Moving Average tick marker */}
-                  <div
-                    className="bg-primary/90 absolute z-10 h-1 w-full rounded-full transition-all"
-                    style={{ bottom: `${maHeightPct}%` }}
-                    title={`4-week MA: ${pt.movingAverage4w}`}
-                  />
-
-                  {/* Weekly touch bar */}
-                  <div
-                    className={cn(
-                      "w-full rounded-t transition-all duration-300",
-                      pt.touches > 0 ? "bg-trend" : "bg-trend-muted",
-                    )}
-                    style={{ height: `${barHeightPct}%` }}
-                  />
-
-                  <span className="text-muted-foreground block truncate text-[10px] tabular-nums">
-                    {pt.label === "This week" ? "Now" : pt.label}
-                  </span>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
 
-          <div className="border-border flex flex-wrap items-center justify-between border-t pt-2">
-            <div className="text-muted-foreground flex items-center gap-4 text-xs">
+          <div className="border-border flex flex-wrap items-center justify-between gap-2 border-t pt-2">
+            <div className="text-muted-foreground flex items-center gap-3 text-xs sm:gap-4">
               <span className="inline-flex items-center gap-1.5">
                 <span className="bg-trend inline-block size-2 rounded-[1px]" />
                 Weekly Touches
@@ -139,7 +141,7 @@ export default function PipelineMovement() {
       </div>
 
       {/* Slipping & At-Risk Deals Radar */}
-      <div className={PANEL}>
+      <div className={cn(PANEL, "w-full max-w-full min-w-0")}>
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="lead-style font-medium">Slipping & At-Risk Deals</h3>
@@ -157,33 +159,33 @@ export default function PipelineMovement() {
           </div>
         </div>
 
-        <ul className="divide-border flex flex-col divide-y pt-1">
+        <ul className="divide-border flex w-full max-w-full min-w-0 flex-col divide-y pt-1">
           {velocity.slippingDeals.map((deal: SlippingDeal, index) => {
             const badge = STATUS_BADGE[deal.status];
 
             return (
               <li
                 key={deal.company.id}
-                className="animate-rise flex flex-col gap-2 py-3 first:pt-1 last:pb-1 sm:flex-row sm:items-center sm:justify-between"
+                className="animate-rise flex w-full max-w-full min-w-0 flex-col gap-2 py-3 first:pt-1 last:pb-1 sm:flex-row sm:items-center sm:justify-between"
                 style={{ animationDelay: `${index * 30}ms` }}
               >
                 <button
                   type="button"
                   onClick={() => openDetail(deal.company.id)}
-                  className="flex items-center gap-3 text-left transition-opacity hover:opacity-85"
+                  className="flex min-w-0 items-center gap-3 text-left transition-opacity hover:opacity-85"
                   aria-label={`Open details for ${deal.company.name}`}
                 >
                   <CompanyLogo company={deal.company} size="md" />
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="lead-style font-medium">
+                      <span className="lead-style truncate font-medium">
                         {deal.company.name}
                       </span>
                       <Tag tone={stageTone(deal.stage)} size="sm">
                         {deal.stage}
                       </Tag>
                     </div>
-                    <span className="caption-style text-muted-foreground block text-xs">
+                    <span className="caption-style text-muted-foreground block truncate text-xs">
                       Last interaction: {deal.company.lastInteraction.label} ·{" "}
                       <span className="text-foreground font-medium tabular-nums">
                         {deal.daysDormant} days ago
@@ -192,7 +194,7 @@ export default function PipelineMovement() {
                   </div>
                 </button>
 
-                <div className="flex items-center justify-between gap-4 sm:justify-end">
+                <div className="flex flex-wrap items-center justify-between gap-3 sm:justify-end sm:gap-4">
                   <button
                     type="button"
                     onClick={() => openProfile(deal.owner.name)}
@@ -200,7 +202,9 @@ export default function PipelineMovement() {
                     aria-label={`Open profile for ${deal.owner.name}`}
                   >
                     <Avatar src={deal.owner.avatar} alt="" className="size-5" />
-                    <span>{deal.owner.name}</span>
+                    <span className="max-w-[120px] truncate">
+                      {deal.owner.name}
+                    </span>
                   </button>
 
                   <div className="text-right">

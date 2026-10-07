@@ -60,8 +60,11 @@ export default function Reports() {
   ];
 
   return (
-    <section aria-label="Reporting" className="min-h-0 flex-1 overflow-y-auto">
-      <div className="flex flex-col gap-4 p-4">
+    <section
+      aria-label="Reporting"
+      className="min-h-0 w-full max-w-full flex-1 overflow-x-hidden overflow-y-auto"
+    >
+      <div className="flex w-full max-w-full min-w-0 flex-col gap-4 p-4">
         {/* Executive KPI ribbon */}
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {kpis.map((kpi) => (
@@ -80,7 +83,7 @@ export default function Reports() {
         </div>
 
         {/* Sub-tab navigation bar */}
-        <div className="border-border bg-card/30 flex items-center gap-1.5 overflow-x-auto rounded-lg border p-1 [scrollbar-width:none]">
+        <div className="border-border bg-card/30 flex max-w-full items-center gap-1.5 overflow-x-auto rounded-lg border p-1 [scrollbar-width:none]">
           {TABS.map((tab) => (
             <button
               key={tab.id}
@@ -100,7 +103,7 @@ export default function Reports() {
 
         {/* Active Tab Screen Content */}
         {activeTab === "overview" && (
-          <div className="flex flex-col gap-6">
+          <div className="flex w-full max-w-full min-w-0 flex-col gap-6">
             <ConversionFunnel />
             <PipelineMovement />
             <RepPerformance />
