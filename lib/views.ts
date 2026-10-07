@@ -15,6 +15,12 @@ export const VIEWS = [
   },
   { id: "deals", title: "Deals Board", navLabel: "Deals Board", tab: "Deals" },
   { id: "forecast", title: "Forecast", navLabel: "Forecast", tab: "Forecast" },
+  {
+    id: "reports",
+    title: "Reporting",
+    navLabel: "Reporting",
+    tab: "Reporting",
+  },
   { id: "activities", title: "Activities", navLabel: "Activities", tab: null },
 ] as const satisfies readonly {
   id: string;
