@@ -53,7 +53,7 @@ export default function Notifications() {
               ? `Notifications, ${unreadCount} unread`
               : "Notifications"
           }
-          className="tap-target fine:size-[30px] data-[state=open]:bg-muted relative size-11"
+          className="fine:size-[30px] data-[state=open]:bg-muted relative size-11"
         >
           <BellIcon aria-hidden className="size-3.5" />
           {unreadCount > 0 && (

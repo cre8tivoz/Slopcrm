@@ -30,7 +30,7 @@ export default function CompaniesHeader() {
           <Button
             variant="secondary"
             size="icon"
-            className="tap-target fine:size-[30px] size-11 lg:hidden"
+            className="size-11 fine:size-[30px] lg:hidden"
             aria-label="Open navigation"
             onClick={() => setSidebarOpen(true)}
           >
@@ -47,7 +47,7 @@ export default function CompaniesHeader() {
           <Button
             variant="secondary"
             size="icon"
-            className="tap-target fine:size-[30px] size-11"
+            className="size-11 fine:size-[30px]"
             aria-label="Search"
             aria-keyshortcuts="Meta+K Control+K"
             onClick={() => setSearchOpen(true)}
@@ -58,7 +58,7 @@ export default function CompaniesHeader() {
           <Button
             variant="secondary"
             size="none"
-            className="caption-style tap-target fine:h-[30px] h-11 gap-1.5 py-[5px] pr-[7px] pl-[5px] font-normal"
+            className="caption-style h-11 fine:h-[30px] min-w-11 fine:min-w-0 gap-1.5 py-[5px] pr-[7px] pl-[5px] font-normal"
             aria-label={`Open profile for ${CURRENT_USER.name}`}
             onClick={() => openProfile(CURRENT_USER.name)}
           >

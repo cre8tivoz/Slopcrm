@@ -97,26 +97,29 @@ export function SlidingNumber({
 
   return (
     <div className="flex items-center">
-      {value < 0 && "-"}
-      {integerDigits.map((_, index) => (
-        <Digit
-          key={`pos-${integerPlaces[index]}`}
-          value={integerValue}
-          place={integerPlaces[index]}
-        />
-      ))}
-      {decimalPart && (
-        <>
-          <span>{decimalSeparator}</span>
-          {decimalPart.split("").map((_, index) => (
-            <Digit
-              key={`decimal-${index}`}
-              value={parseInt(decimalPart, 10)}
-              place={Math.pow(10, decimalPart.length - index - 1)}
-            />
-          ))}
-        </>
-      )}
+      <span className="sr-only">{value}</span>
+      <span aria-hidden className="flex items-center">
+        {value < 0 && "-"}
+        {integerDigits.map((_, index) => (
+          <Digit
+            key={`pos-${integerPlaces[index]}`}
+            value={integerValue}
+            place={integerPlaces[index]}
+          />
+        ))}
+        {decimalPart && (
+          <>
+            <span>{decimalSeparator}</span>
+            {decimalPart.split("").map((_, index) => (
+              <Digit
+                key={`decimal-${index}`}
+                value={parseInt(decimalPart, 10)}
+                place={Math.pow(10, decimalPart.length - index - 1)}
+              />
+            ))}
+          </>
+        )}
+      </span>
     </div>
   );
 }
