@@ -92,7 +92,9 @@ export function getStageConversionFunnel(
     };
   });
 
-  const activeStages = stages.filter((s) => s.summary.total > 0);
+  const activeStages = stages.filter(
+    (s) => s.companies.length > 0 || s.summary.openDeals > 0,
+  );
   const highestValueStage =
     activeStages.length > 0
       ? [...activeStages].sort((a, b) => b.summary.total - a.summary.total)[0]

@@ -39,6 +39,7 @@ export default function SidebarContent() {
   const companyCount = useCompaniesStore((state) => state.companies.length);
   const activeView = useUiStore((state) => state.activeView);
   const navigate = useUiStore((state) => state.navigate);
+  const setReportingTab = useUiStore((state) => state.setReportingTab);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -94,7 +95,10 @@ export default function SidebarContent() {
               icon={AlertTriangleIcon}
               label="Slipping Deals"
               active={activeView === "reports"}
-              onClick={() => navigate("reports")}
+              onClick={() => {
+                navigate("reports");
+                setReportingTab("velocity");
+              }}
             />
           </SidebarSection>
 

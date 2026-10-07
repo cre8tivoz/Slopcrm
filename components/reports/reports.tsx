@@ -27,7 +27,8 @@ const KPI_CARD =
   "border-border bg-card/50 flex flex-col gap-1 rounded-xl border p-3.5";
 
 export default function Reports() {
-  const [activeTab, setActiveTab] = useState<ReportingTab>("overview");
+  const activeTab = useUiStore((state) => state.reportingTab);
+  const setActiveTab = useUiStore((state) => state.setReportingTab);
   const companies = useCompaniesStore((state) => state.companies);
   const interactions = useCompaniesStore((state) => state.interactions);
 
@@ -52,7 +53,7 @@ export default function Reports() {
       sub: `${velocity.currentWeekTouches} this week`,
     },
     {
-      label: "Deals Needing Attention",
+      label: "Accounts Needing Attention",
       value: String(velocity.slippingCount + velocity.atRiskCount),
       sub: `${velocity.slippingCount} slipping, ${velocity.atRiskCount} at risk`,
     },

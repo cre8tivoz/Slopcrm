@@ -17,7 +17,9 @@ export default function ConversionFunnel() {
   const openDetail = useUiStore((state) => state.openDetail);
 
   const funnel = getStageConversionFunnel(companies);
-  const activeStages = funnel.stages.filter((s) => s.summary.total > 0);
+  const activeStages = funnel.stages.filter(
+    (s) => s.companies.length > 0 || s.summary.openDeals > 0,
+  );
   const maxTotal = Math.max(1, ...activeStages.map((s) => s.summary.total));
 
   return (
