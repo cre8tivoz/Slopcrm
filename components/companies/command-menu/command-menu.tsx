@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   Command,
   CommandDialog,
@@ -27,21 +27,6 @@ export default function CommandMenu() {
   );
   const [query, setQuery] = useState("");
   const actionRan = useRef(false);
-
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key.toLowerCase() !== "k") return;
-      if (!(event.metaKey || event.ctrlKey) || event.altKey || event.shiftKey) {
-        return;
-      }
-      event.preventDefault();
-      const { searchOpen, setSearchOpen } = useCompaniesStore.getState();
-      setSearchOpen(!searchOpen);
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
 
   function run(action: () => void) {
     actionRan.current = true;

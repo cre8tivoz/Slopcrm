@@ -33,6 +33,18 @@ Onboarding review (October 2026) targeted four axes:
 - **Reduced motion.** Global `prefers-reduced-motion` guard in `app/globals.css` short-circuits animations, transitions and smooth scrolling.
 - Minor: "Avg win probality" typo, header fits 320px without overflow.
 
+### Speed & bundle pass (PR #2)
+
+- **Method:** initial JS = script tags in the prerendered HTML, gzipped; live numbers from Resource Timing against `next start`. Baseline: **310.2 KB gz / 9 chunks** initial, ~320 KB transferred / 11 requests at runtime.
+- **Key baseline finding:** the Rive and Lottie _runtimes_ were already lazily split by their own packages and never downloaded at load — the popular "drop the heavy deps" win did not exist. The bundle floor is react-dom + next + Motion + Radix + app code.
+- **Changes:**
+  - Interaction-only panels — ⌘K command menu (pulls `cmdk`), New Company dialog, Profile sheet — code-split with `next/dynamic` and mounted on first open (`useEver` flag stays true afterwards so exit animations keep playing). The global ⌘K listener moved to `companies.tsx` so the shortcut works before the menu has ever loaded.
+  - Rive/Lottie component wrappers moved out of the shared chunk (`asset.tsx` dynamic imports; dead `AssetRive`/`AssetLottie` barrel re-exports removed — zero consumers). The files and the `type="rive"|"lottie"` capability remain; nothing in the CRM renders them today.
+  - Dead dependencies removed: `swiper` (zero source imports, 3.6 MB unpacked — and ironically the security sweep's upgrade target) and `cn` (zero imports, 374 KB).
+- **Result:** initial JS **310.2 → 297.8 KB gz**; deferred chunks (~cmdk + panels) fetch on first open. The company detail sheet — the primary journey — stays eager on purpose.
+- **Verified:** lint ✓, build ✓, prod QA — cold Ctrl+K opens focused, close/reopen cycle, New Company + Profile open/close, row → detail instant, mobile 390px (18 cards, no overflow), no heavy markers in initial chunks.
+- **Left alone deliberately:** react/next/Motion/Radix core, the 38.5 KB polyfill chunk (only loaded by legacy browsers — modern clients skip it), CSS (13.7 KB gz) and the single font (29.6 KB) — all already lean.
+
 ## Discovered while working
 
 - **`CONVENTIONS.md` and `OPTIMIZATION.md` are missing.** `CLAUDE.md` includes `@CONVENTIONS.md` and the README's docs table lists both. Agents following those pointers currently fail. Either restore the files or update the references.
@@ -42,16 +54,17 @@ Onboarding review (October 2026) targeted four axes:
 - **`selectedIds` has no bulk-action consumer.** Row checkboxes drive visual selection only; nothing acts on a selection. Either a bulk toolbar is planned or the selection UI is dead weight.
 - **Headless QA caveat:** in automation the browser is frame-starved — CSS animations freeze at `currentTime: 0` and ResizeObserver callbacks don't fire until a frame is forced (e.g. a screenshot). Radix sheets appear stuck "closing" and animated counters appear blank; this is environmental, not a product bug. Force a frame before judging animation state. `pointer: fine` also never matches headless, and Radix `DropdownMenu` opens on `pointerdown` (real pointer events, not synthetic `.click()`).
 - **Build emits a deprecation warning** (`module.register()` → `module.registerHooks()`) from Next.js internals — upstream, not ours.
+- **`next dev` and `next build` share `.next/`.** Running a production build while the dev server is up interleaves writes — measurements (and the dev server itself) get flaky. Stop the dev server before building. Related: an orphaned `next-server` process can hold port 3000 after its wrapper is killed; find it via `ss -ltnp`.
+- **`components/_ui/lightbox/` has no consumers** but is still type-checked, which is why `photoswipe` cannot be dropped from `package.json` without touching those files. It ships zero bytes today.
 
 ## Unfixable for now
 
 - **5 high vulnerabilities, all one dev-only chain:** `braces` → `micromatch` → `fast-glob` → `@next/eslint-plugin-next` → `eslint-config-next`. Root cause is `braces` ≤ 3.0.3 (GHSA-vfj7-8cjw-p6xm, stack exhaustion via deeply nested patterns) and **3.0.3 is the latest published release with no patched version upstream**. `npm audit` offers only "fix" is `npm audit fix --force`, which downgrades `eslint-config-next` to 14.2.35 — that breaks Next 16 linting and does not even remove `braces`. Not taken. Risk is low: build-time tooling only, never in the production bundle, and the attack requires an attacker to supply malicious glob patterns to your own linter. **Re-sweep when `braces` publishes a patched release** (`npm view braces versions`).
-- **Vision-based visual QA unavailable** on the current toolchain (vision backend rejected the model), so the design pass was verified through DOM measurements, computed styles and pixel-statistic inspection rather than model-read screenshots. Layout claims in this note are tool-verified, not eyeballed.
+- **Vision-based visual QA was unavailable** during the design pass (the configured model was rejected by the provider) — that pass was verified through DOM measurements, computed styles and pixel statistics rather than model-read screenshots. **Fixed 2026-10-07:** the vision auxiliary model is now `openai-codex` + `gpt-5.6-luna`, verified live; screenshot QA works.
 - **Selection bulk actions** can't be "fixed" without a product decision: build a bulk toolbar or remove selection. Out of scope for a polish pass.
 
 ## Next moves (from the original audit, not yet actioned)
 
-- Bundle/speed pass: measure production output, decide what of Rive/Lottie/Swiper/PhotoSwipe is actually load-bearing, lazy-load the rest (`rollup-plugin-visualizer` or route-level inspection).
 - Reconcile README/docs/naming with the actual product.
 - Consider a minimal CI gate (lint + build on PR) — there is currently nothing preventing a broken merge.
 - Deeper UX: Deals/Forecast screens (honest placeholders now), pagination/virtualisation if company counts grow, loading/empty states beyond the filters case.
