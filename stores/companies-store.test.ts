@@ -13,7 +13,6 @@ const acme: Company = {
   openDeals: 1,
   pipelineValue: 50000,
   winProbability: 40,
-  trend: [],
   lastInteraction: { date: "2026-09-14", label: "Demo" },
 };
 

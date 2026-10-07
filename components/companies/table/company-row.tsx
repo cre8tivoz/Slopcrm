@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/_ui/checkbox";
 import { TableCell, TableRow } from "@/components/_ui/table";
 import SegmentBar from "@/components/_common/segment-bar";
 import Sparkline from "@/components/_common/sparkline";
+import { useWeeklyTouches } from "@/hooks/use-weekly-touches";
 import CompanyTagList from "@/components/company/company-tag-list";
 import { ownerByName, type Company } from "@/data/companies";
 import { formatDate, formatMoney } from "@/lib/companies";
@@ -58,6 +59,7 @@ export default function CompanyRow({
   onOpenOwner,
 }: CompanyRowProps) {
   const owner = ownerByName(company.owner);
+  const trend = useWeeklyTouches(company.id);
 
   return (
     <TableRow
@@ -116,7 +118,7 @@ export default function CompanyRow({
         </span>
       </TableCell>
       <TableCell role="cell" className={cellClass("trend")}>
-        <Sparkline values={company.trend} />
+        <Sparkline values={trend} />
       </TableCell>
       <TableCell role="cell" className={cellClass("lastInteraction")}>
         <span className="flex items-center gap-1">

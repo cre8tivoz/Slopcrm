@@ -6,8 +6,13 @@ export const SITE_URL =
 export const SITE_DESCRIPTION = "Company pipeline for the sales team.";
 export const DEFAULT_OG_IMAGE = "/opengraph-image.jpg";
 
+/**
+ * Resolves against SITE_URL including any path, so a site mounted at
+ * https://example.com/app keeps the /app prefix.
+ */
 export function absoluteUrl(path: string) {
-  return new URL(path, SITE_URL).toString();
+  const base = SITE_URL.endsWith("/") ? SITE_URL : `${SITE_URL}/`;
+  return new URL(path.replace(/^\/+/, ""), base).toString();
 }
 
 export type SiteRoute = {

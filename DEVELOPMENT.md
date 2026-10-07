@@ -92,10 +92,22 @@ Architecture review found the domain rules smeared across views and already drif
 - **Left in `scripts/`:** the AVIF and Rive-frame tooling. `rive-frame.mjs` hard-codes its own `/scripts/` URL and couldn't be exercised here, so it wasn't moved.
 - **Bundle:** initial JS **301.2 KB gz**, up 3.4 KB from 297.8 after PR #2. That growth landed somewhere in S1–S3, which weren't measured individually. No Rive, Lottie or PhotoSwipe runtime appears in initial chunks.
 
+### S5: honest sparklines, naming, static hosting
+
+- **Activity sparklines are real now.** Each one was drawn from four hand-made patterns (`TREND_A`–`D`), and the alternating colours came from a fixed decorative pattern, so the table showed an invented chart beside real counts. Now `lib/activity.weeklyTouches()` counts touches per week for the last 14 weeks from the same interaction log as the Activities feed and detail sheet. The row, card and detail sheet all draw it, and a newly created company shows its first touch. The scale is fixed (1/2/3+ touches → 6/10/14 px), not per company, so rows compare honestly. Quiet weeks are a muted stub. The `trend` field is gone from `Company`. Each sparkline now has an accessible label ("7 touches in the last 14 weeks") instead of being hidden from screen readers.
+- **Sidebar Contacts no longer shows a fake "38".** There's no contacts data, so it shows no count.
+- **Naming:** README rewritten for what this actually is, `package.json` renamed to `slopcrm`.
+- **Static hosting, opt-in.** `npm run build:static` (`STATIC_EXPORT=1`) writes plain files to `out/`. `NEXT_PUBLIC_BASE_PATH` mounts the app in a subfolder. Without either, `npm run build` and `next start` behave exactly as before.
+  - Hard-coded `public/` image paths in `data/` go through `lib/base-path.withBasePath()`. Next prefixes its own routes and `_next` assets, but not plain `src` strings, so every logo and avatar 404'd in a subfolder before this.
+  - `absoluteUrl()` keeps a path in `SITE_URL` (it used to drop `/slopcrm`, so canonical, OG and sitemap URLs pointed at the domain root).
+  - `robots.txt` stays per-request on a server (the canonical-host check is unchanged). In a static export it can't see the host, so it always disallows indexing.
+  - CI also runs the static export with a base path, so a server-only API can't sneak back in unnoticed.
+- **Verified:** lint, **50 tests**, normal build (robots still dynamic) and static export. The export was served from a `/slopcrm/` subfolder: 18 rows, all 55 images load from `/slopcrm/assets/…`, sparklines labelled with real counts, no console errors, vision check clean.
+
 ## Discovered while working
 
 - **`CONVENTIONS.md` and `OPTIMIZATION.md` are missing.** `CLAUDE.md` includes `@CONVENTIONS.md` and the README's docs table lists both. Agents following those pointers currently fail. Either restore the files or update the references.
-- **README/`package.json` still say "Kargul Starter"** (`name: kargul-starter`) while the browser metadata says "Sales CRM". Naming is unreconciled.
+- **README/`package.json` said "Kargul Starter"** while the browser metadata says "Sales CRM". **Fixed in S5.**
 - **`SlidingNumber` shipped unused** — a complete Motion primitive with no consumer until this pass. It now drives the footer count.
 - **Test suite is unit-level only.** Vitest covers the pure domain modules (`lib/`, `data/`); there are no component or browser tests. Journeys are verified by hand/headless QA on each PR.
 - **`selectedIds` has no bulk-action consumer.** Row checkboxes drive visual selection only; nothing acts on a selection. Either a bulk toolbar is planned or the selection UI is dead weight.
@@ -112,5 +124,5 @@ Architecture review found the domain rules smeared across views and already drif
 
 ## Next moves (from the original audit, not yet actioned)
 
-- Reconcile README/docs/naming with the actual product.
+- ~~Reconcile README/docs/naming with the actual product.~~ Done in S5, apart from the missing `CONVENTIONS.md`/`OPTIMIZATION.md`.
 - Deeper UX: pagination/virtualisation if company counts grow, loading/empty states beyond the filters case, and Contacts/Email Sequences if real data ever arrives.

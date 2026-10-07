@@ -1,8 +1,7 @@
 import type { ComponentType, SVGProps } from "react";
 import Sparkline from "@/components/_common/sparkline";
-import type { Company } from "@/data/companies";
 import type { Interaction } from "@/data/interactions";
-import { activityCounts, withinDays } from "@/lib/activity";
+import { activityCounts, weeklyTouches, withinDays } from "@/lib/activity";
 import { formatDate } from "@/lib/companies";
 import CursorClickIcon from "@/public/assets/images/companies/detail/cursor-click.svg";
 import MailIcon from "@/public/assets/images/companies/detail/mail-03.svg";
@@ -10,7 +9,6 @@ import CalendarIcon from "@/public/assets/images/companies/detail/calendar.svg";
 import PhoneCallIcon from "@/public/assets/images/companies/detail/phone-call.svg";
 
 type ActivityTrendProps = {
-  company: Company;
   /** This company's interaction log, newest first. */
   interactions: Interaction[];
   /** Window in days, from the section's period picker. */
@@ -24,7 +22,6 @@ type Stat = {
 };
 
 export default function ActivityTrend({
-  company,
   interactions,
   days,
 }: ActivityTrendProps) {
@@ -44,7 +41,10 @@ export default function ActivityTrend({
           <span className="block text-[24px] leading-none tabular-nums">
             {counts.total}
           </span>
-          <Sparkline values={company.trend} className="h-[22px]" />
+          <Sparkline
+            values={weeklyTouches(interactions)}
+            className="h-[22px]"
+          />
         </div>
         <span className="caption-style text-soft block">
           {counts.total === 1 ? "Touch" : "Touches"} in the last {days} days

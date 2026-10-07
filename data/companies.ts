@@ -1,4 +1,5 @@
 import { isoDaysAgo } from "@/lib/demo-clock";
+import { withBasePath } from "@/lib/base-path";
 
 export const SEGMENTS = [
   "Enterprise",
@@ -55,9 +56,8 @@ export type Owner = {
   role: string;
 };
 
-const AVATARS = Array.from(
-  { length: 10 },
-  (_, i) => `/assets/images/_common/avatars/avatar-${i + 1}.png`,
+const AVATARS = Array.from({ length: 10 }, (_, i) =>
+  withBasePath(`/assets/images/_common/avatars/avatar-${i + 1}.png`),
 );
 
 const OWNER_NAMES = [
@@ -91,7 +91,7 @@ export const OWNERS: Owner[] = OWNER_NAMES.map((name, i) => ({
 
 export const CURRENT_USER: Owner = {
   name: "Jensen Ackles",
-  avatar: "/assets/images/_common/avatars/jensen.png",
+  avatar: withBasePath("/assets/images/_common/avatars/jensen.png"),
   email: "jensen.ackles@crm.com",
   phone: "+1 (202) 184-5501",
   role: "Head of Sales",
@@ -113,34 +113,9 @@ export type Company = {
   openDeals: number;
   pipelineValue: number;
   winProbability: number;
-  trend: number[];
   lastInteraction: { date: string; label: string };
   logo?: string;
 };
-
-export const TREND_PATTERN = [
-  false,
-  true,
-  true,
-  false,
-  true,
-  true,
-  false,
-  true,
-  false,
-  true,
-  false,
-  true,
-  true,
-  false,
-];
-
-export const DEFAULT_TREND = [4, 4, 5, 5, 2, 7, 11, 7, 5, 7, 5, 3, 7, 14];
-
-const TREND_A = [4, 4, 10, 3, 2, 4, 7, 4, 11, 4, 11, 7, 4, 14];
-const TREND_B = [4, 4, 5, 5, 2, 7, 11, 7, 5, 7, 5, 3, 7, 14];
-const TREND_C = [4, 4, 10, 5, 2, 7, 11, 7, 11, 7, 11, 7, 7, 14];
-const TREND_D = [4, 4, 5, 12, 5, 7, 11, 3, 11, 3, 11, 3, 7, 14];
 
 /**
  * Seed records date their last interaction as "days before DEMO_TODAY" so
@@ -159,7 +134,6 @@ const COMPANY_RECORDS: CompanySeed[] = [
     openDeals: 7,
     pipelineValue: 420000,
     winProbability: 70,
-    trend: TREND_A,
     lastInteraction: { daysAgo: 88, label: "QBR Call" },
   },
   {
@@ -170,7 +144,6 @@ const COMPANY_RECORDS: CompanySeed[] = [
     openDeals: 4,
     pipelineValue: 311242,
     winProbability: 51,
-    trend: TREND_B,
     lastInteraction: { daysAgo: 87, label: "Demo" },
   },
   {
@@ -181,7 +154,6 @@ const COMPANY_RECORDS: CompanySeed[] = [
     openDeals: 5,
     pipelineValue: 124232,
     winProbability: 22,
-    trend: TREND_C,
     lastInteraction: { daysAgo: 84, label: "Security" },
   },
   {
@@ -192,7 +164,6 @@ const COMPANY_RECORDS: CompanySeed[] = [
     openDeals: 2,
     pipelineValue: 221231,
     winProbability: 77,
-    trend: TREND_D,
     lastInteraction: { daysAgo: 81, label: "Legal" },
   },
   {
@@ -203,7 +174,6 @@ const COMPANY_RECORDS: CompanySeed[] = [
     openDeals: 6,
     pipelineValue: 530111,
     winProbability: 82,
-    trend: TREND_C,
     lastInteraction: { daysAgo: 83, label: "Exec" },
   },
   {
@@ -214,7 +184,6 @@ const COMPANY_RECORDS: CompanySeed[] = [
     openDeals: 8,
     pipelineValue: 320222,
     winProbability: 86,
-    trend: TREND_C,
     lastInteraction: { daysAgo: 79, label: "Pilot" },
   },
   {
@@ -225,7 +194,6 @@ const COMPANY_RECORDS: CompanySeed[] = [
     openDeals: 3,
     pipelineValue: 122230,
     winProbability: 51,
-    trend: TREND_B,
     lastInteraction: { daysAgo: 78, label: "Pricing" },
   },
   {
@@ -236,7 +204,6 @@ const COMPANY_RECORDS: CompanySeed[] = [
     openDeals: 5,
     pipelineValue: 230112,
     winProbability: 61,
-    trend: TREND_C,
     lastInteraction: { daysAgo: 74, label: "Product" },
   },
   {
@@ -247,7 +214,6 @@ const COMPANY_RECORDS: CompanySeed[] = [
     openDeals: 2,
     pipelineValue: 420222,
     winProbability: 38,
-    trend: TREND_C,
     lastInteraction: { daysAgo: 58, label: "Pricing" },
   },
   {
@@ -258,7 +224,6 @@ const COMPANY_RECORDS: CompanySeed[] = [
     openDeals: 8,
     pipelineValue: 112277,
     winProbability: 24,
-    trend: TREND_B,
     lastInteraction: { daysAgo: 62, label: "Renewal" },
   },
   {
@@ -269,7 +234,6 @@ const COMPANY_RECORDS: CompanySeed[] = [
     openDeals: 3,
     pipelineValue: 221221,
     winProbability: 72,
-    trend: TREND_C,
     lastInteraction: { daysAgo: 55, label: "Pilot" },
   },
   {
@@ -280,7 +244,6 @@ const COMPANY_RECORDS: CompanySeed[] = [
     openDeals: 5,
     pipelineValue: 170991,
     winProbability: 55,
-    trend: TREND_C,
     lastInteraction: { daysAgo: 48, label: "Expansion" },
   },
   {
@@ -291,7 +254,6 @@ const COMPANY_RECORDS: CompanySeed[] = [
     openDeals: 9,
     pipelineValue: 139007,
     winProbability: 45,
-    trend: TREND_C,
     lastInteraction: { daysAgo: 40, label: "Renewal" },
   },
   {
@@ -302,7 +264,6 @@ const COMPANY_RECORDS: CompanySeed[] = [
     openDeals: 8,
     pipelineValue: 289921,
     winProbability: 38,
-    trend: TREND_D,
     lastInteraction: { daysAgo: 27, label: "Partner" },
   },
   {
@@ -313,7 +274,6 @@ const COMPANY_RECORDS: CompanySeed[] = [
     openDeals: 4,
     pipelineValue: 333221,
     winProbability: 23,
-    trend: TREND_C,
     lastInteraction: { daysAgo: 24, label: "Discovery" },
   },
   {
@@ -324,7 +284,6 @@ const COMPANY_RECORDS: CompanySeed[] = [
     openDeals: 3,
     pipelineValue: 442231,
     winProbability: 44,
-    trend: TREND_C,
     lastInteraction: { daysAgo: 8, label: "Demo" },
   },
   {
@@ -335,7 +294,6 @@ const COMPANY_RECORDS: CompanySeed[] = [
     openDeals: 6,
     pipelineValue: 520000,
     winProbability: 24,
-    trend: TREND_C,
     lastInteraction: { daysAgo: 6, label: "Pricing" },
   },
   {
@@ -346,7 +304,6 @@ const COMPANY_RECORDS: CompanySeed[] = [
     openDeals: 2,
     pipelineValue: 210123,
     winProbability: 52,
-    trend: TREND_C,
     lastInteraction: { daysAgo: 2, label: "QBR Call" },
   },
 ];
@@ -358,7 +315,7 @@ export const COMPANIES: Company[] = COMPANY_RECORDS.map(
       date: isoDaysAgo(lastInteraction.daysAgo),
       label: lastInteraction.label,
     },
-    logo: `/assets/images/companies/logos/${company.id}.svg`,
+    logo: withBasePath(`/assets/images/companies/logos/${company.id}.svg`),
   }),
 );
 
@@ -412,7 +369,7 @@ export const SCORE_CARDS: ScoreCard[] = [
     description:
       "Evaluates how well the company aligns with our ideal customer profile.",
     reviewer: "Emma Green",
-    reviewerAvatar: "/assets/images/_common/avatars/detail-2.png",
+    reviewerAvatar: withBasePath("/assets/images/_common/avatars/detail-2.png"),
     updated: "Updated 2h ago",
     verdict: "High potential SN",
     stars: 4,
@@ -422,7 +379,7 @@ export const SCORE_CARDS: ScoreCard[] = [
     description:
       "Evaluates technical compatibility, security requirements, and integration readiness.",
     reviewer: "Ricky Brown",
-    reviewerAvatar: "/assets/images/_common/avatars/detail-3.png",
+    reviewerAvatar: withBasePath("/assets/images/_common/avatars/detail-3.png"),
     updated: "Updated 2h ago",
     verdict: "High potential SN",
     stars: 4,
@@ -432,7 +389,7 @@ export const SCORE_CARDS: ScoreCard[] = [
     description:
       "Evaluates technical compatibility, security requirements, and integration readiness.",
     reviewer: "Taylor Leroy",
-    reviewerAvatar: "/assets/images/_common/avatars/detail-1.png",
+    reviewerAvatar: withBasePath("/assets/images/_common/avatars/detail-1.png"),
     updated: "Updated 2h ago",
     verdict: "High potential SN",
     stars: 4,
