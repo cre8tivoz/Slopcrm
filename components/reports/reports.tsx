@@ -38,9 +38,9 @@ export default function Reports() {
 
   const kpis = [
     {
-      label: "Pipeline Win Rate",
+      label: "Pipeline Win Probability",
       value: `${funnel.overallWinRate}%`,
-      sub: `${funnel.totalOpenDeals} total deals`,
+      sub: `${funnel.totalOpenDeals} open deals`,
     },
     {
       label: "Total Pipeline",

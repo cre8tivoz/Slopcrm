@@ -72,7 +72,7 @@ export default function RepPerformance() {
         {repSummary.highestWinRep && (
           <div className="border-border bg-card/40 flex flex-col gap-2 rounded-xl border p-3.5">
             <span className="caption-style text-muted-foreground">
-              Highest Win Rate
+              Highest Win Probability
             </span>
             <div className="flex items-center gap-2.5">
               <Avatar

@@ -210,7 +210,7 @@ export default function ConversionFunnel() {
             <div className="border-border bg-card/30 flex items-start justify-between rounded-lg border p-3">
               <div>
                 <span className="caption-style text-muted-foreground block">
-                  Overall Pipeline Win Rate
+                  Overall Pipeline Win Probability
                 </span>
                 <span className="lead-style text-foreground font-semibold">
                   {funnel.overallWinRate}%
