@@ -40,8 +40,12 @@ export default function CompanyCard({
               <SegmentBar
                 percent={company.winProbability}
                 segments={10}
+                label="Chance to win"
                 className="w-12"
               />
+              <span className="caption-style text-muted-foreground w-[3ch] text-right">
+                {company.winProbability}%
+              </span>
               ${formatMoney(company.pipelineValue)}
             </span>
           </span>

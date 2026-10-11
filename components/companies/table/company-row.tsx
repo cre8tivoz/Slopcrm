@@ -111,7 +111,11 @@ export default function CompanyRow({
       </TableCell>
       <TableCell role="cell" className={cellClass("winProbability")}>
         <span className="flex items-center gap-2">
-          <SegmentBar percent={company.winProbability} className="w-[74px]" />
+          <SegmentBar
+            percent={company.winProbability}
+            label="Chance to win"
+            className="w-[74px]"
+          />
           <span className="w-[4ch] text-right">{company.winProbability}%</span>
         </span>
       </TableCell>

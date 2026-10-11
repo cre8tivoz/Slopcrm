@@ -9,6 +9,8 @@ type SegmentBarProps = {
   className?: string;
   segmentClassName?: string;
   trackClassName?: string;
+  /** Accessible name for the meter, e.g. "Chance to win". */
+  label?: string;
   /** Light the filled segments up left to right on mount. */
   animated?: boolean;
   /** Extra delay before the light-up starts, in ms (for staggering rows). */
@@ -38,6 +40,7 @@ export default function SegmentBar({
   trackClassName = "bg-track",
   animated = false,
   delay = 0,
+  label,
 }: SegmentBarProps) {
   const filled = Math.round((percent / 100) * segments);
 
@@ -47,6 +50,8 @@ export default function SegmentBar({
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={percent}
+      aria-valuetext={`${percent}%`}
+      aria-label={label}
       className={cn(
         "flex h-[14px] items-center gap-[2px] overflow-hidden rounded-[2px] bg-white/8 px-[2px]",
         className,
