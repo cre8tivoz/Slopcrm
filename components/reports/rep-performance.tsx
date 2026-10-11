@@ -8,8 +8,7 @@ import { useCompaniesStore } from "@/stores/companies-store";
 import { useUiStore } from "@/stores/ui-store";
 import { cn } from "@/lib/utils";
 
-const PANEL =
-  "border-border bg-card/50 rounded-xl border p-3.5 flex flex-col gap-3";
+const PANEL = "flex flex-col gap-3";
 
 export default function RepPerformance() {
   const companies = useCompaniesStore((state) => state.companies);
@@ -24,7 +23,7 @@ export default function RepPerformance() {
       {/* Highlights / Podium Cards */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {repSummary.topProducer && (
-          <div className="border-border bg-card/40 flex flex-col gap-2 rounded-xl border p-3.5">
+          <div className="flex flex-col gap-2 rounded-2xl bg-white/[0.03] p-4">
             <span className="caption-style text-muted-foreground">
               Top Pipeline Producer
             </span>
@@ -39,7 +38,7 @@ export default function RepPerformance() {
                   {repSummary.topProducer.owner.name}
                 </span>
                 <span className="caption-style text-muted-foreground block truncate text-[11px]">
-                  ${formatMoney(repSummary.topProducer.weightedPipeline)} wtd
+                  ${formatMoney(repSummary.topProducer.weightedPipeline)} likely
                 </span>
               </div>
             </div>
@@ -47,7 +46,7 @@ export default function RepPerformance() {
         )}
 
         {repSummary.mostActiveRep && (
-          <div className="border-border bg-card/40 flex flex-col gap-2 rounded-xl border p-3.5">
+          <div className="flex flex-col gap-2 rounded-2xl bg-white/[0.03] p-4">
             <span className="caption-style text-muted-foreground">
               Highest Activity Pace (30d)
             </span>
@@ -70,9 +69,9 @@ export default function RepPerformance() {
         )}
 
         {repSummary.highestWinRep && (
-          <div className="border-border bg-card/40 flex flex-col gap-2 rounded-xl border p-3.5">
+          <div className="flex flex-col gap-2 rounded-2xl bg-white/[0.03] p-4">
             <span className="caption-style text-muted-foreground">
-              Highest Win Probability
+              Best chance to win
             </span>
             <div className="flex items-center gap-2.5">
               <Avatar
@@ -97,7 +96,9 @@ export default function RepPerformance() {
       <div className={PANEL}>
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="lead-style font-medium">Sales Rep Leaderboard</h2>
+            <h2 className="eyebrow-style text-muted-foreground">
+              Sales Rep Leaderboard
+            </h2>
             <p className="caption-style text-muted-foreground">
               Ranked by weighted pipeline. Click any rep to open their profile.
             </p>
@@ -161,11 +162,7 @@ export default function RepPerformance() {
                   <span className="caption-style font-semibold tabular-nums">
                     {rep.avgWinRate}%
                   </span>
-                  <SegmentBar
-                    percent={rep.avgWinRate}
-                    segments={8}
-                    className="w-14"
-                  />
+                  <SegmentBar percent={rep.avgWinRate} className="w-14" />
                 </div>
 
                 {/* 30-day touch count */}
@@ -184,7 +181,7 @@ export default function RepPerformance() {
                     ${formatMoney(rep.totalPipeline)}
                   </span>
                   <span className="caption-style text-muted-foreground block text-[11px] tabular-nums">
-                    ${formatMoney(rep.weightedPipeline)} wtd
+                    ${formatMoney(rep.weightedPipeline)} likely
                   </span>
                 </div>
 
@@ -193,7 +190,7 @@ export default function RepPerformance() {
                   <button
                     type="button"
                     onClick={() => openDetail(rep.topCompany!.id)}
-                    className="border-border bg-card ease-power3-out hidden items-center gap-1.5 rounded border px-2 py-1 text-xs transition-[background-color,transform] hover:bg-white/5 active:scale-[0.98] sm:inline-flex"
+                    className="ease-power3-out hidden items-center gap-1.5 rounded-full bg-white/6 px-2.5 py-1 text-xs transition-[background-color,transform] hover:bg-white/5 hover:bg-white/10 active:scale-[0.98] sm:inline-flex"
                     aria-label={`View ${rep.topCompany.name}`}
                   >
                     <CompanyLogo company={rep.topCompany} size="xs" />

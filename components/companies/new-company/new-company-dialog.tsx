@@ -275,10 +275,7 @@ export default function NewCompanyDialog() {
                 />
                 <SegmentBar
                   percent={form.winProbability}
-                  segments={40}
                   className="h-3 w-full border border-white/4 px-px"
-                  segmentClassName="h-2"
-                  trackClassName="bg-white/8"
                 />
               </div>
             </Field>

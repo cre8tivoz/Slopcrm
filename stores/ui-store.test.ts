@@ -61,15 +61,6 @@ describe("ui store", () => {
     expect(useUiStore.getState().reportingTab).toBe("velocity");
   });
 
-  it("toggles row selection", () => {
-    const { toggleSelected, setSelected } = useUiStore.getState();
-    setSelected([]);
-    toggleSelected("apple");
-    toggleSelected("zoom");
-    toggleSelected("apple");
-    expect(useUiStore.getState().selectedIds).toEqual(["zoom"]);
-  });
-
   it("opens the detail sheet straight onto the log form when asked", () => {
     const { openDetail } = useUiStore.getState();
     openDetail("apple", { log: true });

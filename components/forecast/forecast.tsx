@@ -15,11 +15,9 @@ import {
 import { useCompaniesStore } from "@/stores/companies-store";
 import { useUiStore } from "@/stores/ui-store";
 
-const KPI_CARD =
-  "border-border bg-card/50 flex flex-col gap-1 rounded-xl border p-3.5";
+const KPI_CARD = "flex flex-col gap-1.5";
 
-const PANEL =
-  "border-border bg-card/50 rounded-xl border p-3.5 flex flex-col gap-3";
+const PANEL = "flex flex-col gap-3";
 
 const ROW_BUTTON =
   "ease-power3-out flex min-h-11 fine:min-h-0 w-full items-center gap-3 rounded-lg px-2 py-1.5 text-left transition-[background-color,transform] duration-150 hover:bg-white/4 active:scale-[0.99] focus-visible:ring-ring/60 focus-visible:ring-2 focus-visible:outline-none";
@@ -46,21 +44,21 @@ export default function Forecast() {
 
   const kpis = [
     { label: "Total pipeline", value: `$${formatMoney(summary.total)}` },
-    { label: "Weighted forecast", value: `$${formatMoney(summary.weighted)}` },
-    { label: "Avg win probability", value: `${summary.avgWin}%` },
+    { label: "Likely to land", value: `$${formatMoney(summary.weighted)}` },
+    { label: "Avg chance to win", value: `${summary.avgWin}%` },
     { label: "Open deals", value: String(summary.openDeals) },
   ];
 
   return (
     <section aria-label="Forecast" className="min-h-0 flex-1 overflow-y-auto">
-      <div className="flex flex-col gap-4 p-4">
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="mx-auto flex w-full max-w-[72em] flex-col gap-10 px-4 pt-2 pb-24 lg:px-8 lg:pt-8 lg:pb-12">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-6 lg:grid-cols-4">
           {kpis.map((kpi) => (
             <div key={kpi.label} className={KPI_CARD}>
               <span className="caption-style text-muted-foreground">
                 {kpi.label}
               </span>
-              <span className="text-[20px] leading-tight font-semibold tracking-[-0.01em] tabular-nums">
+              <span className="text-[24px] leading-none font-semibold tracking-[-0.02em] tabular-nums">
                 {kpi.value}
               </span>
             </div>
@@ -68,7 +66,9 @@ export default function Forecast() {
         </div>
 
         <div className={PANEL}>
-          <h2 className="lead-style font-medium">Pipeline by stage</h2>
+          <h2 className="eyebrow-style text-muted-foreground">
+            Pipeline by stage
+          </h2>
           <ul className="flex flex-col gap-2.5">
             {byStageRows.map((row, index) => (
               <li
@@ -92,7 +92,7 @@ export default function Forecast() {
                     ${formatMoney(row.summary.total)}
                   </span>
                   <span className="caption-style text-muted-foreground hidden w-28 shrink-0 truncate text-right tabular-nums sm:block">
-                    ${formatMoney(row.summary.weighted)} wtd
+                    ${formatMoney(row.summary.weighted)} likely
                   </span>
                 </div>
               </li>
@@ -101,7 +101,9 @@ export default function Forecast() {
         </div>
 
         <div className={PANEL}>
-          <h2 className="lead-style font-medium">Top opportunities</h2>
+          <h2 className="eyebrow-style text-muted-foreground">
+            Top opportunities
+          </h2>
           <ul className="flex flex-col">
             {top.map((company, index) => {
               const owner = ownerByName(company.owner);
@@ -153,7 +155,9 @@ export default function Forecast() {
         </div>
 
         <div className={PANEL}>
-          <h2 className="lead-style font-medium">Forecast by owner</h2>
+          <h2 className="eyebrow-style text-muted-foreground">
+            Forecast by owner
+          </h2>
           <ul className="flex flex-col">
             {byOwnerRows.map((row, index) => {
               const owner = ownerByName(row.owner);
@@ -194,7 +198,7 @@ export default function Forecast() {
             })}
           </ul>
           <span className="caption-style text-muted-foreground">
-            Weighted contribution — click an owner for their profile
+            Likely to land, per owner. Click one for their profile.
           </span>
         </div>
       </div>

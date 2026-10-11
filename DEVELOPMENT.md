@@ -140,6 +140,13 @@ Reference sweep on Mobbin (Attio, Quo/OpenPhone, Telegram, Mesh, Shopify, Pipedr
 - **Persistence:** business data saves to `localStorage` (`slopcrm:data`, zustand `persist`, storage that never throws). It's applied after mount (`skipHydration` + `rehydrate()` in Shell), so the prerendered HTML still matches. **Reset demo data** (two taps) is at the bottom of the menu. No server database: no hosting or security surface, and a reset always works.
 - **Tests:** 70 (store reset, search intent, compact money, long date).
 
+### Desktop, Forecast and Reporting de-chrome
+
+- **Companies table:** 7 columns instead of 9. Logo + name + segment, stage as plain text, owner, deal value, a thin "chance to win" bar, the 14-week sparkline, and last contact as status dot + "83 days of silence". Checkboxes and the "…" column are gone, and so is `selectedIds` in `ui-store`: nothing ever acted on a selection.
+- **Shared atoms got calmer, so every screen follows:** `SegmentBar` is now one thin bar (the rainbow segments are gone, same props), and `Tag` has no outline.
+- **Forecast & Reporting:** no bordered KPI cards or panels. Big unboxed numbers, eyebrow section headings, soft tints only where grouping matters, pill chips, roomier max-width layout. The velocity chart bars are neutral, so the moving-average line carries the colour.
+- **Plain words everywhere:** "Weighted" → "Likely to land", "Win probability" → "Chance to win", "Slipping / At risk" → "Going cold / Needs a nudge", "wtd" → "likely".
+
 ## Discovered while working
 
 - **`CONVENTIONS.md` and `OPTIMIZATION.md` are missing.** `CLAUDE.md` includes `@CONVENTIONS.md` and the README's docs table lists both. Agents following those pointers currently fail. Either restore the files or update the references.

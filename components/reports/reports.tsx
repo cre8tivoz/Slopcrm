@@ -23,8 +23,7 @@ const TABS: { id: ReportingTab; label: string }[] = [
   { id: "reps", label: "Rep Performance" },
 ];
 
-const KPI_CARD =
-  "border-border bg-card/50 flex flex-col gap-1 rounded-xl border p-3.5";
+const KPI_CARD = "flex flex-col gap-1.5";
 
 export default function Reports() {
   const activeTab = useUiStore((state) => state.reportingTab);
@@ -38,24 +37,24 @@ export default function Reports() {
 
   const kpis = [
     {
-      label: "Pipeline Win Probability",
+      label: "Avg chance to win",
       value: `${funnel.overallWinRate}%`,
       sub: `${funnel.totalOpenDeals} open deals`,
     },
     {
-      label: "Total Pipeline",
+      label: "In the pipeline",
       value: `$${formatMoney(funnel.totalPipeline)}`,
-      sub: `$${formatMoney(funnel.totalWeighted)} weighted`,
+      sub: `$${formatMoney(funnel.totalWeighted)} likely to land`,
     },
     {
-      label: "4-Wk Touch Pace",
+      label: "Touches per week",
       value: `${velocity.fourWeekMovingAverage}/wk`,
       sub: `${velocity.currentWeekTouches} this week`,
     },
     {
-      label: "Accounts Needing Attention",
+      label: "Need a follow-up",
       value: String(velocity.slippingCount + velocity.atRiskCount),
-      sub: `${velocity.slippingCount} slipping, ${velocity.atRiskCount} at risk`,
+      sub: `${velocity.slippingCount} going cold, ${velocity.atRiskCount} need a nudge`,
     },
   ];
 
@@ -64,15 +63,14 @@ export default function Reports() {
       aria-label="Reporting"
       className="min-h-0 w-full max-w-full flex-1 overflow-x-hidden overflow-y-auto"
     >
-      <div className="flex w-full max-w-full min-w-0 flex-col gap-4 p-4">
-        {/* Executive KPI ribbon */}
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="mx-auto flex w-full max-w-[72em] min-w-0 flex-col gap-8 px-4 pt-2 pb-24 lg:px-8 lg:pt-8 lg:pb-12">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-6 lg:grid-cols-4">
           {kpis.map((kpi) => (
             <div key={kpi.label} className={KPI_CARD}>
               <span className="caption-style text-muted-foreground">
                 {kpi.label}
               </span>
-              <span className="text-[20px] leading-tight font-semibold tracking-[-0.01em] tabular-nums">
+              <span className="text-[24px] leading-none font-semibold tracking-[-0.02em] tabular-nums">
                 {kpi.value}
               </span>
               <span className="caption-style text-subtle text-[11px] tabular-nums">
@@ -82,17 +80,16 @@ export default function Reports() {
           ))}
         </div>
 
-        {/* Sub-tab navigation bar */}
-        <div className="border-border bg-card/30 flex max-w-full items-center gap-1.5 overflow-x-auto rounded-lg border p-1 [scrollbar-width:none]">
+        <div className="flex max-w-full items-center gap-1 overflow-x-auto rounded-xl bg-white/5 p-1 [scrollbar-width:none]">
           {TABS.map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "caption-style ease-power3-out rounded-md px-3 py-1.5 font-medium whitespace-nowrap transition-[background-color,color]",
+                "caption-style ease-power3-out min-h-9 rounded-lg px-3 font-medium whitespace-nowrap transition-[background-color,color]",
                 activeTab === tab.id
-                  ? "bg-muted text-foreground shadow-sm"
+                  ? "text-foreground bg-white/10"
                   : "text-muted-foreground hover:text-foreground hover:bg-white/4",
               )}
             >
@@ -101,9 +98,8 @@ export default function Reports() {
           ))}
         </div>
 
-        {/* Active Tab Screen Content */}
         {activeTab === "overview" && (
-          <div className="flex w-full max-w-full min-w-0 flex-col gap-6">
+          <div className="flex w-full max-w-full min-w-0 flex-col gap-12">
             <ConversionFunnel />
             <PipelineMovement />
             <RepPerformance />

@@ -10,8 +10,7 @@ import { useCompaniesStore } from "@/stores/companies-store";
 import { useUiStore } from "@/stores/ui-store";
 import { cn } from "@/lib/utils";
 
-const PANEL =
-  "border-border bg-card/50 rounded-xl border p-3.5 flex flex-col gap-3";
+const PANEL = "flex flex-col gap-3";
 
 export default function ConversionFunnel() {
   const companies = useCompaniesStore((state) => state.companies);
@@ -29,7 +28,9 @@ export default function ConversionFunnel() {
       <div className={cn(PANEL, "w-full max-w-full min-w-0")}>
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="lead-style font-medium">Stage Conversion Funnel</h2>
+            <h2 className="eyebrow-style text-muted-foreground">
+              Stage Conversion Funnel
+            </h2>
             <p className="caption-style text-muted-foreground">
               Lifecycle progression from early discovery to renewal, with win
               rates and expected yields.
@@ -55,7 +56,7 @@ export default function ConversionFunnel() {
             return (
               <li
                 key={metric.stage}
-                className="border-border bg-card/30 animate-rise flex flex-col gap-2 rounded-lg border p-3"
+                className="animate-rise flex flex-col gap-2 rounded-2xl bg-white/[0.03] p-4"
                 style={{ animationDelay: `${index * 35}ms` }}
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -73,23 +74,19 @@ export default function ConversionFunnel() {
                   <div className="flex items-center gap-4 text-right">
                     <div className="flex items-center gap-1.5">
                       <span className="caption-style text-muted-foreground">
-                        Win Prob:
+                        Chance to win:
                       </span>
                       <span className="caption-style text-foreground font-medium tabular-nums">
                         {metric.winRate}%
                       </span>
-                      <SegmentBar
-                        percent={metric.winRate}
-                        segments={10}
-                        className="w-16"
-                      />
+                      <SegmentBar percent={metric.winRate} className="w-16" />
                     </div>
                     <div className="w-24 text-right">
                       <span className="caption-style block font-semibold tabular-nums">
                         ${formatMoney(metric.summary.total)}
                       </span>
                       <span className="caption-style text-muted-foreground block text-[11px] tabular-nums">
-                        ${formatMoney(metric.summary.weighted)} wtd
+                        ${formatMoney(metric.summary.weighted)} likely
                       </span>
                     </div>
                   </div>
@@ -113,7 +110,7 @@ export default function ConversionFunnel() {
                       key={c.id}
                       type="button"
                       onClick={() => openDetail(c.id)}
-                      className="border-border bg-card ease-power3-out inline-flex items-center gap-1.5 rounded border px-2 py-0.5 text-xs transition-[background-color,transform] hover:bg-white/5 active:scale-[0.98]"
+                      className="ease-power3-out inline-flex items-center gap-1.5 rounded-full bg-white/6 px-2.5 py-0.5 text-xs transition-[background-color,transform] hover:bg-white/5 hover:bg-white/10 active:scale-[0.98]"
                       aria-label={`View details for ${c.name}`}
                     >
                       <CompanyLogo company={c} size="xs" />
@@ -133,7 +130,9 @@ export default function ConversionFunnel() {
       {/* Conversion Breakdown & Risk Analysis */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className={PANEL}>
-          <h3 className="lead-style font-medium">Stage Yield & Risk</h3>
+          <h3 className="eyebrow-style text-muted-foreground">
+            Stage Yield & Risk
+          </h3>
           <p className="caption-style text-muted-foreground">
             Comparison between potential contract value and weighted
             probability.
@@ -169,11 +168,11 @@ export default function ConversionFunnel() {
         </div>
 
         <div className={PANEL}>
-          <h3 className="lead-style font-medium">
+          <h3 className="eyebrow-style text-muted-foreground">
             Funnel Efficiency Highlights
           </h3>
           <div className="flex flex-col gap-3 pt-1">
-            <div className="border-border bg-card/30 flex items-start justify-between rounded-lg border p-3">
+            <div className="flex items-start justify-between rounded-2xl bg-white/[0.03] p-4">
               <div>
                 <span className="caption-style text-muted-foreground block">
                   Top Volume Stage
@@ -191,10 +190,10 @@ export default function ConversionFunnel() {
               </span>
             </div>
 
-            <div className="border-border bg-card/30 flex items-start justify-between rounded-lg border p-3">
+            <div className="flex items-start justify-between rounded-2xl bg-white/[0.03] p-4">
               <div>
                 <span className="caption-style text-muted-foreground block">
-                  Highest Win Probability Stage
+                  Best chance to win
                 </span>
                 <span className="lead-style text-foreground font-semibold">
                   {funnel.highestWinStage}
@@ -207,10 +206,10 @@ export default function ConversionFunnel() {
               </span>
             </div>
 
-            <div className="border-border bg-card/30 flex items-start justify-between rounded-lg border p-3">
+            <div className="flex items-start justify-between rounded-2xl bg-white/[0.03] p-4">
               <div>
                 <span className="caption-style text-muted-foreground block">
-                  Overall Pipeline Win Probability
+                  Avg chance to win
                 </span>
                 <span className="lead-style text-foreground font-semibold">
                   {funnel.overallWinRate}%
