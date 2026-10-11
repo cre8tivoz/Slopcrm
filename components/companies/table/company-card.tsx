@@ -1,3 +1,4 @@
+import SegmentBar from "@/components/_common/segment-bar";
 import CompanyLogo from "@/components/company/company-logo";
 import { StatusDot, lastContactText } from "@/components/company/deal-status";
 import { ownerByName, type Company } from "@/data/companies";
@@ -35,7 +36,12 @@ export default function CompanyCard({
             <span className="lead-style truncate font-medium">
               {company.name}
             </span>
-            <span className="lead-style shrink-0 tabular-nums">
+            <span className="lead-style flex shrink-0 items-center gap-2 tabular-nums">
+              <SegmentBar
+                percent={company.winProbability}
+                segments={10}
+                className="w-12"
+              />
               ${formatMoney(company.pipelineValue)}
             </span>
           </span>

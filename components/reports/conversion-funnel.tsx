@@ -79,7 +79,11 @@ export default function ConversionFunnel() {
                       <span className="caption-style text-foreground font-medium tabular-nums">
                         {metric.winRate}%
                       </span>
-                      <SegmentBar percent={metric.winRate} className="w-16" />
+                      <SegmentBar
+                        percent={metric.winRate}
+                        segments={10}
+                        className="w-16"
+                      />
                     </div>
                     <div className="w-24 text-right">
                       <span className="caption-style block font-semibold tabular-nums">

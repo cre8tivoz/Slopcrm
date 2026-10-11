@@ -162,7 +162,11 @@ export default function RepPerformance() {
                   <span className="caption-style font-semibold tabular-nums">
                     {rep.avgWinRate}%
                   </span>
-                  <SegmentBar percent={rep.avgWinRate} className="w-14" />
+                  <SegmentBar
+                    percent={rep.avgWinRate}
+                    segments={8}
+                    className="w-14"
+                  />
                 </div>
 
                 {/* 30-day touch count */}

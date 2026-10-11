@@ -143,9 +143,19 @@ Reference sweep on Mobbin (Attio, Quo/OpenPhone, Telegram, Mesh, Shopify, Pipedr
 ### Desktop, Forecast and Reporting de-chrome
 
 - **Companies table:** 7 columns instead of 9. Logo + name + segment, stage as plain text, owner, deal value, a thin "chance to win" bar, the 14-week sparkline, and last contact as status dot + "83 days of silence". Checkboxes and the "…" column are gone, and so is `selectedIds` in `ui-store`: nothing ever acted on a selection.
-- **Shared atoms got calmer, so every screen follows:** `SegmentBar` is now one thin bar (the rainbow segments are gone, same props), and `Tag` has no outline.
-- **Forecast & Reporting:** no bordered KPI cards or panels. Big unboxed numbers, eyebrow section headings, soft tints only where grouping matters, pill chips, roomier max-width layout. The velocity chart bars are neutral, so the moving-average line carries the colour.
+- **`Tag` has no outline.**
+- **Forecast & Reporting:** no bordered KPI cards or panels. Big unboxed numbers, eyebrow section headings, soft tints only where grouping matters, pill chips, roomier max-width layout.
 - **Plain words everywhere:** "Weighted" → "Likely to land", "Win probability" → "Chance to win", "Slipping / At risk" → "Going cold / Needs a nudge", "wtd" → "likely".
+
+### Personality keepers (do not "clean up")
+
+Removing chrome is fine. Removing character is not. These stay:
+
+- **Rainbow segment meters** (`SegmentBar`): win chance in the table, mobile rows, funnel, rep scorecard and the New Company preview.
+- **Green velocity bars** in Reporting (`bg-trend`), with the purple moving-average line.
+- **Dry-wink copy:** "days of silence", "Going cold", "Tumbleweed", "Back to factory slop".
+
+The aim is an app with a point of view, not generic SaaS. When in doubt, flag it before removing it.
 
 ## Discovered while working
 

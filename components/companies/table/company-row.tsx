@@ -4,6 +4,7 @@ import type { KeyboardEvent, MouseEvent } from "react";
 import Avatar from "@/components/_ui/avatar";
 import Button from "@/components/_ui/button";
 import { TableCell, TableRow } from "@/components/_ui/table";
+import SegmentBar from "@/components/_common/segment-bar";
 import Sparkline from "@/components/_common/sparkline";
 import CompanyLogo from "@/components/company/company-logo";
 import { StatusDot, lastContactText } from "@/components/company/deal-status";
@@ -109,20 +110,8 @@ export default function CompanyRow({
         ${formatMoney(company.pipelineValue)}
       </TableCell>
       <TableCell role="cell" className={cellClass("winProbability")}>
-        <span className="flex items-center gap-2.5">
-          <span
-            role="meter"
-            aria-valuenow={company.winProbability}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label="Chance to win"
-            className="block h-1 w-16 overflow-hidden rounded-full bg-white/8"
-          >
-            <span
-              className="bg-foreground/70 block h-full rounded-full"
-              style={{ width: `${company.winProbability}%` }}
-            />
-          </span>
+        <span className="flex items-center gap-2">
+          <SegmentBar percent={company.winProbability} className="w-[74px]" />
           <span className="w-[4ch] text-right">{company.winProbability}%</span>
         </span>
       </TableCell>

@@ -107,7 +107,7 @@ export default function PipelineMovement() {
                     <div
                       className={cn(
                         "w-full rounded-t transition-all duration-300",
-                        pt.touches > 0 ? "bg-white/15" : "bg-white/5",
+                        pt.touches > 0 ? "bg-trend" : "bg-trend-muted",
                       )}
                       style={{ height: `${barHeightPct}%` }}
                     />
@@ -124,7 +124,7 @@ export default function PipelineMovement() {
           <div className="border-border flex flex-wrap items-center justify-between gap-2 border-t pt-2">
             <div className="text-muted-foreground flex items-center gap-3 text-xs sm:gap-4">
               <span className="inline-flex items-center gap-1.5">
-                <span className="inline-block size-2 rounded-[1px] bg-white/15" />
+                <span className="bg-trend inline-block size-2 rounded-[1px]" />
                 Weekly Touches
               </span>
               <span className="inline-flex items-center gap-1.5">
