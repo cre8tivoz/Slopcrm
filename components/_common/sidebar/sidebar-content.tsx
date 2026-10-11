@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Button from "@/components/_ui/button";
 import { ScrollArea } from "@/components/_ui/scroll-area";
 import SidebarNavItem from "./sidebar-nav-item";
@@ -11,23 +12,17 @@ import BuildingIcon from "@/public/assets/images/companies/sidebar/building.svg"
 import ClipboardIcon from "@/public/assets/images/companies/sidebar/clipboard.svg";
 import BarChartIcon from "@/public/assets/images/companies/sidebar/bar-chart.svg";
 import ListIcon from "@/public/assets/images/companies/sidebar/list.svg";
-import BookClosedIcon from "@/public/assets/images/companies/sidebar/book-closed.svg";
-import MailIcon from "@/public/assets/images/companies/sidebar/mail.svg";
-import TargetIcon from "@/public/assets/images/companies/sidebar/target-05.svg";
-import TargetAltIcon from "@/public/assets/images/companies/sidebar/target-03.svg";
-import UsersIcon from "@/public/assets/images/companies/sidebar/users.svg";
+import HomeIcon from "@/public/assets/images/companies/sidebar/home.svg";
 import BarChartAltIcon from "@/public/assets/images/companies/sidebar/bar-chart-10.svg";
-import AlertTriangleIcon from "@/public/assets/images/companies/sidebar/alert-triangle.svg";
-import DotYellow from "@/public/assets/images/companies/sidebar/dot-yellow.svg";
-import DotPink from "@/public/assets/images/companies/sidebar/dot-pink.svg";
-import DotPurple from "@/public/assets/images/companies/sidebar/dot-purple.svg";
-import UserPlusIcon from "@/public/assets/images/companies/sidebar/user-plus.svg";
-import MessageQuestionIcon from "@/public/assets/images/companies/sidebar/message-question.svg";
-import WalletIcon from "@/public/assets/images/companies/sidebar/wallet.svg";
+import PlusIcon from "@/public/assets/images/_common/plus.svg";
+import { followUpQueue } from "@/lib/reporting";
 import { VIEWS, type ViewId } from "@/lib/views";
+
+const WORK_VIEWS: ViewId[] = ["home", "companies", "deals", "activities"];
 
 /** Every view needs a nav icon — a missing entry fails the type check. */
 const VIEW_ICONS: Record<ViewId, typeof BuildingIcon> = {
+  home: HomeIcon,
   companies: BuildingIcon,
   deals: ClipboardIcon,
   forecast: BarChartIcon,
@@ -36,10 +31,47 @@ const VIEW_ICONS: Record<ViewId, typeof BuildingIcon> = {
 };
 
 export default function SidebarContent() {
-  const companyCount = useCompaniesStore((state) => state.companies.length);
+  const companies = useCompaniesStore((state) => state.companies);
   const activeView = useUiStore((state) => state.activeView);
   const navigate = useUiStore((state) => state.navigate);
-  const setReportingTab = useUiStore((state) => state.setReportingTab);
+  const setNewCompanyOpen = useUiStore((state) => state.setNewCompanyOpen);
+  const resetDemo = useCompaniesStore((state) => state.resetDemo);
+  const showToast = useUiStore((state) => state.showToast);
+  const [confirming, setConfirming] = useState(false);
+
+  useEffect(() => {
+    if (!confirming) return;
+    const timer = window.setTimeout(() => setConfirming(false), 4000);
+    return () => window.clearTimeout(timer);
+  }, [confirming]);
+
+  function reset() {
+    if (!confirming) {
+      setConfirming(true);
+      return;
+    }
+    setConfirming(false);
+    resetDemo();
+    showToast("Back to factory slop");
+  }
+
+  const counts: Partial<Record<ViewId, number>> = {
+    home: followUpQueue(companies).length,
+    companies: companies.length,
+  };
+
+  function renderItem(view: (typeof VIEWS)[number]) {
+    return (
+      <SidebarNavItem
+        key={view.id}
+        icon={VIEW_ICONS[view.id]}
+        label={view.navLabel}
+        count={counts[view.id]}
+        active={activeView === view.id}
+        onClick={() => navigate(view.id)}
+      />
+    );
+  }
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -47,10 +79,10 @@ export default function SidebarContent() {
         <Logo aria-hidden className="size-8 shrink-0 overflow-visible" />
         <div className="flex min-w-0 flex-col gap-1">
           <span className="lead-style block truncate font-medium tracking-[-0.01em]">
-            Sales CRM
+            Slop CRM
           </span>
           <span className="caption-style text-subtle block truncate">
-            Company pipeline
+            Seed data, real-ish vibes
           </span>
         </div>
       </div>
@@ -58,79 +90,35 @@ export default function SidebarContent() {
       <ScrollArea className="min-h-0 flex-1">
         <nav aria-label="Primary">
           <SidebarSection className="border-sidebar-border border-b">
-            {VIEWS.map((view) => (
-              <SidebarNavItem
-                key={view.id}
-                icon={VIEW_ICONS[view.id]}
-                label={view.navLabel}
-                count={view.id === "companies" ? companyCount : undefined}
-                active={activeView === view.id}
-                onClick={() => navigate(view.id)}
-              />
-            ))}
-            <SidebarNavItem icon={BookClosedIcon} label="Contacts" />
-            <SidebarNavItem icon={MailIcon} label="Email Sequences" />
+            {VIEWS.filter((view) => WORK_VIEWS.includes(view.id)).map(
+              renderItem,
+            )}
           </SidebarSection>
-
-          <SidebarSection
-            title="Team"
-            className="border-sidebar-border border-b"
-          >
-            <SidebarNavItem icon={TargetIcon} label="Strategic AEs" />
-            <SidebarNavItem icon={TargetAltIcon} label="Mid Market" />
-            <SidebarNavItem icon={UsersIcon} label="SDR Team" />
-          </SidebarSection>
-
-          <SidebarSection
-            title="Reporting"
-            className="border-sidebar-border border-b"
-          >
-            <SidebarNavItem
-              icon={BarChartAltIcon}
-              label="Q1 Forecast"
-              active={activeView === "forecast"}
-              onClick={() => navigate("forecast")}
-            />
-            <SidebarNavItem
-              icon={AlertTriangleIcon}
-              label="Slipping Deals"
-              active={activeView === "reports"}
-              onClick={() => {
-                navigate("reports");
-                setReportingTab("velocity");
-              }}
-            />
-          </SidebarSection>
-
-          <SidebarSection title="Pipelines">
-            <SidebarNavItem icon={DotYellow} label="North America" />
-            <SidebarNavItem icon={DotPink} label="EMEA Enterprise" />
-            <SidebarNavItem icon={DotPurple} label="APAC Expansion" />
+          <SidebarSection title="Insights">
+            {VIEWS.filter((view) => !WORK_VIEWS.includes(view.id)).map(
+              renderItem,
+            )}
           </SidebarSection>
         </nav>
       </ScrollArea>
 
-      <SidebarSection className="border-sidebar-border shrink-0 border-t border-b">
-        <SidebarNavItem
-          icon={UserPlusIcon}
-          label="Invite teammates"
-          tone="quiet"
-        />
-        <SidebarNavItem icon={MessageQuestionIcon} label="Help" tone="quiet" />
-      </SidebarSection>
-
-      <div className="border-sidebar-border bg-sidebar-accent flex shrink-0 items-center justify-between gap-2 border-b p-4">
-        <div className="flex flex-col gap-2">
-          <span className="lead-style block font-medium tracking-[-0.01em]">
-            14 Days
-          </span>
-          <span className="caption-style text-subtle block">
-            Left on trials
-          </span>
-        </div>
-        <Button variant="muted" size="md" className="fine:min-h-0 min-h-11">
-          <WalletIcon aria-hidden className="size-3.5" />
-          Add Billings
+      <div className="border-sidebar-border flex shrink-0 flex-col gap-1 border-t p-3">
+        <button
+          type="button"
+          onClick={reset}
+          className="caption-style text-subtle hover:text-foreground data-[confirming=true]:text-danger min-h-11 rounded-lg px-2 text-left transition-colors duration-150 lg:min-h-8"
+          data-confirming={confirming}
+        >
+          {confirming ? "Tap again to wipe your changes" : "Reset demo data"}
+        </button>
+        <Button
+          variant="primary"
+          size="md"
+          onClick={() => setNewCompanyOpen(true)}
+          className="fine:min-h-0 hidden min-h-11 w-full lg:inline-flex"
+        >
+          <PlusIcon aria-hidden className="size-3.5" />
+          New Company
         </Button>
       </div>
     </div>

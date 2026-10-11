@@ -1,6 +1,9 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { COMPANIES, type Company } from "@/data/companies";
-import { useCompaniesStore } from "./companies-store";
+import { primaryStage } from "@/lib/pipeline";
+import { DEMO_TODAY } from "@/lib/demo-clock";
+import { safeStorage, useCompaniesStore } from "./companies-store";
+import { useUiStore } from "./ui-store";
 
 const initial = useCompaniesStore.getState();
 beforeEach(() => useCompaniesStore.setState(initial, true));
@@ -48,5 +51,78 @@ describe("companies store", () => {
     );
     useCompaniesStore.getState().markAllNotificationsRead();
     expect(useCompaniesStore.getState().unreadNotificationIds).toEqual([]);
+  });
+
+  it("logs an activity as today's last interaction", () => {
+    useCompaniesStore.getState().logActivity({
+      companyId: "apple",
+      type: "Pricing",
+      channel: "call",
+      note: "  Sent revised quote  ",
+    });
+    const { interactions, companies } = useCompaniesStore.getState();
+    expect(interactions[0]).toMatchObject({
+      companyId: "apple",
+      date: DEMO_TODAY,
+      type: "Pricing",
+      channel: "call",
+      owner: "Alex Santos",
+      note: "Sent revised quote",
+    });
+    expect(companies.find((c) => c.id === "apple")?.lastInteraction).toEqual({
+      date: DEMO_TODAY,
+      label: "Pricing",
+    });
+  });
+
+  it("ignores an activity for an unknown company", () => {
+    const before = useCompaniesStore.getState().interactions;
+    useCompaniesStore
+      .getState()
+      .logActivity({ companyId: "nope", type: "Demo", channel: "meeting" });
+    expect(useCompaniesStore.getState().interactions).toBe(before);
+  });
+
+  it("changes the primary stage without losing other tags", () => {
+    useCompaniesStore.getState().setStage("stripe", "Renewal");
+    const stripe = useCompaniesStore
+      .getState()
+      .companies.find((c) => c.id === "stripe")!;
+    expect(primaryStage(stripe)).toBe("Renewal");
+    const original = COMPANIES.find((c) => c.id === "stripe")!;
+    expect(new Set(stripe.tags)).toEqual(
+      new Set([...original.tags, "Renewal"]),
+    );
+  });
+
+  it("resets everything back to the seed", () => {
+    const store = useCompaniesStore.getState();
+    store.addCompany(acme);
+    store.setStage("stripe", "Renewal");
+    useCompaniesStore.getState().resetDemo();
+    const { companies, interactions } = useCompaniesStore.getState();
+    expect(companies).toBe(COMPANIES);
+    expect(interactions).toBe(initial.interactions);
+  });
+
+  describe("saving in the browser", () => {
+    afterEach(() => {
+      vi.useRealTimers();
+      vi.unstubAllGlobals();
+    });
+
+    it("tells the user when the browser refuses to save", () => {
+      vi.useFakeTimers();
+      vi.stubGlobal("localStorage", {
+        setItem: () => {
+          throw new DOMException("full", "QuotaExceededError");
+        },
+      });
+      useUiStore.getState().dismissToast();
+      expect(() => safeStorage.setItem("k", "v")).not.toThrow();
+      useUiStore.getState().showToast("Acme added");
+      vi.runAllTimers();
+      expect(useUiStore.getState().toast?.message).toMatch(/Couldn't save/);
+    });
   });
 });

@@ -47,20 +47,20 @@ export default function Notifications() {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-          variant="secondary"
+          variant="ghost"
           size="icon"
           aria-label={
             unreadCount > 0
               ? `Notifications, ${unreadCount} unread`
               : "Notifications"
           }
-          className="fine:size-[30px] data-[state=open]:bg-muted relative size-11"
+          className="fine:size-[30px] data-[state=open]:bg-muted text-foreground relative size-11"
         >
-          <BellIcon aria-hidden className="size-3.5" />
+          <BellIcon aria-hidden className="size-4 lg:size-3.5" />
           {unreadCount > 0 && (
             <span
               aria-hidden
-              className="bg-danger ring-secondary fine:top-[7px] fine:right-[7px] absolute top-[14px] right-[14px] size-1.5 rounded-full ring-2"
+              className="bg-danger ring-background fine:top-[7px] fine:right-[7px] absolute top-[14px] right-[14px] size-1.5 rounded-full ring-2"
             />
           )}
         </Button>

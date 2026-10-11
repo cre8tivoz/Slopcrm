@@ -117,6 +117,29 @@ Architecture review found the domain rules smeared across views and already drif
   - Wired into `lib/views.ts` (Header Tabs) and `sidebar-content.tsx` (primary nav + "Q1 Forecast" and "Slipping Deals" shortcuts).
 - **Verified:** 57 tests passing, lint clean, `npm run build` and `npm run build:static` clean, desktop (1440/1280) and mobile (390) browser QA and vision QA clean.
 
+### User journey pass
+
+Goal: someone non-technical opens the app and knows what to do next, and every button does something.
+
+- **New "Today" home view (default).** Greeting, "Follow up next" queue (going cold first, then needs-a-nudge, biggest deal first, from `followUpQueue()` in `lib/reporting.ts`), one-tap **Log activity** per row, quick actions (Find / Add / Deals), pipeline-at-a-glance and latest activity. A dismissible "How this works" card (remembered in `localStorage`, safe if storage is blocked).
+- **Company panel is now actionable.** Status banner (On track / Needs a nudge / Going cold, with plain advice), deal value + chance to win, a **stage picker** (moves the company on the Deals Board), a **Log activity** form (how, what about, optional note), owner email/phone as real `mailto:`/`tel:` links, and recent activity with notes. Removed the dead "Save Update" / "Cancel" / "Need help? Ask us." footer, the fixed-fraction "Pipeline health" bars and the identical-for-every-company "Score card" seed data.
+- **Store:** `logActivity()` (dated `DEMO_TODAY`, becomes the last interaction, so the company leaves the follow-up queue) and `setStage()` (puts the chosen stage first, keeps other tags). `dealHealth()` extracted so Home, the panel and Reporting share one rule.
+- **Feedback:** a toast confirms every change ("Email logged for Apple", "Apple moved to Renewal", "Acme added"). Adding a company opens its panel straight after.
+- **Navigation:** sidebar trimmed to real destinations (Today, Companies, Deals Board, Activities; Insights: Forecast, Reporting) with a **New Company** button; decorative Contacts / Email Sequences / Team / Pipelines / Invite / Help / trial-billing items removed. Header tabs are mobile-only (Today, Companies, Deals, Activity) so desktop doesn't show two navs. The meaningless "Active" pill and the pre-selected Microsoft row are gone.
+- **Table footer** shows real totals for what's in view (total value, likely to close, avg chance to win) instead of fake "+ Add Calculation" cells.
+- **Tests:** 66 (was 57): store actions, log-form flag, toast ids, deal health bands, queue order, relative days.
+
+### App-feel pass (Mobbin-informed)
+
+Reference sweep on Mobbin (Attio, Quo/OpenPhone, Telegram, Mesh, Shopify, Pipedrive, HubSpot). Finding: the original layout is close to Attio's web app, including its trial/billing and "+ Add calculation" chrome. The lighter apps get their feel from flat rows, big titles, a bottom tab bar and one floating action, not from restyled boxes.
+
+- **Mobile shell:** bottom tab bar (Today, Companies, Deals, Activity, More) plus a floating **+** (Log activity / New company). The header is a large title with ghost icons; the old hamburger and top tabs are gone. Tabs come from `TAB_VIEWS` in `lib/views.ts`.
+- **Log activity from anywhere:** the + opens search in "log" mode (`searchIntent`), and picking a company opens it straight on the log form.
+- **Less chrome:** company list, Today, Activity and the company panel use flat rows with hairline dividers instead of bordered cards. Deal cards are borderless tints. The log form is a segmented control. On mobile the company panel is a slide-up sheet with a grab handle.
+- **Voice (dry wink):** "Morning, Jensen. 15 accounts are waiting on you. They've noticed.", "83 days of silence", "Nothing here. Tumbleweed.", reset toast "Back to factory slop". Site name is now **Slop CRM**.
+- **Persistence:** business data saves to `localStorage` (`slopcrm:data`, zustand `persist`, storage that never throws). It's applied after mount (`skipHydration` + `rehydrate()` in Shell), so the prerendered HTML still matches. **Reset demo data** (two taps) is at the bottom of the menu. No server database: no hosting or security surface, and a reset always works.
+- **Tests:** 70 (store reset, search intent, compact money, long date).
+
 ## Discovered while working
 
 - **`CONVENTIONS.md` and `OPTIMIZATION.md` are missing.** `CLAUDE.md` includes `@CONVENTIONS.md` and the README's docs table lists both. Agents following those pointers currently fail. Either restore the files or update the references.

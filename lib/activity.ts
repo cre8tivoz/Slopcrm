@@ -1,6 +1,21 @@
 import type { Interaction, InteractionChannel } from "@/data/interactions";
 import { daysSince } from "./demo-clock";
 
+export const CHANNEL_LABEL: Record<InteractionChannel, string> = {
+  email: "Email",
+  meeting: "Meeting",
+  call: "Call",
+  note: "Internal note",
+};
+
+/** "today", "yesterday" or "N days ago" for an ISO date. */
+export function relativeDay(iso: string): string {
+  const age = daysSince(iso);
+  if (age === 0) return "today";
+  if (age === 1) return "yesterday";
+  return `${age} days ago`;
+}
+
 /** Interactions within the last `days` days (boundary day included). */
 export function withinDays(
   interactions: readonly Interaction[],

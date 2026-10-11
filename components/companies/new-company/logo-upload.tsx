@@ -14,6 +14,30 @@ import BuildingIcon from "@/public/assets/images/companies/sidebar/building.svg"
 
 const MAX_BYTES = 2 * 1024 * 1024;
 const ACCEPTED = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
+/** Logos render at 50px at most; 128px covers 2x screens with room to spare. */
+const LOGO_PX = 128;
+
+/**
+ * Shrinks an uploaded image to a small WebP data URL (a few KB), so saved
+ * companies stay far below the browser's ~5 MB storage quota.
+ */
+function shrinkLogo(dataUrl: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      const scale = Math.min(1, LOGO_PX / Math.max(image.width, image.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.width * scale)) || LOGO_PX;
+      canvas.height = Math.max(1, Math.round(image.height * scale)) || LOGO_PX;
+      const context = canvas.getContext("2d");
+      if (!context) return reject(new Error("No canvas"));
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL("image/webp", 0.85));
+    };
+    image.onerror = () => reject(new Error("Unreadable image"));
+    image.src = dataUrl;
+  });
+}
 
 type LogoUploadProps = {
   value: string | null;
@@ -43,8 +67,13 @@ export default function LogoUpload({
     }
     const reader = new FileReader();
     reader.onload = () => {
-      setError(null);
-      onChange(typeof reader.result === "string" ? reader.result : null);
+      if (typeof reader.result !== "string") return;
+      shrinkLogo(reader.result)
+        .then((logo) => {
+          setError(null);
+          onChange(logo);
+        })
+        .catch(() => setError("Couldn't read that image. Try another."));
     };
     reader.readAsDataURL(file);
   }

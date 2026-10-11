@@ -27,6 +27,8 @@ export type Interaction = {
   type: InteractionType;
   channel: InteractionChannel;
   owner: string;
+  /** Free-text summary, only on touches logged in the app. */
+  note?: string;
 };
 
 /** How each kind of touch usually happens. */

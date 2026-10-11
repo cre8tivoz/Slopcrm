@@ -69,4 +69,32 @@ describe("ui store", () => {
     toggleSelected("apple");
     expect(useUiStore.getState().selectedIds).toEqual(["zoom"]);
   });
+
+  it("opens the detail sheet straight onto the log form when asked", () => {
+    const { openDetail } = useUiStore.getState();
+    openDetail("apple", { log: true });
+    expect(useUiStore.getState().logFormOpen).toBe(true);
+    openDetail("apple");
+    expect(useUiStore.getState().logFormOpen).toBe(false);
+  });
+
+  it("each toast gets a fresh id so a repeat message still shows", () => {
+    const { showToast } = useUiStore.getState();
+    showToast("Saved");
+    const first = useUiStore.getState().toast!.id;
+    showToast("Saved");
+    expect(useUiStore.getState().toast!.id).not.toBe(first);
+    useUiStore.getState().dismissToast();
+    expect(useUiStore.getState().toast).toBeNull();
+  });
+
+  it("search remembers why it was opened until it closes", () => {
+    const { setSearchOpen } = useUiStore.getState();
+    setSearchOpen(true, "log");
+    expect(useUiStore.getState().searchIntent).toBe("log");
+    setSearchOpen(false);
+    expect(useUiStore.getState().searchIntent).toBe("log");
+    setSearchOpen(true);
+    expect(useUiStore.getState().searchIntent).toBe("open");
+  });
 });

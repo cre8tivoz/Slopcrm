@@ -28,7 +28,7 @@ export default function Sidebar() {
         >
           <SheetTitle className="sr-only">Navigation</SheetTitle>
           <SheetDescription className="sr-only">
-            Sales CRM sections and pipelines
+            Slop CRM sections
           </SheetDescription>
           <SidebarContent />
         </SheetContent>

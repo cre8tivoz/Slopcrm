@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import Avatar from "@/components/_ui/avatar";
 import Button from "@/components/_ui/button";
 import Tag from "@/components/_ui/tag";
@@ -14,18 +14,30 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/_ui/sheet";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/_ui/select";
 import FilterMenu from "@/components/_common/filter-menu";
 import CompanyLogo from "@/components/company/company-logo";
+import { DealStatusPanel } from "@/components/company/deal-status";
 import DetailSection from "./detail-section";
-import PipelineHealth from "./pipeline-health";
 import ActivityTrend from "./activity-trend";
-import ScoreCard from "./score-card";
+import LogActivityForm from "./log-activity-form";
+import RecentActivity from "./recent-activity";
 import {
-  SCORE_CARDS,
+  STAGES,
   TAG_TONES,
   TREND_WINDOWS,
   ownerByName,
+  type Stage,
 } from "@/data/companies";
+import { formatMoney } from "@/lib/companies";
+import { UNSTAGED, primaryStage, weightedValue } from "@/lib/pipeline";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { useCompaniesStore } from "@/stores/companies-store";
 import { useUiStore } from "@/stores/ui-store";
 import BuildingIcon from "@/public/assets/images/companies/detail/building.svg";
@@ -39,18 +51,44 @@ const WINDOW_OPTIONS = TREND_WINDOWS.map((days) => ({
 }));
 const DEFAULT_WINDOW = String(TREND_WINDOWS[1]);
 
+function Fact({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="caption-style text-muted-foreground">{label}</span>
+      <span className="text-[24px] leading-none font-semibold tracking-[-0.02em] tabular-nums">
+        {value}
+      </span>
+      {hint && <span className="caption-style text-subtle">{hint}</span>}
+    </div>
+  );
+}
+
 export default function CompanyDetail() {
+  const stageId = useId();
+  const desktop = useMediaQuery("(min-width: 1024px)");
   const detailId = useUiStore((state) => state.detailId);
   const detailOpen = useUiStore((state) => state.detailOpen);
   const companies = useCompaniesStore((state) => state.companies);
   const interactions = useCompaniesStore((state) => state.interactions);
+  const setStage = useCompaniesStore((state) => state.setStage);
   const closeDetail = useUiStore((state) => state.closeDetail);
   const openProfile = useUiStore((state) => state.openProfile);
+  const logFormOpen = useUiStore((state) => state.logFormOpen);
+  const setLogFormOpen = useUiStore((state) => state.setLogFormOpen);
+  const showToast = useUiStore((state) => state.showToast);
   const [trendWindow, setTrendWindow] = useState(DEFAULT_WINDOW);
-  const [scoreWindow, setScoreWindow] = useState(DEFAULT_WINDOW);
 
   const company = companies.find((item) => item.id === detailId);
   const owner = company ? ownerByName(company.owner) : null;
+  const stage = company ? primaryStage(company) : UNSTAGED;
   const companyLog = useMemo(
     () => interactions.filter((item) => item.companyId === detailId),
     [interactions, detailId],
@@ -61,14 +99,27 @@ export default function CompanyDetail() {
       open={detailOpen && company !== undefined}
       onOpenChange={(open) => !open && closeDetail()}
     >
-      <SheetContent side="right" className="sm:w-[560px] sm:max-w-[560px]">
-        <SheetHeader>
+      <SheetContent
+        side={desktop ? "right" : "bottom"}
+        className={
+          desktop
+            ? "w-[560px] max-w-[560px]"
+            : "h-[94dvh] max-h-[94dvh] rounded-t-3xl"
+        }
+      >
+        {!desktop && (
+          <span
+            aria-hidden
+            className="mx-auto mt-2 block h-1 w-10 shrink-0 rounded-full bg-white/20"
+          />
+        )}
+        <SheetHeader className={desktop ? undefined : "h-12 border-b-0 px-5"}>
           <div className="flex items-center gap-2">
             <BuildingIcon aria-hidden className="text-icon size-3.5" />
-            <SheetTitle>Companies Detail</SheetTitle>
+            <SheetTitle>Company</SheetTitle>
           </div>
           <SheetDescription className="sr-only">
-            Account summary, pipeline health, activity and score cards
+            Deal status, key numbers, stage, owner and activity history
           </SheetDescription>
           <SheetClose asChild>
             <Button
@@ -99,7 +150,59 @@ export default function CompanyDetail() {
                 </div>
               </div>
 
-              <DetailSection title="Account summary">
+              <div className="flex flex-col gap-4 p-5 shadow-[inset_0_-1px_0_var(--line-strong)]">
+                <DealStatusPanel company={company} />
+                {logFormOpen ? (
+                  <LogActivityForm
+                    company={company}
+                    onDone={() => setLogFormOpen(false)}
+                  />
+                ) : (
+                  <div className="grid grid-cols-2 gap-4 pt-1">
+                    <Fact
+                      label="Deal value"
+                      value={`$${formatMoney(company.pipelineValue)}`}
+                      hint={`${company.openDeals} open ${company.openDeals === 1 ? "deal" : "deals"}`}
+                    />
+                    <Fact
+                      label="Chance to win"
+                      value={`${company.winProbability}%`}
+                      hint={`Likely worth $${formatMoney(weightedValue(company))}`}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <DetailSection title="Stage">
+                <div className="flex flex-col gap-2">
+                  <label
+                    htmlFor={stageId}
+                    className="caption-style text-muted-foreground"
+                  >
+                    Where is this deal right now?
+                  </label>
+                  <Select
+                    value={stage === UNSTAGED ? undefined : stage}
+                    onValueChange={(value) => {
+                      setStage(company.id, value as Stage);
+                      showToast(`${company.name} moved to ${value}`);
+                    }}
+                  >
+                    <SelectTrigger id={stageId}>
+                      <SelectValue placeholder="Choose a stage" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {STAGES.map((option) => (
+                        <SelectItem key={option} value={option}>
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </DetailSection>
+
+              <DetailSection title="Account owner">
                 <div className="lead-style flex flex-wrap items-center gap-x-4 gap-y-3">
                   <Button
                     variant="ghost"
@@ -111,23 +214,30 @@ export default function CompanyDetail() {
                     <Avatar src={owner.avatar} alt="" />
                     {owner.name}
                   </Button>
-                  <span className="flex items-center gap-1">
+                  <a
+                    href={`mailto:${owner.email}`}
+                    className="hover:text-foreground flex items-center gap-1 underline-offset-2 hover:underline"
+                  >
                     <MailIcon aria-hidden className="text-soft size-3" />
                     {owner.email}
-                  </span>
-                  <span className="flex items-center gap-1">
+                  </a>
+                  <a
+                    href={`tel:${owner.phone.replace(/[^+\d]/g, "")}`}
+                    className="hover:text-foreground flex items-center gap-1 underline-offset-2 hover:underline"
+                  >
                     <PhoneIcon aria-hidden className="text-soft size-3" />
                     {owner.phone}
-                  </span>
+                  </a>
                 </div>
               </DetailSection>
 
-              <DetailSection title="Pipeline health">
-                <PipelineHealth company={company} />
+              <DetailSection title="Recent activity">
+                <RecentActivity interactions={companyLog} />
               </DetailSection>
 
               <DetailSection
                 title="Activity trend"
+                className="shadow-none"
                 action={
                   <FilterMenu
                     value={trendWindow}
@@ -142,53 +252,30 @@ export default function CompanyDetail() {
                   days={Number(trendWindow)}
                 />
               </DetailSection>
-
-              <DetailSection
-                title="Score card"
-                className="gap-3 shadow-none"
-                action={
-                  <FilterMenu
-                    value={scoreWindow}
-                    options={WINDOW_OPTIONS}
-                    onChange={setScoreWindow}
-                    align="end"
-                    className="shadow-[0px_4px_4px_0px_rgba(15,15,15,0.24),0px_0px_0px_1px_#393939]"
-                  />
-                }
-              >
-                <div className="flex flex-col gap-2">
-                  {SCORE_CARDS.map((card, index) => (
-                    <ScoreCard key={`${card.title}-${index}`} card={card} />
-                  ))}
-                </div>
-              </DetailSection>
             </div>
           </ScrollArea>
         )}
 
         <SheetFooter>
-          <Button variant="link" size="none" href="#" className="lead-style">
-            Need help? Ask us.
-          </Button>
-          <div className="flex items-center gap-2">
-            <SheetClose asChild>
-              <Button
-                variant="subtle"
-                size="sm"
-                className="fine:min-h-0 min-h-11"
-              >
-                Cancel
-              </Button>
-            </SheetClose>
+          <SheetClose asChild>
+            <Button
+              variant="subtle"
+              size="sm"
+              className="fine:min-h-0 min-h-11"
+            >
+              Close
+            </Button>
+          </SheetClose>
+          {!logFormOpen && (
             <Button
               variant="primary"
               size="sm"
-              onClick={closeDetail}
+              onClick={() => setLogFormOpen(true)}
               className="fine:min-h-0 min-h-11"
             >
-              Save Update
+              Log activity
             </Button>
-          </div>
+          )}
         </SheetFooter>
       </SheetContent>
     </Sheet>

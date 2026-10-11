@@ -7,6 +7,7 @@
  * everywhere is a type error, not a silent dead link.
  */
 export const VIEWS = [
+  { id: "home", title: "Today", navLabel: "Today", tab: "Today" },
   {
     id: "companies",
     title: "Companies",
@@ -14,25 +15,25 @@ export const VIEWS = [
     tab: "Companies",
   },
   { id: "deals", title: "Deals Board", navLabel: "Deals Board", tab: "Deals" },
-  { id: "forecast", title: "Forecast", navLabel: "Forecast", tab: "Forecast" },
   {
-    id: "reports",
-    title: "Reporting",
-    navLabel: "Reporting",
-    tab: "Reporting",
+    id: "activities",
+    title: "Activities",
+    navLabel: "Activities",
+    tab: "Activity",
   },
-  { id: "activities", title: "Activities", navLabel: "Activities", tab: null },
+  { id: "forecast", title: "Forecast", navLabel: "Forecast", tab: null },
+  { id: "reports", title: "Reporting", navLabel: "Reporting", tab: null },
 ] as const satisfies readonly {
   id: string;
   title: string;
   navLabel: string;
-  /** Header tab label; null keeps the view sidebar-only. */
+  /** Mobile header tab label; null keeps the view in the menu only. */
   tab: string | null;
 }[];
 
 export type ViewId = (typeof VIEWS)[number]["id"];
 
-export const DEFAULT_VIEW: ViewId = "companies";
+export const DEFAULT_VIEW: ViewId = "home";
 
 export function isViewId(value: string): value is ViewId {
   return VIEWS.some((view) => view.id === value);
@@ -42,8 +43,8 @@ export function viewById(id: ViewId) {
   return VIEWS.find((view) => view.id === id) ?? VIEWS[0];
 }
 
-/** Views that appear as header tabs, in order. */
-export const HEADER_TABS = VIEWS.filter(
+/** Views in the mobile tab bar, in order. */
+export const TAB_VIEWS = VIEWS.filter(
   (view): view is Extract<(typeof VIEWS)[number], { tab: string }> =>
     view.tab !== null,
 );

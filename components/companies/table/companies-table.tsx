@@ -75,12 +75,12 @@ export default function CompaniesTable() {
   }
 
   return (
-    <div className="border-border flex min-h-0 flex-1 flex-col border-t">
+    <div className="lg:border-border flex min-h-0 flex-1 flex-col lg:border-t">
       <ScrollArea orientation="both" className="min-h-0 flex-1">
         {visible.length === 0 ? (
           <EmptyState />
         ) : (
-          <ul className="flex flex-col gap-2.5 p-3 lg:hidden">
+          <ul className="divide-border flex flex-col divide-y pb-24 lg:hidden">
             {visible.map((company, index) => (
               <CompanyCard
                 key={company.id}
@@ -144,7 +144,9 @@ export default function CompaniesTable() {
           </Table>
         )}
       </ScrollArea>
-      <TableFooter count={visible.length} />
+      <div className="hidden lg:block">
+        <TableFooter companies={visible} />
+      </div>
     </div>
   );
 }

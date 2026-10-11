@@ -100,19 +100,6 @@ export function splitTags(tags: Company["tags"]) {
   return { visible, hidden: tags.length - visible.length };
 }
 
-/**
- * Illustrative stage-health split for the detail sheet. The seed data has no
- * per-stage deal records, so these are fixed fractions of win probability —
- * demo presentation, not forecasting logic.
- */
-export function companyHealth(company: Company) {
-  return {
-    discovery: Math.round(company.winProbability * 0.372),
-    evaluation: Math.round(company.winProbability * 0.651),
-    procurement: Math.round(company.winProbability * 0.372),
-  };
-}
-
 export function formatDate(iso: string) {
   const [, month, day] = iso.split("-").map(Number);
   const names = [
@@ -134,4 +121,21 @@ export function formatDate(iso: string) {
 
 export function formatMoney(value: number) {
   return value.toLocaleString("en-US");
+}
+
+/** "$5.1M", "$420K", "$950" — for headline numbers, not tables. */
+export function formatCompactMoney(value: number) {
+  if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `$${Math.round(value / 1_000)}K`;
+  return `$${value}`;
+}
+
+/** "Sunday 14 September" for an ISO date. */
+export function formatLongDate(iso: string) {
+  return new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: "UTC",
+  });
 }

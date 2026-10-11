@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { COMPANIES } from "@/data/companies";
 import {
+  formatCompactMoney,
+  formatLongDate,
   DEFAULT_FILTERS,
   activeFilterCount,
   filterCompanies,
@@ -67,5 +69,17 @@ describe("filterCompanies", () => {
     expect(
       activeFilterCount({ ...DEFAULT_FILTERS, owner: "x", activityWindow: 7 }),
     ).toBe(2);
+  });
+});
+
+describe("headline formatting", () => {
+  it("compacts money", () => {
+    expect(formatCompactMoney(5_138_594)).toBe("$5.1M");
+    expect(formatCompactMoney(420_222)).toBe("$420K");
+    expect(formatCompactMoney(950)).toBe("$950");
+  });
+
+  it("spells out the demo date", () => {
+    expect(formatLongDate("2026-09-14")).toBe("Monday 14 September");
   });
 });
