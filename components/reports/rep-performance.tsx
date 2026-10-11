@@ -165,6 +165,8 @@ export default function RepPerformance() {
                   <SegmentBar
                     percent={rep.avgWinRate}
                     segments={8}
+                    animated
+                    delay={index * 50}
                     className="w-14"
                   />
                 </div>

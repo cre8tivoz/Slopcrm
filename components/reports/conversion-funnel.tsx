@@ -82,6 +82,8 @@ export default function ConversionFunnel() {
                       <SegmentBar
                         percent={metric.winRate}
                         segments={10}
+                        animated
+                        delay={200 + index * 60}
                         className="w-16"
                       />
                     </div>
@@ -99,8 +101,11 @@ export default function ConversionFunnel() {
                 {/* Progress bar visual */}
                 <div className="bg-track h-2 w-full overflow-hidden rounded-full">
                   <div
-                    className="bg-primary/80 h-full rounded-full transition-all duration-300"
-                    style={{ width: `${widthPct}%` }}
+                    className="bg-primary/80 animate-grow-x h-full origin-left rounded-full transition-all duration-300"
+                    style={{
+                      width: `${widthPct}%`,
+                      animationDelay: `${index * 60}ms`,
+                    }}
                   />
                 </div>
 

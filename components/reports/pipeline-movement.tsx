@@ -75,7 +75,7 @@ export default function PipelineMovement() {
         <div className="flex w-full max-w-full min-w-0 flex-col gap-3 rounded-2xl bg-white/[0.03] p-4 sm:p-4">
           <div className="w-full max-w-full min-w-0 overflow-x-auto pt-8 [scrollbar-width:none]">
             <div className="flex h-36 min-w-[280px] items-end gap-1 sm:gap-2.5">
-              {velocity.weeklyPoints.map((pt) => {
+              {velocity.weeklyPoints.map((pt, index) => {
                 const barHeightPct = Math.max(
                   4,
                   Math.round((pt.touches / maxWeeklyTouches) * 100),
@@ -98,18 +98,24 @@ export default function PipelineMovement() {
 
                     {/* 4w Moving Average tick marker */}
                     <div
-                      className="bg-primary/90 absolute z-10 h-1 w-full rounded-full transition-all"
-                      style={{ bottom: `${maHeightPct}%` }}
+                      className="bg-primary/90 animate-rise absolute z-10 h-1 w-full rounded-full transition-all"
+                      style={{
+                        bottom: `${maHeightPct}%`,
+                        animationDelay: `${500 + index * 35}ms`,
+                      }}
                       title={`4-week MA: ${pt.movingAverage4w}`}
                     />
 
                     {/* Weekly touch bar */}
                     <div
                       className={cn(
-                        "w-full rounded-t transition-all duration-300",
+                        "animate-grow-y w-full origin-bottom rounded-t transition-all duration-300",
                         pt.touches > 0 ? "bg-trend" : "bg-trend-muted",
                       )}
-                      style={{ height: `${barHeightPct}%` }}
+                      style={{
+                        height: `${barHeightPct}%`,
+                        animationDelay: `${index * 35}ms`,
+                      }}
                     />
 
                     <span className="text-muted-foreground block truncate text-[9px] tabular-nums sm:text-[10px]">

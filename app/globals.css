@@ -81,6 +81,28 @@
   --ease-smooth-in-out: cubic-bezier(0.7, 0, 0, 1);
 
   --animate-rise: rise 420ms var(--ease-power2-out) both;
+  --animate-grow-y: grow-y 700ms var(--ease-power3-out) both;
+  --animate-grow-x: grow-x 800ms var(--ease-power3-out) both;
+  --animate-segment-in: segment-in 260ms var(--ease-power2-out) both;
+}
+
+@keyframes grow-y {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes segment-in {
+  from {
+    opacity: 0;
+    transform: scaleY(0.3);
+  }
 }
 
 @keyframes rise {

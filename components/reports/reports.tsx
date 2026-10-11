@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import CountUp from "@/components/motion-primitives/count-up";
 import ConversionFunnel from "./conversion-funnel";
 import PipelineMovement from "./pipeline-movement";
 import RepPerformance from "./rep-performance";
@@ -38,22 +39,26 @@ export default function Reports() {
   const kpis = [
     {
       label: "Avg chance to win",
-      value: `${funnel.overallWinRate}%`,
+      n: funnel.overallWinRate,
+      format: (v: number) => `${Math.round(v)}%`,
       sub: `${funnel.totalOpenDeals} open deals`,
     },
     {
       label: "In the pipeline",
-      value: `$${formatMoney(funnel.totalPipeline)}`,
+      n: funnel.totalPipeline,
+      format: (v: number) => `$${formatMoney(Math.round(v))}`,
       sub: `$${formatMoney(funnel.totalWeighted)} likely to land`,
     },
     {
       label: "Touches per week",
-      value: `${velocity.fourWeekMovingAverage}/wk`,
+      n: velocity.fourWeekMovingAverage,
+      format: (v: number) => `${v.toFixed(1)}/wk`,
       sub: `${velocity.currentWeekTouches} this week`,
     },
     {
       label: "Need a follow-up",
-      value: String(velocity.slippingCount + velocity.atRiskCount),
+      n: velocity.slippingCount + velocity.atRiskCount,
+      format: (v: number) => String(Math.round(v)),
       sub: `${velocity.slippingCount} going cold, ${velocity.atRiskCount} need a nudge`,
     },
   ];
@@ -71,7 +76,7 @@ export default function Reports() {
                 {kpi.label}
               </span>
               <span className="text-[24px] leading-none font-semibold tracking-[-0.02em] tabular-nums">
-                {kpi.value}
+                <CountUp value={kpi.n} format={kpi.format} />
               </span>
               <span className="caption-style text-subtle text-[11px] tabular-nums">
                 {kpi.sub}
@@ -98,17 +103,19 @@ export default function Reports() {
           ))}
         </div>
 
-        {activeTab === "overview" && (
-          <div className="flex w-full max-w-full min-w-0 flex-col gap-12">
-            <ConversionFunnel />
-            <PipelineMovement />
-            <RepPerformance />
-          </div>
-        )}
+        <div key={activeTab} className="animate-rise min-w-0">
+          {activeTab === "overview" && (
+            <div className="flex w-full max-w-full min-w-0 flex-col gap-12">
+              <ConversionFunnel />
+              <PipelineMovement />
+              <RepPerformance />
+            </div>
+          )}
 
-        {activeTab === "conversion" && <ConversionFunnel />}
-        {activeTab === "velocity" && <PipelineMovement />}
-        {activeTab === "reps" && <RepPerformance />}
+          {activeTab === "conversion" && <ConversionFunnel />}
+          {activeTab === "velocity" && <PipelineMovement />}
+          {activeTab === "reps" && <RepPerformance />}
+        </div>
       </div>
     </section>
   );

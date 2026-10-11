@@ -2,6 +2,7 @@ import Avatar from "@/components/_ui/avatar";
 import Tag from "@/components/_ui/tag";
 import SegmentBar from "@/components/_common/segment-bar";
 import { ownerByName } from "@/data/companies";
+import CountUp from "@/components/motion-primitives/count-up";
 import { formatMoney } from "@/lib/companies";
 import {
   byOwner,
@@ -14,6 +15,8 @@ import {
 } from "@/lib/pipeline";
 import { useCompaniesStore } from "@/stores/companies-store";
 import { useUiStore } from "@/stores/ui-store";
+
+const money = (v: number) => `$${formatMoney(Math.round(v))}`;
 
 const KPI_CARD = "flex flex-col gap-1.5";
 
@@ -43,10 +46,18 @@ export default function Forecast() {
   );
 
   const kpis = [
-    { label: "Total pipeline", value: `$${formatMoney(summary.total)}` },
-    { label: "Likely to land", value: `$${formatMoney(summary.weighted)}` },
-    { label: "Avg chance to win", value: `${summary.avgWin}%` },
-    { label: "Open deals", value: String(summary.openDeals) },
+    { label: "Total pipeline", n: summary.total, format: money },
+    { label: "Likely to land", n: summary.weighted, format: money },
+    {
+      label: "Avg chance to win",
+      n: summary.avgWin,
+      format: (v: number) => `${Math.round(v)}%`,
+    },
+    {
+      label: "Open deals",
+      n: summary.openDeals,
+      format: (v: number) => String(Math.round(v)),
+    },
   ];
 
   return (
@@ -59,7 +70,7 @@ export default function Forecast() {
                 {kpi.label}
               </span>
               <span className="text-[24px] leading-none font-semibold tracking-[-0.02em] tabular-nums">
-                {kpi.value}
+                <CountUp value={kpi.n} format={kpi.format} />
               </span>
             </div>
           ))}
@@ -82,9 +93,10 @@ export default function Forecast() {
                   </Tag>
                   <span className="bg-track h-1.5 min-w-0 flex-1 overflow-hidden rounded-full">
                     <span
-                      className="bg-primary/70 block h-full rounded-full"
+                      className="bg-primary/70 animate-grow-x block h-full origin-left rounded-full"
                       style={{
                         width: `${Math.round((row.summary.total / maxStageValue) * 100)}%`,
+                        animationDelay: `${index * 50}ms`,
                       }}
                     />
                   </span>
@@ -139,7 +151,11 @@ export default function Forecast() {
                       {stage}
                     </Tag>
                     <span className="hidden w-24 shrink-0 sm:block">
-                      <SegmentBar percent={company.winProbability} />
+                      <SegmentBar
+                        percent={company.winProbability}
+                        animated
+                        delay={index * 50}
+                      />
                     </span>
                     <span className="caption-style hidden w-[3ch] shrink-0 text-right tabular-nums sm:block">
                       {company.winProbability}%
@@ -183,9 +199,10 @@ export default function Forecast() {
                     </span>
                     <span className="bg-track h-1.5 w-24 shrink-0 overflow-hidden rounded-full">
                       <span
-                        className="bg-primary/70 block h-full rounded-full"
+                        className="bg-primary/70 animate-grow-x block h-full origin-left rounded-full"
                         style={{
                           width: `${Math.round((row.summary.weighted / maxOwnerWeighted) * 100)}%`,
+                          animationDelay: `${index * 50}ms`,
                         }}
                       />
                     </span>

@@ -3,7 +3,7 @@ import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
 export const tagVariants = cva(
-  "inline-flex h-[22px] shrink-0 items-center justify-center whitespace-nowrap rounded-full text-[14px] leading-none",
+  "inline-flex h-[22px] shrink-0 items-center justify-center whitespace-nowrap rounded-full border text-[14px] leading-none",
   {
     variants: {
       tone: {
