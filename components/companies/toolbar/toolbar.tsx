@@ -37,7 +37,7 @@ export default function CompaniesToolbar() {
         {formatCompactMoney(summarise(visible).total)}
       </span>
 
-      <div className="hidden min-w-0 flex-wrap gap-2 lg:flex">
+      <div className="hidden min-w-0 flex-wrap gap-1.5 lg:flex">
         <FilterMenu
           label="Sort by"
           value={filters.sortBy}
@@ -66,10 +66,10 @@ export default function CompaniesToolbar() {
 
       <div className="hidden shrink-0 items-center gap-1 lg:flex">
         <Button
-          variant="secondary"
+          variant="ghost"
           size="sm"
           onClick={exportCsv}
-          className="fine:min-h-0 min-h-11"
+          className="fine:min-h-0 text-foreground min-h-11"
         >
           <ShareIcon aria-hidden className="size-3" />
           Export

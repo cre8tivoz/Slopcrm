@@ -39,7 +39,6 @@ export default function PipelineMovement() {
 
   return (
     <div className="flex w-full max-w-full min-w-0 flex-col gap-4">
-      {/* Velocity and 14-week trend */}
       <div className={cn(PANEL, "w-full max-w-full min-w-0")}>
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -71,7 +70,6 @@ export default function PipelineMovement() {
           </div>
         </div>
 
-        {/* 14-Week Bar + Moving Average visual */}
         <div className="flex w-full max-w-full min-w-0 flex-col gap-3 rounded-2xl bg-white/[0.03] p-4 sm:p-4">
           <div className="w-full max-w-full min-w-0 overflow-x-auto pt-8 [scrollbar-width:none]">
             <div className="flex h-36 min-w-[280px] items-end gap-1 sm:gap-2.5">
@@ -90,13 +88,11 @@ export default function PipelineMovement() {
                     key={pt.label}
                     className="group relative flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1.5"
                   >
-                    {/* Tooltip on hover */}
                     <div className="border-border bg-popover/90 text-popover-foreground pointer-events-none absolute -top-8 z-10 hidden rounded border px-2 py-0.5 text-[10px] whitespace-nowrap shadow group-hover:block">
                       {pt.label}: {pt.touches} touches (4w MA:{" "}
                       {pt.movingAverage4w})
                     </div>
 
-                    {/* 4w Moving Average tick marker */}
                     <div
                       className="bg-primary/90 animate-rise absolute z-10 h-1 w-full rounded-full transition-all"
                       style={{
@@ -106,7 +102,6 @@ export default function PipelineMovement() {
                       title={`4-week MA: ${pt.movingAverage4w}`}
                     />
 
-                    {/* Weekly touch bar */}
                     <div
                       className={cn(
                         "animate-grow-y w-full origin-bottom rounded-t transition-all duration-300",

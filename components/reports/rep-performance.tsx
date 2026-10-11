@@ -1,5 +1,4 @@
 import Avatar from "@/components/_ui/avatar";
-import Tag from "@/components/_ui/tag";
 import SegmentBar from "@/components/_common/segment-bar";
 import CompanyLogo from "@/components/company/company-logo";
 import { formatMoney } from "@/lib/companies";
@@ -20,7 +19,6 @@ export default function RepPerformance() {
 
   return (
     <div className="flex w-full max-w-full min-w-0 flex-col gap-4">
-      {/* Highlights / Podium Cards */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {repSummary.topProducer && (
           <div className="flex flex-col gap-2 rounded-2xl bg-white/[0.03] p-4">
@@ -92,7 +90,6 @@ export default function RepPerformance() {
         )}
       </div>
 
-      {/* Rep Leaderboard Table */}
       <div className={PANEL}>
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -154,7 +151,6 @@ export default function RepPerformance() {
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-4 lg:justify-end">
-                {/* Win rate indicator */}
                 <div className="flex items-center gap-2">
                   <span className="caption-style text-muted-foreground text-xs">
                     Win:
@@ -171,7 +167,6 @@ export default function RepPerformance() {
                   />
                 </div>
 
-                {/* 30-day touch count */}
                 <div className="text-right">
                   <span className="caption-style block font-medium tabular-nums">
                     {rep.touches30d} touches / 30d
@@ -181,7 +176,6 @@ export default function RepPerformance() {
                   </span>
                 </div>
 
-                {/* Pipeline & weighted values */}
                 <div className="w-28 text-right">
                   <span className="caption-style block font-semibold tabular-nums">
                     ${formatMoney(rep.totalPipeline)}
@@ -191,7 +185,6 @@ export default function RepPerformance() {
                   </span>
                 </div>
 
-                {/* Top deal shortcut */}
                 {rep.topCompany && (
                   <button
                     type="button"

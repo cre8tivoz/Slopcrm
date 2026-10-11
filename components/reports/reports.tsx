@@ -1,16 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import CountUp from "@/components/motion-primitives/count-up";
 import ConversionFunnel from "./conversion-funnel";
 import PipelineMovement from "./pipeline-movement";
 import RepPerformance from "./rep-performance";
 import { formatMoney } from "@/lib/companies";
-import {
-  getPipelineVelocity,
-  getRepPerformance,
-  getStageConversionFunnel,
-} from "@/lib/reporting";
+import { getPipelineVelocity, getStageConversionFunnel } from "@/lib/reporting";
 import { useCompaniesStore } from "@/stores/companies-store";
 import { useUiStore } from "@/stores/ui-store";
 import { cn } from "@/lib/utils";
@@ -34,7 +29,6 @@ export default function Reports() {
 
   const funnel = getStageConversionFunnel(companies);
   const velocity = getPipelineVelocity(companies, interactions);
-  const repSummary = getRepPerformance(companies, interactions);
 
   const kpis = [
     {
