@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 
-export const SITE_NAME = "Sales CRM";
+export const SITE_NAME = "Slop CRM";
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://example.com";
-export const SITE_DESCRIPTION = "Company pipeline for the sales team.";
+export const SITE_DESCRIPTION =
+  "A sales CRM demo with fake companies and real-ish numbers. Poke anything.";
 export const DEFAULT_OG_IMAGE = "/opengraph-image.jpg";
 
 /**

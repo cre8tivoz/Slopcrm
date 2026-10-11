@@ -10,9 +10,9 @@ import { useUiStore } from "@/stores/ui-store";
 import { cn } from "@/lib/utils";
 
 const CARD_CLASS = cn(
-  "border-border bg-card/50 flex w-full flex-col gap-2.5 rounded-xl border p-3 text-left",
-  "ease-power3-out transition-[background-color,border-color,transform] duration-150",
-  "hover:border-line-strong hover:bg-card active:scale-[0.98]",
+  "bg-white/[0.035] flex w-full flex-col gap-2.5 rounded-2xl p-3.5 text-left",
+  "ease-power3-out transition-[background-color,transform] duration-150",
+  "hover:bg-white/6 active:scale-[0.98]",
   "focus-visible:ring-ring/60 focus-visible:ring-2 focus-visible:outline-none",
 );
 
@@ -25,7 +25,7 @@ export default function DealsBoard() {
 
   return (
     <section aria-label="Deals board" className="flex min-h-0 flex-1 flex-col">
-      <div className="border-border flex shrink-0 flex-wrap items-center gap-x-5 gap-y-1.5 border-b px-4 py-3">
+      <div className="flex shrink-0 flex-wrap items-center gap-x-5 gap-y-1.5 px-4 pt-1 pb-2 lg:pt-3">
         <span className="caption-style text-muted-foreground">
           Total pipeline{" "}
           <span className="lead-style text-foreground font-medium tabular-nums">
@@ -33,7 +33,7 @@ export default function DealsBoard() {
           </span>
         </span>
         <span className="caption-style text-muted-foreground">
-          Weighted{" "}
+          Likely to land{" "}
           <span className="lead-style text-foreground font-medium tabular-nums">
             ${formatMoney(summary.weighted)}
           </span>
@@ -43,11 +43,11 @@ export default function DealsBoard() {
         </span>
       </div>
 
-      <div className="flex min-h-0 flex-1 gap-3 overflow-x-auto scroll-smooth p-4 [scrollbar-width:thin]">
+      <div className="flex min-h-0 flex-1 snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto scroll-smooth p-4 pb-24 [scrollbar-width:thin] lg:snap-none lg:pb-4">
         {columns.map((column, columnIndex) => (
           <div
             key={column.stage}
-            className="flex w-[272px] shrink-0 flex-col gap-2"
+            className="flex w-[82vw] max-w-[272px] shrink-0 snap-start flex-col gap-2 lg:w-[272px]"
           >
             <div className="flex items-center justify-between gap-2 px-0.5">
               <Tag tone={stageTone(column.stage)} size="sm">
@@ -108,7 +108,7 @@ export default function DealsBoard() {
               })}
               {column.companies.length === 0 && (
                 <li className="border-border text-subtle caption-style rounded-xl border border-dashed p-4 text-center">
-                  No companies in this stage
+                  Nothing here. Tumbleweed.
                 </li>
               )}
             </ul>

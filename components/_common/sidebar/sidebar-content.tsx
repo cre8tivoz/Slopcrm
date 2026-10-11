@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Button from "@/components/_ui/button";
 import { ScrollArea } from "@/components/_ui/scroll-area";
 import SidebarNavItem from "./sidebar-nav-item";
@@ -34,6 +35,25 @@ export default function SidebarContent() {
   const activeView = useUiStore((state) => state.activeView);
   const navigate = useUiStore((state) => state.navigate);
   const setNewCompanyOpen = useUiStore((state) => state.setNewCompanyOpen);
+  const resetDemo = useCompaniesStore((state) => state.resetDemo);
+  const showToast = useUiStore((state) => state.showToast);
+  const [confirming, setConfirming] = useState(false);
+
+  useEffect(() => {
+    if (!confirming) return;
+    const timer = window.setTimeout(() => setConfirming(false), 4000);
+    return () => window.clearTimeout(timer);
+  }, [confirming]);
+
+  function reset() {
+    if (!confirming) {
+      setConfirming(true);
+      return;
+    }
+    setConfirming(false);
+    resetDemo();
+    showToast("Back to factory slop");
+  }
 
   const counts: Partial<Record<ViewId, number>> = {
     home: followUpQueue(companies).length,
@@ -59,10 +79,10 @@ export default function SidebarContent() {
         <Logo aria-hidden className="size-8 shrink-0 overflow-visible" />
         <div className="flex min-w-0 flex-col gap-1">
           <span className="lead-style block truncate font-medium tracking-[-0.01em]">
-            Sales CRM
+            Slop CRM
           </span>
           <span className="caption-style text-subtle block truncate">
-            Company pipeline
+            Seed data, real-ish vibes
           </span>
         </div>
       </div>
@@ -82,12 +102,20 @@ export default function SidebarContent() {
         </nav>
       </ScrollArea>
 
-      <div className="border-sidebar-border shrink-0 border-t p-3">
+      <div className="border-sidebar-border flex shrink-0 flex-col gap-1 border-t p-3">
+        <button
+          type="button"
+          onClick={reset}
+          className="caption-style text-subtle hover:text-foreground data-[confirming=true]:text-danger min-h-11 rounded-lg px-2 text-left transition-colors duration-150 lg:min-h-8"
+          data-confirming={confirming}
+        >
+          {confirming ? "Tap again to wipe your changes" : "Reset demo data"}
+        </button>
         <Button
           variant="primary"
           size="md"
           onClick={() => setNewCompanyOpen(true)}
-          className="fine:min-h-0 min-h-11 w-full"
+          className="fine:min-h-0 hidden min-h-11 w-full lg:inline-flex"
         >
           <PlusIcon aria-hidden className="size-3.5" />
           New Company

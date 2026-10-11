@@ -37,6 +37,7 @@ import {
 } from "@/data/companies";
 import { formatMoney } from "@/lib/companies";
 import { UNSTAGED, primaryStage, weightedValue } from "@/lib/pipeline";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { useCompaniesStore } from "@/stores/companies-store";
 import { useUiStore } from "@/stores/ui-store";
 import BuildingIcon from "@/public/assets/images/companies/detail/building.svg";
@@ -60,9 +61,9 @@ function Fact({
   hint?: string;
 }) {
   return (
-    <div className="border-border bg-card/50 flex flex-col gap-1 rounded-xl border p-3">
+    <div className="flex flex-col gap-1.5">
       <span className="caption-style text-muted-foreground">{label}</span>
-      <span className="text-[18px] leading-tight font-semibold tabular-nums">
+      <span className="text-[24px] leading-none font-semibold tracking-[-0.02em] tabular-nums">
         {value}
       </span>
       {hint && <span className="caption-style text-subtle">{hint}</span>}
@@ -72,6 +73,7 @@ function Fact({
 
 export default function CompanyDetail() {
   const stageId = useId();
+  const desktop = useMediaQuery("(min-width: 1024px)");
   const detailId = useUiStore((state) => state.detailId);
   const detailOpen = useUiStore((state) => state.detailOpen);
   const companies = useCompaniesStore((state) => state.companies);
@@ -97,8 +99,21 @@ export default function CompanyDetail() {
       open={detailOpen && company !== undefined}
       onOpenChange={(open) => !open && closeDetail()}
     >
-      <SheetContent side="right" className="sm:w-[560px] sm:max-w-[560px]">
-        <SheetHeader>
+      <SheetContent
+        side={desktop ? "right" : "bottom"}
+        className={
+          desktop
+            ? "w-[560px] max-w-[560px]"
+            : "h-[94dvh] max-h-[94dvh] rounded-t-3xl"
+        }
+      >
+        {!desktop && (
+          <span
+            aria-hidden
+            className="mx-auto mt-2 block h-1 w-10 shrink-0 rounded-full bg-white/20"
+          />
+        )}
+        <SheetHeader className={desktop ? undefined : "h-12 border-b-0 px-5"}>
           <div className="flex items-center gap-2">
             <BuildingIcon aria-hidden className="text-icon size-3.5" />
             <SheetTitle>Company</SheetTitle>
@@ -143,7 +158,7 @@ export default function CompanyDetail() {
                     onDone={() => setLogFormOpen(false)}
                   />
                 ) : (
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-4 pt-1">
                     <Fact
                       label="Deal value"
                       value={`$${formatMoney(company.pipelineValue)}`}

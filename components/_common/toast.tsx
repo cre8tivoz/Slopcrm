@@ -31,7 +31,7 @@ export default function Toast() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.98 }}
               transition={{ duration: 0.25, ease: [0.215, 0.61, 0.355, 1] }}
-              className="lead-style bg-popover border-line-strong shadow-overlay pointer-events-auto flex items-center gap-2 whitespace-nowrap rounded-full border py-2.5 pr-4 pl-3"
+              className="lead-style bg-popover border-line-strong shadow-overlay pointer-events-auto flex items-center gap-2 rounded-full border py-2.5 pr-4 pl-3 whitespace-nowrap"
             >
               <span
                 aria-hidden

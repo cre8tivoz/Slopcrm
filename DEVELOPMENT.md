@@ -129,6 +129,17 @@ Goal: someone non-technical opens the app and knows what to do next, and every b
 - **Table footer** shows real totals for what's in view (total value, likely to close, avg chance to win) instead of fake "+ Add Calculation" cells.
 - **Tests:** 66 (was 57): store actions, log-form flag, toast ids, deal health bands, queue order, relative days.
 
+### App-feel pass (Mobbin-informed)
+
+Reference sweep on Mobbin (Attio, Quo/OpenPhone, Telegram, Mesh, Shopify, Pipedrive, HubSpot). Finding: the original layout is close to Attio's web app, including its trial/billing and "+ Add calculation" chrome. The lighter apps get their feel from flat rows, big titles, a bottom tab bar and one floating action, not from restyled boxes.
+
+- **Mobile shell:** bottom tab bar (Today, Companies, Deals, Activity, More) plus a floating **+** (Log activity / New company). The header is a large title with ghost icons; the old hamburger and top tabs are gone. Tabs come from `TAB_VIEWS` in `lib/views.ts`.
+- **Log activity from anywhere:** the + opens search in "log" mode (`searchIntent`), and picking a company opens it straight on the log form.
+- **Less chrome:** company list, Today, Activity and the company panel use flat rows with hairline dividers instead of bordered cards. Deal cards are borderless tints. The log form is a segmented control. On mobile the company panel is a slide-up sheet with a grab handle.
+- **Voice (dry wink):** "Morning, Jensen. 15 accounts are waiting on you. They've noticed.", "83 days of silence", "Nothing here. Tumbleweed.", reset toast "Back to factory slop". Site name is now **Slop CRM**.
+- **Persistence:** business data saves to `localStorage` (`slopcrm:data`, zustand `persist`, storage that never throws). It's applied after mount (`skipHydration` + `rehydrate()` in Shell), so the prerendered HTML still matches. **Reset demo data** (two taps) is at the bottom of the menu. No server database: no hosting or security surface, and a reset always works.
+- **Tests:** 70 (store reset, search intent, compact money, long date).
+
 ## Discovered while working
 
 - **`CONVENTIONS.md` and `OPTIMIZATION.md` are missing.** `CLAUDE.md` includes `@CONVENTIONS.md` and the README's docs table lists both. Agents following those pointers currently fail. Either restore the files or update the references.

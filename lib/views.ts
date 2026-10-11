@@ -43,8 +43,8 @@ export function viewById(id: ViewId) {
   return VIEWS.find((view) => view.id === id) ?? VIEWS[0];
 }
 
-/** Views that appear as header tabs, in order. */
-export const HEADER_TABS = VIEWS.filter(
+/** Views in the mobile tab bar, in order. */
+export const TAB_VIEWS = VIEWS.filter(
   (view): view is Extract<(typeof VIEWS)[number], { tab: string }> =>
     view.tab !== null,
 );

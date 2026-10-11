@@ -21,6 +21,7 @@ import PlusIcon from "@/public/assets/images/_common/plus.svg";
 export default function CommandMenu() {
   const open = useUiStore((state) => state.searchOpen);
   const setOpen = useUiStore((state) => state.setSearchOpen);
+  const intent = useUiStore((state) => state.searchIntent);
   const companies = useCompaniesStore((state) => state.companies);
   const openDetail = useUiStore((state) => state.openDetail);
   const setNewCompanyOpen = useUiStore((state) => state.setNewCompanyOpen);
@@ -37,8 +38,12 @@ export default function CommandMenu() {
     <CommandDialog
       open={open}
       onOpenChange={setOpen}
-      title="Search"
-      description="Search companies by name, owner, segment or stage"
+      title={intent === "log" ? "Log activity" : "Search"}
+      description={
+        intent === "log"
+          ? "Pick the company you were in touch with"
+          : "Search companies by name, owner, segment or stage"
+      }
       className="max-w-[960px]"
       onCloseAutoFocus={(event) => {
         if (actionRan.current) event.preventDefault();
@@ -50,18 +55,24 @@ export default function CommandMenu() {
         <CommandInput
           value={query}
           onValueChange={setQuery}
-          placeholder="Search companies, owners, stages…"
+          placeholder={
+            intent === "log"
+              ? "Who did you talk to?"
+              : "Search companies, owners, stages…"
+          }
           trailing={<Kbd>Esc</Kbd>}
         />
         <CommandTableHeader />
         <CommandList>
-          <CommandEmpty>No results for “{query}”</CommandEmpty>
+          <CommandEmpty>Nobody called “{query}”. Yet.</CommandEmpty>
           <CommandGroup>
             {companies.map((company) => (
               <CommandCompanyRow
                 key={company.id}
                 company={company}
-                onSelect={() => run(() => openDetail(company.id))}
+                onSelect={() =>
+                  run(() => openDetail(company.id, { log: intent === "log" }))
+                }
               />
             ))}
           </CommandGroup>

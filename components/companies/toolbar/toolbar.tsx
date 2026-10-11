@@ -10,7 +10,8 @@ import {
   STAGE_OPTIONS,
 } from "./filter-options";
 import type { SortKey } from "@/data/companies";
-import { companiesCsvRows } from "@/lib/companies";
+import { companiesCsvRows, formatCompactMoney } from "@/lib/companies";
+import { summarise } from "@/lib/pipeline";
 import { DEMO_TODAY } from "@/lib/demo-clock";
 import { downloadCsv } from "@/lib/csv";
 import { useUiStore } from "@/stores/ui-store";
@@ -29,10 +30,14 @@ export default function CompaniesToolbar() {
   }
 
   return (
-    <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 px-4 py-4">
-      <MobileFilters className="sm:hidden" />
+    <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 px-4 pt-2 pb-3 lg:py-4">
+      <MobileFilters className="lg:hidden" />
+      <span className="caption-style text-muted-foreground tabular-nums lg:hidden">
+        {visible.length} {visible.length === 1 ? "company" : "companies"} ·{" "}
+        {formatCompactMoney(summarise(visible).total)}
+      </span>
 
-      <div className="hidden min-w-0 flex-wrap gap-2 sm:flex">
+      <div className="hidden min-w-0 flex-wrap gap-2 lg:flex">
         <FilterMenu
           label="Sort by"
           value={filters.sortBy}
@@ -59,7 +64,7 @@ export default function CompaniesToolbar() {
         />
       </div>
 
-      <div className="flex shrink-0 items-center gap-1">
+      <div className="hidden shrink-0 items-center gap-1 lg:flex">
         <Button
           variant="secondary"
           size="sm"

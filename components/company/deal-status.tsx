@@ -7,16 +7,16 @@ export const STATUS_COPY: Record<
   { label: string; advice: string }
 > = {
   active: {
-    label: "On track",
-    advice: "You've been in touch recently. Keep it up.",
+    label: "Warm",
+    advice: "You've been in touch recently. Carry on.",
   },
   "at-risk": {
     label: "Needs a nudge",
-    advice: "It's been a couple of weeks. A quick check-in keeps things warm.",
+    advice: "A couple of quiet weeks. A quick check-in keeps it warm.",
   },
   slipping: {
     label: "Going cold",
-    advice: "No contact in over 6 weeks. Reach out before this deal stalls.",
+    advice: "Over six weeks of silence. Someone else is probably calling them.",
   },
 };
 
@@ -27,15 +27,15 @@ const DOT: Record<DealHealthStatus, string> = {
 };
 
 const PANEL: Record<DealHealthStatus, string> = {
-  active: "border-success/30 bg-success/8",
-  "at-risk": "border-warning/30 bg-warning/8",
-  slipping: "border-danger/30 bg-danger/8",
+  active: "bg-success/10",
+  "at-risk": "bg-warning/10",
+  slipping: "bg-danger/10",
 };
 
 export function lastContactText(days: number) {
-  if (days === 0) return "Last contact today";
-  if (days === 1) return "Last contact yesterday";
-  return `No contact for ${days} days`;
+  if (days === 0) return "Talked today";
+  if (days === 1) return "Talked yesterday";
+  return `${days} days of silence`;
 }
 
 export function StatusDot({
@@ -48,7 +48,11 @@ export function StatusDot({
   return (
     <span
       aria-hidden
-      className={cn("block size-2 shrink-0 rounded-full", DOT[status], className)}
+      className={cn(
+        "block size-2 shrink-0 rounded-full",
+        DOT[status],
+        className,
+      )}
     />
   );
 }
@@ -59,7 +63,10 @@ export function DealStatusPanel({ company }: { company: Company }) {
   return (
     <div
       role="status"
-      className={cn("flex flex-col gap-1 rounded-xl border p-3.5", PANEL[status])}
+      className={cn(
+        "flex flex-col gap-1.5 rounded-xl px-3.5 py-3",
+        PANEL[status],
+      )}
     >
       <span className="lead-style flex items-center gap-2 font-medium">
         <StatusDot status={status} />

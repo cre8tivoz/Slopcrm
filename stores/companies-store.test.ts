@@ -89,6 +89,18 @@ describe("companies store", () => {
       .companies.find((c) => c.id === "stripe")!;
     expect(primaryStage(stripe)).toBe("Renewal");
     const original = COMPANIES.find((c) => c.id === "stripe")!;
-    expect(new Set(stripe.tags)).toEqual(new Set([...original.tags, "Renewal"]));
+    expect(new Set(stripe.tags)).toEqual(
+      new Set([...original.tags, "Renewal"]),
+    );
+  });
+
+  it("resets everything back to the seed", () => {
+    const store = useCompaniesStore.getState();
+    store.addCompany(acme);
+    store.setStage("stripe", "Renewal");
+    useCompaniesStore.getState().resetDemo();
+    const { companies, interactions } = useCompaniesStore.getState();
+    expect(companies).toBe(COMPANIES);
+    expect(interactions).toBe(initial.interactions);
   });
 });

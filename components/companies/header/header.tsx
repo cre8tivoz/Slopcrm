@@ -2,75 +2,52 @@
 
 import Avatar from "@/components/_ui/avatar";
 import Button from "@/components/_ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/_ui/tabs";
 import Notifications from "./notifications/notifications";
 import { CURRENT_USER } from "@/data/companies";
-import { HEADER_TABS, isViewId, viewById } from "@/lib/views";
+import { viewById } from "@/lib/views";
 import { useUiStore } from "@/stores/ui-store";
-import MenuIcon from "@/public/assets/images/_common/menu.svg";
 import SearchIcon from "@/public/assets/images/_common/search.svg";
 
 export default function CompaniesHeader() {
   const activeView = useUiStore((state) => state.activeView);
-  const navigate = useUiStore((state) => state.navigate);
-  const setSidebarOpen = useUiStore((state) => state.setSidebarOpen);
   const setSearchOpen = useUiStore((state) => state.setSearchOpen);
   const openProfile = useUiStore((state) => state.openProfile);
 
   return (
-    <header className="shrink-0">
-      <div className="lg:border-border flex items-center justify-between gap-1.5 px-4 py-[14px] sm:gap-2 lg:border-b">
-        <div className="flex min-w-0 items-center gap-2">
-          <Button
-            variant="secondary"
-            size="icon"
-            className="fine:size-[30px] size-11 lg:hidden"
-            aria-label="Open navigation"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <MenuIcon aria-hidden className="size-3.5" />
-          </Button>
-          <h1 className="truncate">{viewById(activeView).title}</h1>
-        </div>
+    <header className="lg:border-border shrink-0 lg:border-b">
+      <div className="flex items-center justify-between gap-2 px-4 pt-4 pb-2 lg:py-[14px]">
+        <h1 className="truncate text-[28px] leading-none font-semibold tracking-[-0.03em] lg:text-[16px] lg:font-medium lg:tracking-normal">
+          {viewById(activeView).title}
+        </h1>
 
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="-mr-1.5 flex shrink-0 items-center gap-1 lg:mr-0 lg:gap-2">
           <Button
-            variant="secondary"
+            variant="ghost"
             size="icon"
-            className="fine:size-[30px] size-11"
+            className="fine:size-[30px] text-foreground size-11"
             aria-label="Search"
             aria-keyshortcuts="Meta+K Control+K"
             onClick={() => setSearchOpen(true)}
           >
-            <SearchIcon aria-hidden className="size-3.5" />
+            <SearchIcon aria-hidden className="size-4 lg:size-3.5" />
           </Button>
           <Notifications />
           <Button
-            variant="secondary"
+            variant="ghost"
             size="none"
-            className="caption-style fine:h-[30px] fine:min-w-0 h-11 min-w-11 gap-1.5 py-[5px] pr-[7px] pl-[5px] font-normal"
+            className="caption-style fine:h-[30px] fine:min-w-0 text-foreground h-11 min-w-11 gap-1.5 py-[5px] pr-[7px] pl-[5px] font-normal"
             aria-label={`Open profile for ${CURRENT_USER.name}`}
             onClick={() => openProfile(CURRENT_USER.name)}
           >
-            <Avatar src={CURRENT_USER.avatar} alt="" />
-            <span className="hidden sm:inline">{CURRENT_USER.name}</span>
+            <Avatar
+              src={CURRENT_USER.avatar}
+              alt=""
+              className="size-7 lg:size-5"
+            />
+            <span className="hidden lg:inline">{CURRENT_USER.name}</span>
           </Button>
         </div>
       </div>
-
-      <Tabs
-        className="lg:hidden"
-        value={activeView}
-        onValueChange={(value) => isViewId(value) && navigate(value)}
-      >
-        <TabsList className="border-border border-b px-4">
-          {HEADER_TABS.map((view) => (
-            <TabsTrigger key={view.id} value={view.id}>
-              {view.tab}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
     </header>
   );
 }

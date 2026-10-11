@@ -14,6 +14,8 @@ type UiState = {
   reportingTab: ReportingTab;
   sidebarOpen: boolean;
   searchOpen: boolean;
+  /** "log": picking a company opens it straight onto the log form. */
+  searchIntent: "open" | "log";
   newCompanyOpen: boolean;
   /** Kept after close so the sheet still has content while animating out. */
   detailId: string | null;
@@ -30,7 +32,7 @@ type UiState = {
   navigate: (view: ViewId) => void;
   setReportingTab: (tab: ReportingTab) => void;
   setSidebarOpen: (open: boolean) => void;
-  setSearchOpen: (open: boolean) => void;
+  setSearchOpen: (open: boolean, intent?: "open" | "log") => void;
   setNewCompanyOpen: (open: boolean) => void;
   /** Opening the detail sheet closes the profile sheet, and vice versa. */
   openDetail: (id: string, options?: { log?: boolean }) => void;
@@ -54,6 +56,7 @@ export const useUiStore = create<UiState>((set) => ({
   reportingTab: "overview",
   sidebarOpen: false,
   searchOpen: false,
+  searchIntent: "open",
   newCompanyOpen: false,
   detailId: null,
   detailOpen: false,
@@ -67,7 +70,11 @@ export const useUiStore = create<UiState>((set) => ({
   navigate: (activeView) => set({ activeView, sidebarOpen: false }),
   setReportingTab: (reportingTab) => set({ reportingTab }),
   setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
-  setSearchOpen: (searchOpen) => set({ searchOpen }),
+  setSearchOpen: (searchOpen, intent) =>
+    set((state) => ({
+      searchOpen,
+      searchIntent: searchOpen ? (intent ?? "open") : state.searchIntent,
+    })),
   setNewCompanyOpen: (newCompanyOpen) => set({ newCompanyOpen }),
   openDetail: (detailId, options) =>
     set({

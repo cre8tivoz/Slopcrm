@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_VIEW, HEADER_TABS, VIEWS, isViewId, viewById } from "./views";
+import { DEFAULT_VIEW, TAB_VIEWS, VIEWS, isViewId, viewById } from "./views";
 
 describe("views registry", () => {
   it("has unique ids", () => {
@@ -12,8 +12,8 @@ describe("views registry", () => {
     expect(isViewId("contacts")).toBe(false);
   });
 
-  it("header tabs keep registry order and skip sidebar-only views", () => {
-    expect(HEADER_TABS.map((view) => view.id)).toEqual([
+  it("tab bar keeps registry order and skip sidebar-only views", () => {
+    expect(TAB_VIEWS.map((view) => view.id)).toEqual([
       "home",
       "companies",
       "deals",

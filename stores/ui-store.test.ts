@@ -87,4 +87,14 @@ describe("ui store", () => {
     useUiStore.getState().dismissToast();
     expect(useUiStore.getState().toast).toBeNull();
   });
+
+  it("search remembers why it was opened until it closes", () => {
+    const { setSearchOpen } = useUiStore.getState();
+    setSearchOpen(true, "log");
+    expect(useUiStore.getState().searchIntent).toBe("log");
+    setSearchOpen(false);
+    expect(useUiStore.getState().searchIntent).toBe("log");
+    setSearchOpen(true);
+    expect(useUiStore.getState().searchIntent).toBe("open");
+  });
 });

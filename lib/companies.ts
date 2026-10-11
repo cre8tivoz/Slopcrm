@@ -122,3 +122,20 @@ export function formatDate(iso: string) {
 export function formatMoney(value: number) {
   return value.toLocaleString("en-US");
 }
+
+/** "$5.1M", "$420K", "$950" — for headline numbers, not tables. */
+export function formatCompactMoney(value: number) {
+  if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `$${Math.round(value / 1_000)}K`;
+  return `$${value}`;
+}
+
+/** "Sunday 14 September" for an ISO date. */
+export function formatLongDate(iso: string) {
+  return new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: "UTC",
+  });
+}

@@ -11,6 +11,8 @@ import Reports from "./reports/reports";
 import Activities from "./activities/activities";
 import Home from "./home/home";
 import Toast from "./_common/toast";
+import MobileNav from "./_common/mobile-nav";
+import { useCompaniesStore } from "@/stores/companies-store";
 import type { ViewId } from "@/lib/views";
 import { useUiStore } from "@/stores/ui-store";
 
@@ -57,6 +59,10 @@ export default function Shell() {
   const showProfile = useEver(profileOpen);
   const showNewCompany = useEver(newCompanyOpen);
 
+  useEffect(() => {
+    void useCompaniesStore.persist.rehydrate();
+  }, []);
+
   // Global ⌘K/Ctrl+K must work before CommandMenu has ever mounted, so the
   // listener lives here instead of inside the lazily-loaded dialog.
   useEffect(() => {
@@ -85,6 +91,7 @@ export default function Shell() {
       >
         <View />
       </div>
+      <MobileNav />
       <CompanyDetail />
       {showProfile && <Profile />}
       {showNewCompany && <NewCompanyDialog />}

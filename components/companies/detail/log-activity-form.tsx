@@ -55,15 +55,12 @@ export default function LogActivityForm({
   }
 
   return (
-    <form
-      onSubmit={submit}
-      className="border-line-strong bg-card animate-rise flex flex-col gap-4 rounded-xl border p-4"
-    >
+    <form onSubmit={submit} className="animate-rise flex flex-col gap-5 pt-1">
       <fieldset className="flex flex-col gap-2">
         <legend className="lead-style mb-2 font-medium">
           How did you get in touch?
         </legend>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="grid grid-cols-4 gap-1 rounded-xl bg-white/5 p-1">
           {CHANNELS.map((option) => (
             <button
               key={option}
@@ -71,13 +68,13 @@ export default function LogActivityForm({
               aria-pressed={channel === option}
               onClick={() => setChannel(option)}
               className={cn(
-                "lead-style ease-power3-out focus-visible:ring-ring/60 fine:min-h-9 min-h-11 rounded-lg border px-3 transition-[background-color,border-color,transform] duration-150 outline-none focus-visible:ring-2 active:scale-[0.97]",
+                "lead-style ease-power3-out focus-visible:ring-ring/60 fine:min-h-9 min-h-11 rounded-lg px-1 transition-[background-color,color,transform] duration-150 outline-none focus-visible:ring-2 active:scale-[0.97]",
                 channel === option
-                  ? "border-primary bg-primary/20 text-foreground"
-                  : "border-line-strong bg-secondary text-soft hover:text-foreground",
+                  ? "bg-primary text-primary-foreground font-medium"
+                  : "text-soft hover:text-foreground",
               )}
             >
-              {CHANNEL_LABEL[option]}
+              {option === "note" ? "Note" : CHANNEL_LABEL[option]}
             </button>
           ))}
         </div>

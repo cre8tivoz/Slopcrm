@@ -8,8 +8,7 @@ import { daysSince } from "@/lib/demo-clock";
 import { useCompaniesStore } from "@/stores/companies-store";
 import { useUiStore } from "@/stores/ui-store";
 
-const KPI_CARD =
-  "border-border bg-card/50 flex flex-col gap-1 rounded-xl border p-3.5";
+const KPI_CARD = "flex flex-col gap-1.5";
 
 /** The feed covers the same span as the widest Last-activity filter. */
 const FEED_DAYS = 90;
@@ -51,14 +50,14 @@ export default function Activities() {
 
   return (
     <section aria-label="Activities" className="min-h-0 flex-1 overflow-y-auto">
-      <div className="flex flex-col gap-4 p-4">
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="flex flex-col gap-6 px-4 pt-2 pb-24 lg:p-4">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-5 py-2 lg:grid-cols-4">
           {kpis.map((kpi) => (
             <div key={kpi.label} className={KPI_CARD}>
               <span className="caption-style text-muted-foreground">
                 {kpi.label}
               </span>
-              <span className="truncate text-[20px] leading-tight font-semibold tracking-[-0.01em] tabular-nums">
+              <span className="truncate text-[22px] leading-tight font-semibold tracking-[-0.02em] tabular-nums">
                 {kpi.value}
               </span>
             </div>
@@ -66,17 +65,17 @@ export default function Activities() {
         </div>
 
         {days.length === 0 ? (
-          <p className="caption-style text-subtle border-border rounded-xl border border-dashed p-6 text-center">
-            No interactions in the last {FEED_DAYS} days.
+          <p className="text-subtle py-10 text-center">
+            {FEED_DAYS} days of nothing. Bold strategy.
           </p>
         ) : (
-          <ol className="flex flex-col gap-4">
+          <ol className="flex flex-col gap-6">
             {days.map((day) => (
               <li key={day.date} className="flex flex-col gap-1.5">
-                <h2 className="caption-style text-muted-foreground px-1 tabular-nums">
+                <h2 className="eyebrow-style text-muted-foreground tabular-nums">
                   {dayHeading(day.date)}
                 </h2>
-                <ul className="border-border bg-card/50 flex flex-col rounded-xl border p-1.5">
+                <ul className="divide-border flex flex-col divide-y">
                   {day.items.map((item) => {
                     const company = companyById.get(item.companyId);
                     if (!company) return null;
@@ -91,7 +90,7 @@ export default function Activities() {
                         <button
                           type="button"
                           onClick={() => openDetail(company.id)}
-                          className="ease-power3-out focus-visible:ring-ring/60 flex min-h-11 w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition-[background-color,transform] duration-150 hover:bg-white/4 focus-visible:ring-2 focus-visible:outline-none active:scale-[0.99]"
+                          className="ease-power3-out focus-visible:ring-ring/60 -mx-2 flex min-h-14 w-[calc(100%+16px)] items-center gap-3 rounded-xl px-2 py-2.5 text-left transition-[background-color,transform] duration-150 hover:bg-white/4 focus-visible:ring-2 focus-visible:outline-none active:scale-[0.99]"
                         >
                           <CompanyLogo company={company} size="lg" />
                           <span className="min-w-0 flex-1">
