@@ -117,7 +117,7 @@ Architecture review found the domain rules smeared across views and already drif
   - Wired into `lib/views.ts` (Header Tabs) and `sidebar-content.tsx` (primary nav + "Q1 Forecast" and "Slipping Deals" shortcuts).
 - **Verified:** 57 tests passing, lint clean, `npm run build` and `npm run build:static` clean, desktop (1440/1280) and mobile (390) browser QA and vision QA clean.
 
-### User journey pass
+### User journey pass (PR #12)
 
 Goal: someone non-technical opens the app and knows what to do next, and every button does something.
 
@@ -127,9 +127,9 @@ Goal: someone non-technical opens the app and knows what to do next, and every b
 - **Feedback:** a toast confirms every change ("Email logged for Apple", "Apple moved to Renewal", "Acme added"). Adding a company opens its panel straight after.
 - **Navigation:** sidebar trimmed to real destinations (Today, Companies, Deals Board, Activities; Insights: Forecast, Reporting) with a **New Company** button; decorative Contacts / Email Sequences / Team / Pipelines / Invite / Help / trial-billing items removed. Header tabs are mobile-only (Today, Companies, Deals, Activity) so desktop doesn't show two navs. The meaningless "Active" pill and the pre-selected Microsoft row are gone.
 - **Table footer** shows real totals for what's in view (total value, likely to close, avg chance to win) instead of fake "+ Add Calculation" cells.
-- **Tests:** 66 (was 57): store actions, log-form flag, toast ids, deal health bands, queue order, relative days.
+- **Tests:** 66 at the time (was 57): store actions, log-form flag, toast ids, deal health bands, queue order, relative days.
 
-### App-feel pass (Mobbin-informed)
+### App-feel pass, Mobbin-informed (PR #12)
 
 Reference sweep on Mobbin (Attio, Quo/OpenPhone, Telegram, Mesh, Shopify, Pipedrive, HubSpot). Finding: the original layout is close to Attio's web app, including its trial/billing and "+ Add calculation" chrome. The lighter apps get their feel from flat rows, big titles, a bottom tab bar and one floating action, not from restyled boxes.
 
@@ -138,15 +138,19 @@ Reference sweep on Mobbin (Attio, Quo/OpenPhone, Telegram, Mesh, Shopify, Pipedr
 - **Less chrome:** company list, Today, Activity and the company panel use flat rows with hairline dividers instead of bordered cards. Deal cards are borderless tints. The log form is a segmented control. On mobile the company panel is a slide-up sheet with a grab handle.
 - **Voice (dry wink):** "Morning, Jensen. 15 accounts are waiting on you. They've noticed.", "83 days of silence", "Nothing here. Tumbleweed.", reset toast "Back to factory slop". Site name is now **Slop CRM**.
 - **Persistence:** business data saves to `localStorage` (`slopcrm:data`, zustand `persist`, storage that never throws). It's applied after mount (`skipHydration` + `rehydrate()` in Shell), so the prerendered HTML still matches. **Reset demo data** (two taps) is at the bottom of the menu. No server database: no hosting or security surface, and a reset always works.
-- **Tests:** 70 (store reset, search intent, compact money, long date).
+- **Storage quota (Codex review on #12):** uploaded logos are downscaled to 128px WebP before saving (a 1500px upload is stored as ~7 KB, not ~2 MB of base64). A failed `localStorage` write shows a "Couldn't save in this browser" toast instead of failing silently.
+- **Tests:** 71 (store reset, search intent, compact money, long date, failed-save toast).
 
-### Desktop, Forecast and Reporting de-chrome
+### Desktop, Forecast and Reporting de-chrome (PR #13)
 
-- **Companies table:** 7 columns instead of 9. Logo + name + segment, stage as plain text, owner, deal value, a thin "chance to win" bar, the 14-week sparkline, and last contact as status dot + "83 days of silence". Checkboxes and the "…" column are gone, and so is `selectedIds` in `ui-store`: nothing ever acted on a selection.
+- **Companies table:** 7 columns instead of 9. Logo + name + segment, stage as plain text, owner, deal value, the rainbow "chance to win" meter, the 14-week sparkline, and last contact as status dot + "83 days of silence". Checkboxes and the "…" column are gone, and so is `selectedIds` in `ui-store`: nothing ever acted on a selection.
 - **Forecast & Reporting:** no bordered KPI cards or panels. Big unboxed numbers, eyebrow section headings, soft tints only where grouping matters, pill chips, roomier max-width layout.
+- **Course correction:** this pass first swapped the rainbow meters for thin grey bars, made the green velocity bars neutral and dropped the tag outlines. All three were reverted at Billy's request: they're the app's personality (see "Personality keepers" below).
+- **Meter labels (Codex review on #13):** `SegmentBar` takes a `label` and exposes `aria-label` plus `aria-valuetext`. Mobile rows show the % beside the meter.
+- **Tests:** 70 on main (the row-selection test went with the feature).
 - **Plain words everywhere:** "Weighted" → "Likely to land", "Win probability" → "Chance to win", "Slipping / At risk" → "Going cold / Needs a nudge", "wtd" → "likely".
 
-### Report animations
+### Report animations (PR #13)
 
 Built on the repo's motion system: power easings (`--ease-power*` in `globals.css`, `kit/easings.ts` for Motion), the `rise` keyframe and Motion.
 
@@ -172,8 +176,9 @@ The aim is an app with a point of view, not generic SaaS. When in doubt, flag it
 - **README/`package.json` said "Kargul Starter"** while the browser metadata says "Sales CRM". **Fixed in S5.**
 - **`SlidingNumber` shipped unused** — a complete Motion primitive with no consumer until this pass. It now drives the footer count.
 - **Test suite is unit-level only.** Vitest covers the pure domain modules (`lib/`, `data/`); there are no component or browser tests. Journeys are verified by hand/headless QA on each PR.
-- **`selectedIds` has no bulk-action consumer.** Row checkboxes drive visual selection only; nothing acts on a selection. Either a bulk toolbar is planned or the selection UI is dead weight.
+- ~~**`selectedIds` has no bulk-action consumer.**~~ **Resolved in #13:** the selection UI and state were removed.
 - **Headless QA caveat:** in automation the browser is frame-starved — CSS animations freeze at `currentTime: 0` and ResizeObserver callbacks don't fire until a frame is forced (e.g. a screenshot). Radix sheets appear stuck "closing" and animated counters appear blank; this is environmental, not a product bug. Force a frame before judging animation state. `pointer: fine` also never matches headless, and Radix `DropdownMenu` **and Radix `TabsTrigger`** open/activate on `pointerdown` (real pointer-event sequences, not synthetic `.click()` or `.focus()`).
+- **`pkill -f "next dev"` inside a longer shell command kills that same shell**, because its own command line matches the pattern. Anything chained after it never runs. Stop the dev server in its own command, or kill the PID from `ss -ltnp`.
 - **Build emits a deprecation warning** (`module.register()` → `module.registerHooks()`) from Next.js internals — upstream, not ours.
 - **`next dev` and `next build` share `.next/`.** Running a production build while the dev server is up interleaves writes — measurements (and the dev server itself) get flaky. Stop the dev server before building. Related: an orphaned `next-server` process can hold port 3000 after its wrapper is killed; find it via `ss -ltnp`.
 - **The lightbox, Rive/Lottie/video, image inlining and Motion easings have no CRM consumers, but they aren't dead code.** `CLAUDE.md` documents them as starter-kit capabilities. Since S4 they live in `kit/` (see `kit/README.md`), which is why `photoswipe`, `@rive-app/*` and `lottie-react` stay in `package.json`. None of them ship in the initial bundle (verified: no runtime fingerprints in initial chunks).
@@ -182,9 +187,12 @@ The aim is an app with a point of view, not generic SaaS. When in doubt, flag it
 
 - **5 high vulnerabilities, all one dev-only chain:** `braces` → `micromatch` → `fast-glob` → `@next/eslint-plugin-next` → `eslint-config-next`. Root cause is `braces` ≤ 3.0.3 (GHSA-vfj7-8cjw-p6xm, stack exhaustion via deeply nested patterns) and **3.0.3 is the latest published release with no patched version upstream**. `npm audit` offers only "fix" is `npm audit fix --force`, which downgrades `eslint-config-next` to 14.2.35 — that breaks Next 16 linting and does not even remove `braces`. Not taken. Risk is low: build-time tooling only, never in the production bundle, and the attack requires an attacker to supply malicious glob patterns to your own linter. **Re-sweep when `braces` publishes a patched release** (`npm view braces versions`).
 - **Vision-based visual QA was unavailable** during the design pass (the configured model was rejected by the provider) — that pass was verified through DOM measurements, computed styles and pixel statistics rather than model-read screenshots. **Fixed 2026-10-07:** the vision auxiliary model is now `openai-codex` + `gpt-5.6-luna`, verified live; screenshot QA works.
-- **Selection bulk actions** can't be "fixed" without a product decision: build a bulk toolbar or remove selection. Out of scope for a polish pass.
+- ~~**Selection bulk actions**~~ — decided in #13: selection removed.
 
 ## Next moves (from the original audit, not yet actioned)
 
 - ~~Reconcile README/docs/naming with the actual product.~~ Done in S5, apart from the missing `CONVENTIONS.md`/`OPTIMIZATION.md`.
+- **Desktop Companies toolbar** (sort/filter pills, Export, New Company) still has the pre-#13 button styling.
+- **Toasts aren't announced while a sheet is open:** Radix marks everything outside the open dialog `aria-hidden`, including the toast's live region. The change is still visible inside the sheet.
+- **No component or browser tests** cover the new journeys (log activity, stage change, reset, persistence). They're verified by headless QA per PR.
 - Deeper UX: pagination/virtualisation if company counts grow, loading/empty states beyond the filters case, and Contacts/Email Sequences if real data ever arrives.

@@ -2,7 +2,7 @@
 
 A mobile-first sales CRM demo: companies, a deals board, a forecast and an activity timeline, running on realistic, internally consistent sample data. Built with Next.js 16, React 19, Tailwind CSS 4, Zustand and Motion, on top of the **Kargul Starter** kit.
 
-It's a front-end demo. There's no backend; the data is seeded in `data/` and lives in the browser, so anything you add resets on reload.
+It's a front-end demo. There's no backend: the data is seeded in `data/`, and anything you change saves in your browser (`localStorage`). **Reset demo data** at the bottom of the menu puts the seed back.
 
 ## Getting started
 
