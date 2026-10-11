@@ -18,6 +18,9 @@ type UiState = {
   /** Kept after close so the sheet still has content while animating out. */
   detailId: string | null;
   detailOpen: boolean;
+  /** The detail sheet opens straight onto its "Log activity" form. */
+  logFormOpen: boolean;
+  toast: { id: number; message: string } | null;
   profileName: string | null;
   profileOpen: boolean;
   filters: CompanyFilters;
@@ -30,7 +33,10 @@ type UiState = {
   setSearchOpen: (open: boolean) => void;
   setNewCompanyOpen: (open: boolean) => void;
   /** Opening the detail sheet closes the profile sheet, and vice versa. */
-  openDetail: (id: string) => void;
+  openDetail: (id: string, options?: { log?: boolean }) => void;
+  setLogFormOpen: (open: boolean) => void;
+  showToast: (message: string) => void;
+  dismissToast: () => void;
   closeDetail: () => void;
   openProfile: (name: string) => void;
   closeProfile: () => void;
@@ -51,18 +57,31 @@ export const useUiStore = create<UiState>((set) => ({
   newCompanyOpen: false,
   detailId: null,
   detailOpen: false,
+  logFormOpen: false,
+  toast: null,
   profileName: null,
   profileOpen: false,
   filters: DEFAULT_FILTERS,
-  selectedIds: ["microsoft"],
+  selectedIds: [],
 
   navigate: (activeView) => set({ activeView, sidebarOpen: false }),
   setReportingTab: (reportingTab) => set({ reportingTab }),
   setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
   setSearchOpen: (searchOpen) => set({ searchOpen }),
   setNewCompanyOpen: (newCompanyOpen) => set({ newCompanyOpen }),
-  openDetail: (detailId) =>
-    set({ detailId, detailOpen: true, profileOpen: false }),
+  openDetail: (detailId, options) =>
+    set({
+      detailId,
+      detailOpen: true,
+      profileOpen: false,
+      logFormOpen: options?.log ?? false,
+    }),
+  setLogFormOpen: (logFormOpen) => set({ logFormOpen }),
+  showToast: (message) =>
+    set((state) => ({
+      toast: { id: (state.toast?.id ?? 0) + 1, message },
+    })),
+  dismissToast: () => set({ toast: null }),
   closeDetail: () => set({ detailOpen: false }),
   openProfile: (profileName) =>
     set({ profileName, profileOpen: true, detailOpen: false }),

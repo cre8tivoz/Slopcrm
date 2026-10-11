@@ -8,7 +8,6 @@ import { CURRENT_USER } from "@/data/companies";
 import { HEADER_TABS, isViewId, viewById } from "@/lib/views";
 import { useUiStore } from "@/stores/ui-store";
 import MenuIcon from "@/public/assets/images/_common/menu.svg";
-import ActiveDot from "@/public/assets/images/companies/header/active-dot.svg";
 import SearchIcon from "@/public/assets/images/_common/search.svg";
 
 export default function CompaniesHeader() {
@@ -20,7 +19,7 @@ export default function CompaniesHeader() {
 
   return (
     <header className="shrink-0">
-      <div className="flex items-center justify-between gap-1.5 px-4 py-[14px] sm:gap-2">
+      <div className="lg:border-border flex items-center justify-between gap-1.5 px-4 py-[14px] sm:gap-2 lg:border-b">
         <div className="flex min-w-0 items-center gap-2">
           <Button
             variant="secondary"
@@ -32,12 +31,6 @@ export default function CompaniesHeader() {
             <MenuIcon aria-hidden className="size-3.5" />
           </Button>
           <h1 className="truncate">{viewById(activeView).title}</h1>
-          {activeView === "companies" && (
-            <span className="caption-style bg-muted hidden shrink-0 items-center gap-0.5 rounded-full border border-[#363636] py-[3px] pr-[5px] pl-[3px] sm:inline-flex">
-              <ActiveDot aria-hidden className="size-3" />
-              Active
-            </span>
-          )}
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
@@ -66,6 +59,7 @@ export default function CompaniesHeader() {
       </div>
 
       <Tabs
+        className="lg:hidden"
         value={activeView}
         onValueChange={(value) => isViewId(value) && navigate(value)}
       >

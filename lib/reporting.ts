@@ -149,6 +149,37 @@ export type PipelineVelocitySummary = {
   slippingDeals: SlippingDeal[];
 };
 
+/** Days since last contact and the health band it falls in. */
+export function dealHealth(company: Company): {
+  daysDormant: number;
+  status: DealHealthStatus;
+} {
+  const daysDormant = daysSince(company.lastInteraction.date);
+  const status: DealHealthStatus =
+    daysDormant > 45 ? "slipping" : daysDormant > 14 ? "at-risk" : "active";
+  return { daysDormant, status };
+}
+
+/**
+ * Companies that need a follow-up: going cold first, then needing a nudge,
+ * biggest deal first within each band. On-track companies are left out.
+ */
+export function followUpQueue(companies: readonly Company[]) {
+  const rank: Record<DealHealthStatus, number> = {
+    slipping: 0,
+    "at-risk": 1,
+    active: 2,
+  };
+  return companies
+    .map((company) => ({ company, ...dealHealth(company) }))
+    .filter((item) => item.status !== "active")
+    .sort(
+      (a, b) =>
+        rank[a.status] - rank[b.status] ||
+        b.company.pipelineValue - a.company.pipelineValue,
+    );
+}
+
 /**
  * Computes pipeline movement, 4-week moving average and dormancy/slipping deals.
  */
@@ -191,13 +222,7 @@ export function getPipelineVelocity(
 
   // 2. Deal velocity & dormancy
   const dealHealthList: SlippingDeal[] = companies.map((company) => {
-    const daysDormant = daysSince(company.lastInteraction.date);
-    let status: DealHealthStatus = "active";
-    if (daysDormant > 45) {
-      status = "slipping";
-    } else if (daysDormant > 14) {
-      status = "at-risk";
-    }
+    const { daysDormant, status } = dealHealth(company);
 
     return {
       company,

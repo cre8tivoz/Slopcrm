@@ -14,10 +14,10 @@ describe("views registry", () => {
 
   it("header tabs keep registry order and skip sidebar-only views", () => {
     expect(HEADER_TABS.map((view) => view.id)).toEqual([
+      "home",
       "companies",
       "deals",
-      "forecast",
-      "reports",
+      "activities",
     ]);
   });
 

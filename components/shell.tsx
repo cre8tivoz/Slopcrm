@@ -9,11 +9,14 @@ import DealsBoard from "./deals/deals-board";
 import Forecast from "./forecast/forecast";
 import Reports from "./reports/reports";
 import Activities from "./activities/activities";
+import Home from "./home/home";
+import Toast from "./_common/toast";
 import type { ViewId } from "@/lib/views";
 import { useUiStore } from "@/stores/ui-store";
 
 /** Every view must have a screen — a missing entry fails the type check. */
 const VIEW_COMPONENTS: Record<ViewId, ComponentType> = {
+  home: Home,
   companies: Companies,
   deals: DealsBoard,
   forecast: Forecast,
@@ -86,6 +89,7 @@ export default function Shell() {
       {showProfile && <Profile />}
       {showNewCompany && <NewCompanyDialog />}
       {showCommand && <CommandMenu />}
+      <Toast />
     </div>
   );
 }

@@ -100,19 +100,6 @@ export function splitTags(tags: Company["tags"]) {
   return { visible, hidden: tags.length - visible.length };
 }
 
-/**
- * Illustrative stage-health split for the detail sheet. The seed data has no
- * per-stage deal records, so these are fixed fractions of win probability —
- * demo presentation, not forecasting logic.
- */
-export function companyHealth(company: Company) {
-  return {
-    discovery: Math.round(company.winProbability * 0.372),
-    evaluation: Math.round(company.winProbability * 0.651),
-    procurement: Math.round(company.winProbability * 0.372),
-  };
-}
-
 export function formatDate(iso: string) {
   const [, month, day] = iso.split("-").map(Number);
   const names = [

@@ -70,6 +70,8 @@ export default function NewCompanyDialog() {
   const open = useUiStore((state) => state.newCompanyOpen);
   const setOpen = useUiStore((state) => state.setNewCompanyOpen);
   const addCompany = useCompaniesStore((state) => state.addCompany);
+  const openDetail = useUiStore((state) => state.openDetail);
+  const showToast = useUiStore((state) => state.showToast);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [nameError, setNameError] = useState<string | null>(null);
   const nameRef = useRef<HTMLInputElement>(null);
@@ -104,6 +106,8 @@ export default function NewCompanyDialog() {
 
     addCompany(company);
     setOpen(false);
+    showToast(`${company.name} added`);
+    window.setTimeout(() => openDetail(company.id), 260);
   }
 
   return (

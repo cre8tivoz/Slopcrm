@@ -3,9 +3,11 @@ import type { Interaction } from "@/data/interactions";
 import {
   activityCounts,
   groupByDay,
+  relativeDay,
   weeklyTouches,
   withinDays,
 } from "./activity";
+import { DEMO_TODAY, isoDaysAgo } from "./demo-clock";
 
 function touch(date: string, channel: Interaction["channel"]): Interaction {
   return {
@@ -63,5 +65,13 @@ describe("activity", () => {
 
   it("drops touches older than the window", () => {
     expect(weeklyTouches(LOG, 4)).toEqual([0, 0, 0, 3]);
+  });
+});
+
+describe("relativeDay", () => {
+  it("reads like speech", () => {
+    expect(relativeDay(DEMO_TODAY)).toBe("today");
+    expect(relativeDay(isoDaysAgo(1))).toBe("yesterday");
+    expect(relativeDay(isoDaysAgo(12))).toBe("12 days ago");
   });
 });

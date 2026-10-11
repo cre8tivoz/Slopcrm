@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { COMPANIES } from "@/data/companies";
 import { INTERACTIONS } from "@/data/interactions";
+import { DEMO_TODAY, isoDaysAgo } from "./demo-clock";
 import {
   FUNNEL_STAGE_ORDER,
+  dealHealth,
+  followUpQueue,
   getPipelineVelocity,
   getRepPerformance,
   getStageConversionFunnel,
@@ -75,6 +78,37 @@ describe("lib/reporting", () => {
       expect(repData.topProducer).toBe(repData.reps[0]);
       expect(repData.mostActiveRep).toBeDefined();
       expect(repData.highestWinRep).toBeDefined();
+    });
+  });
+
+  describe("dealHealth / followUpQueue", () => {
+    const at = (id: string, daysAgo: number, value: number) => ({
+      ...COMPANIES[0],
+      id,
+      pipelineValue: value,
+      lastInteraction: { date: isoDaysAgo(daysAgo), label: "Demo" },
+    });
+
+    it("bands by days since last contact", () => {
+      expect(dealHealth(at("a", 14, 1)).status).toBe("active");
+      expect(dealHealth(at("b", 15, 1)).status).toBe("at-risk");
+      expect(dealHealth(at("c", 46, 1)).status).toBe("slipping");
+      expect(dealHealth(at("d", 0, 1)).daysDormant).toBe(0);
+    });
+
+    it("lists going-cold deals first, biggest first, and skips on-track ones", () => {
+      const queue = followUpQueue([
+        at("fresh", 2, 900),
+        at("nudge-big", 20, 800),
+        at("cold-small", 60, 100),
+        at("cold-big", 90, 500),
+      ]);
+      expect(queue.map((item) => item.company.id)).toEqual([
+        "cold-big",
+        "cold-small",
+        "nudge-big",
+      ]);
+      expect(DEMO_TODAY).toBe(isoDaysAgo(0));
     });
   });
 });

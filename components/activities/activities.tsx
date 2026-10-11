@@ -2,8 +2,7 @@ import Avatar from "@/components/_ui/avatar";
 import Tag from "@/components/_ui/tag";
 import CompanyLogo from "@/components/company/company-logo";
 import { ownerByName } from "@/data/companies";
-import type { InteractionChannel } from "@/data/interactions";
-import { groupByDay, withinDays } from "@/lib/activity";
+import { CHANNEL_LABEL, groupByDay, withinDays } from "@/lib/activity";
 import { formatDate } from "@/lib/companies";
 import { daysSince } from "@/lib/demo-clock";
 import { useCompaniesStore } from "@/stores/companies-store";
@@ -14,13 +13,6 @@ const KPI_CARD =
 
 /** The feed covers the same span as the widest Last-activity filter. */
 const FEED_DAYS = 90;
-
-const CHANNEL_LABEL: Record<InteractionChannel, string> = {
-  email: "Email",
-  meeting: "Meeting",
-  call: "Call",
-  note: "Internal note",
-};
 
 function dayHeading(date: string) {
   const age = daysSince(date);
@@ -117,6 +109,7 @@ export default function Activities() {
                             </span>
                             <span className="caption-style text-muted-foreground block truncate">
                               {CHANNEL_LABEL[item.channel]} · {owner.name}
+                              {item.note && ` · ${item.note}`}
                             </span>
                           </span>
                           <Avatar
