@@ -19,6 +19,7 @@ import {
 } from "@/data/interactions";
 import { DEMO_TODAY } from "@/lib/demo-clock";
 import { NOTIFICATIONS } from "@/data/notifications";
+import { useUiStore } from "./ui-store";
 
 /**
  * Business data: companies, their interaction log and notification read
@@ -49,7 +50,7 @@ type CompaniesState = {
 export const STORAGE_KEY = "slopcrm:data";
 
 /** localStorage that never throws: private mode, full quota or no window. */
-const safeStorage: StateStorage = {
+export const safeStorage: StateStorage = {
   getItem: (name) => {
     try {
       return localStorage.getItem(name);
@@ -60,7 +61,16 @@ const safeStorage: StateStorage = {
   setItem: (name, value) => {
     try {
       localStorage.setItem(name, value);
-    } catch {}
+    } catch {
+      // Quota full or storage blocked: the change still applies on screen,
+      // so say plainly that it won't survive a reload. Deferred so it lands
+      // after (and replaces) any "saved" toast the same action shows.
+      setTimeout(() =>
+        useUiStore
+          .getState()
+          .showToast("Couldn't save in this browser. Changes reset on reload."),
+      );
+    }
   },
   removeItem: (name) => {
     try {

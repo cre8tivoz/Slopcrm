@@ -1,8 +1,9 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { COMPANIES, type Company } from "@/data/companies";
 import { primaryStage } from "@/lib/pipeline";
 import { DEMO_TODAY } from "@/lib/demo-clock";
-import { useCompaniesStore } from "./companies-store";
+import { safeStorage, useCompaniesStore } from "./companies-store";
+import { useUiStore } from "./ui-store";
 
 const initial = useCompaniesStore.getState();
 beforeEach(() => useCompaniesStore.setState(initial, true));
@@ -102,5 +103,26 @@ describe("companies store", () => {
     const { companies, interactions } = useCompaniesStore.getState();
     expect(companies).toBe(COMPANIES);
     expect(interactions).toBe(initial.interactions);
+  });
+
+  describe("saving in the browser", () => {
+    afterEach(() => {
+      vi.useRealTimers();
+      vi.unstubAllGlobals();
+    });
+
+    it("tells the user when the browser refuses to save", () => {
+      vi.useFakeTimers();
+      vi.stubGlobal("localStorage", {
+        setItem: () => {
+          throw new DOMException("full", "QuotaExceededError");
+        },
+      });
+      useUiStore.getState().dismissToast();
+      expect(() => safeStorage.setItem("k", "v")).not.toThrow();
+      useUiStore.getState().showToast("Acme added");
+      vi.runAllTimers();
+      expect(useUiStore.getState().toast?.message).toMatch(/Couldn't save/);
+    });
   });
 });
