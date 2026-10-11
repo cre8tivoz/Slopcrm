@@ -37,25 +37,15 @@ export default function FilterMenu({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="secondary"
+          variant="ghost"
           size="none"
           className={cn(
-            "group fine:min-h-0 data-[state=open]:bg-muted h-[30px] min-h-11 gap-0 overflow-hidden text-[12px]",
+            "group fine:min-h-0 text-foreground h-[30px] min-h-11 gap-1.5 overflow-hidden rounded-lg bg-white/[0.05] px-[9px] text-[12px] hover:bg-white/[0.08] data-[state=open]:bg-white/10",
             className,
           )}
         >
-          {label && (
-            <>
-              <span className="text-subtle px-[9px] font-normal">{label}</span>
-              <span aria-hidden className="h-full w-px bg-white/8" />
-            </>
-          )}
-          <span
-            className={cn(
-              "flex items-center px-[9px]",
-              label ? "gap-1.5" : "gap-1",
-            )}
-          >
+          {label && <span className="text-subtle font-normal">{label}</span>}
+          <span className="flex items-center gap-1">
             {current?.label ?? value}
             <ChevronDownIcon
               aria-hidden

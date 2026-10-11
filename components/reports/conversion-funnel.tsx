@@ -2,10 +2,7 @@ import Tag from "@/components/_ui/tag";
 import SegmentBar from "@/components/_common/segment-bar";
 import CompanyLogo from "@/components/company/company-logo";
 import { formatMoney } from "@/lib/companies";
-import {
-  getStageConversionFunnel,
-  type StageConversionMetric,
-} from "@/lib/reporting";
+import { getStageConversionFunnel } from "@/lib/reporting";
 import { useCompaniesStore } from "@/stores/companies-store";
 import { useUiStore } from "@/stores/ui-store";
 import { cn } from "@/lib/utils";
@@ -24,7 +21,6 @@ export default function ConversionFunnel() {
 
   return (
     <div className="flex w-full max-w-full min-w-0 flex-col gap-4">
-      {/* Funnel Visualisation */}
       <div className={cn(PANEL, "w-full max-w-full min-w-0")}>
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -98,7 +94,6 @@ export default function ConversionFunnel() {
                   </div>
                 </div>
 
-                {/* Progress bar visual */}
                 <div className="bg-track h-2 w-full overflow-hidden rounded-full">
                   <div
                     className="bg-primary/80 animate-grow-x h-full origin-left rounded-full transition-all duration-300"
@@ -109,7 +104,6 @@ export default function ConversionFunnel() {
                   />
                 </div>
 
-                {/* Companies in this stage chips */}
                 <div className="flex flex-wrap items-center gap-1.5 pt-1">
                   <span className="caption-style text-muted-foreground text-[11px]">
                     Accounts:
@@ -136,7 +130,6 @@ export default function ConversionFunnel() {
         </ul>
       </div>
 
-      {/* Conversion Breakdown & Risk Analysis */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className={PANEL}>
           <h3 className="eyebrow-style text-muted-foreground">

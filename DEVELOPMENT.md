@@ -150,6 +150,12 @@ Reference sweep on Mobbin (Attio, Quo/OpenPhone, Telegram, Mesh, Shopify, Pipedr
 - **Tests:** 70 on main (the row-selection test went with the feature).
 - **Plain words everywhere:** "Weighted" → "Likely to land", "Win probability" → "Chance to win", "Slipping / At risk" → "Going cold / Needs a nudge", "wtd" → "likely".
 
+### Tidy-up pass
+
+- **Desktop toolbar:** `FilterMenu` triggers are soft tints (`bg-white/[0.05]`) instead of shadowed pills, with no label divider. Export is a ghost button. The detail-sheet period picker follows automatically.
+- **Lint is at 0 warnings:** unused imports and variables are gone from Reporting and `lib/reporting.ts`.
+- **No-comments rule:** JSX section-label comments are removed from `components/reports/`.
+
 ### Report animations (PR #13)
 
 Built on the repo's motion system: power easings (`--ease-power*` in `globals.css`, `kit/easings.ts` for Motion), the `rise` keyframe and Motion.
@@ -192,7 +198,6 @@ The aim is an app with a point of view, not generic SaaS. When in doubt, flag it
 ## Next moves (from the original audit, not yet actioned)
 
 - ~~Reconcile README/docs/naming with the actual product.~~ Done in S5, apart from the missing `CONVENTIONS.md`/`OPTIMIZATION.md`.
-- **Desktop Companies toolbar** (sort/filter pills, Export, New Company) still has the pre-#13 button styling.
 - **Toasts aren't announced while a sheet is open:** Radix marks everything outside the open dialog `aria-hidden`, including the toast's live region. The change is still visible inside the sheet.
 - **No component or browser tests** cover the new journeys (log activity, stage change, reset, persistence). They're verified by headless QA per PR.
 - Deeper UX: pagination/virtualisation if company counts grow, loading/empty states beyond the filters case, and Contacts/Email Sequences if real data ever arrives.

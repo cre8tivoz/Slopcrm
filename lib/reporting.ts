@@ -1,15 +1,12 @@
 import {
-  STAGES,
   ownerByName,
   type Company,
   type Owner,
-  type Stage,
   type TagTone,
 } from "@/data/companies";
 import type { Interaction } from "@/data/interactions";
 import { daysSince } from "./demo-clock";
 import {
-  STAGE_KEYS,
   UNSTAGED,
   byStage,
   primaryStage,
