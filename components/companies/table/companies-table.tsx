@@ -1,6 +1,5 @@
 "use client";
 import Button from "@/components/_ui/button";
-import { Checkbox } from "@/components/_ui/checkbox";
 import { ScrollArea } from "@/components/_ui/scroll-area";
 import {
   Table,
@@ -53,26 +52,12 @@ function EmptyState() {
 }
 
 export default function CompaniesTable() {
-  const selectedIds = useUiStore((state) => state.selectedIds);
   const detailId = useUiStore((state) => state.detailId);
   const detailOpen = useUiStore((state) => state.detailOpen);
-  const toggleSelected = useUiStore((state) => state.toggleSelected);
-  const setSelected = useUiStore((state) => state.setSelected);
   const openDetail = useUiStore((state) => state.openDetail);
   const openProfile = useUiStore((state) => state.openProfile);
 
   const visible = useVisibleCompanies();
-
-  const selectedVisible = visible.filter((company) =>
-    selectedIds.includes(company.id),
-  );
-  const allSelected =
-    visible.length > 0 && selectedVisible.length === visible.length;
-  const someSelected = selectedVisible.length > 0 && !allSelected;
-
-  function toggleAll() {
-    setSelected(allSelected ? [] : visible.map((company) => company.id));
-  }
 
   return (
     <div className="lg:border-border flex min-h-0 flex-1 flex-col lg:border-t">
@@ -98,31 +83,17 @@ export default function CompaniesTable() {
             className={cn(TABLE_GRID_CLASS, "hidden w-full lg:grid")}
           >
             <TableHeader role="rowgroup" className="contents">
-              <TableRow role="row" className={TABLE_ROW_CLASS}>
+              <TableRow
+                role="row"
+                className={cn(TABLE_ROW_CLASS, "border-white/[0.06]")}
+              >
                 {TABLE_COLUMNS.map((column) => (
                   <TableHead
                     key={column.key}
                     role="columnheader"
                     className={cn(TABLE_CELL_CLASS, column.className)}
                   >
-                    {column.key === "name" ? (
-                      <span className="flex items-center gap-5">
-                        <Checkbox
-                          checked={
-                            allSelected
-                              ? true
-                              : someSelected
-                                ? "indeterminate"
-                                : false
-                          }
-                          onCheckedChange={toggleAll}
-                          aria-label="Select all companies"
-                        />
-                        {column.label}
-                      </span>
-                    ) : (
-                      column.label
-                    )}
+                    {column.label}
                   </TableHead>
                 ))}
               </TableRow>
@@ -133,9 +104,7 @@ export default function CompaniesTable() {
                   key={company.id}
                   company={company}
                   index={index}
-                  selected={selectedIds.includes(company.id)}
                   active={detailOpen && detailId === company.id}
-                  onToggle={() => toggleSelected(company.id)}
                   onOpen={() => openDetail(company.id)}
                   onOpenOwner={() => openProfile(company.owner)}
                 />

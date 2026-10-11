@@ -140,6 +140,32 @@ Reference sweep on Mobbin (Attio, Quo/OpenPhone, Telegram, Mesh, Shopify, Pipedr
 - **Persistence:** business data saves to `localStorage` (`slopcrm:data`, zustand `persist`, storage that never throws). It's applied after mount (`skipHydration` + `rehydrate()` in Shell), so the prerendered HTML still matches. **Reset demo data** (two taps) is at the bottom of the menu. No server database: no hosting or security surface, and a reset always works.
 - **Tests:** 70 (store reset, search intent, compact money, long date).
 
+### Desktop, Forecast and Reporting de-chrome
+
+- **Companies table:** 7 columns instead of 9. Logo + name + segment, stage as plain text, owner, deal value, a thin "chance to win" bar, the 14-week sparkline, and last contact as status dot + "83 days of silence". Checkboxes and the "…" column are gone, and so is `selectedIds` in `ui-store`: nothing ever acted on a selection.
+- **Forecast & Reporting:** no bordered KPI cards or panels. Big unboxed numbers, eyebrow section headings, soft tints only where grouping matters, pill chips, roomier max-width layout.
+- **Plain words everywhere:** "Weighted" → "Likely to land", "Win probability" → "Chance to win", "Slipping / At risk" → "Going cold / Needs a nudge", "wtd" → "likely".
+
+### Report animations
+
+Built on the repo's motion system: power easings (`--ease-power*` in `globals.css`, `kit/easings.ts` for Motion), the `rise` keyframe and Motion.
+
+- **New keyframes:** `animate-grow-y` (green velocity bars grow up, 35ms stagger), `animate-grow-x` (funnel, stage and owner bars sweep across) and `animate-segment-in` (rainbow segments light up left to right). The last one is opt-in via `SegmentBar animated delay={…}`, so table rows stay still.
+- **`CountUp`** (`components/motion-primitives/count-up.tsx`): headline numbers on Forecast and Reporting count up from zero with power3-out. It jumps straight to the value under reduced motion.
+- The moving-average ticks rise in after the bars land, and switching Reporting tabs replays `rise`.
+- Everything plays once on mount and respects `prefers-reduced-motion` (the global CSS guard plus Motion's `useReducedMotion`).
+
+### Personality keepers (do not "clean up")
+
+Removing chrome is fine. Removing character is not. These stay:
+
+- **Rainbow segment meters** (`SegmentBar`): win chance in the table, mobile rows, funnel, rep scorecard and the New Company preview.
+- **Green velocity bars** in Reporting (`bg-trend`), with the purple moving-average line.
+- **Outlined stage tags** (`Tag`).
+- **Dry-wink copy:** "days of silence", "Going cold", "Tumbleweed", "Back to factory slop".
+
+The aim is an app with a point of view, not generic SaaS. When in doubt, flag it before removing it.
+
 ## Discovered while working
 
 - **`CONVENTIONS.md` and `OPTIMIZATION.md` are missing.** `CLAUDE.md` includes `@CONVENTIONS.md` and the README's docs table lists both. Agents following those pointers currently fail. Either restore the files or update the references.

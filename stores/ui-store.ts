@@ -5,8 +5,7 @@ import { DEFAULT_VIEW, type ViewId } from "@/lib/views";
 export type ReportingTab = "overview" | "conversion" | "velocity" | "reps";
 
 /**
- * What the interface is doing: current view, open panels, table filters and
- * selection. Nothing here is business data — that lives in
+ * What the interface is doing: current view, open panels, table filters. Nothing here is business data — that lives in
  * `companies-store`, which is the part a real backend would replace.
  */
 type UiState = {
@@ -26,7 +25,6 @@ type UiState = {
   profileName: string | null;
   profileOpen: boolean;
   filters: CompanyFilters;
-  selectedIds: string[];
 
   /** Switch view; also closes the mobile nav sheet. */
   navigate: (view: ViewId) => void;
@@ -47,8 +45,6 @@ type UiState = {
     value: CompanyFilters[K],
   ) => void;
   resetFilters: () => void;
-  toggleSelected: (id: string) => void;
-  setSelected: (ids: string[]) => void;
 };
 
 export const useUiStore = create<UiState>((set) => ({
@@ -65,7 +61,6 @@ export const useUiStore = create<UiState>((set) => ({
   profileName: null,
   profileOpen: false,
   filters: DEFAULT_FILTERS,
-  selectedIds: [],
 
   navigate: (activeView) => set({ activeView, sidebarOpen: false }),
   setReportingTab: (reportingTab) => set({ reportingTab }),
@@ -96,11 +91,4 @@ export const useUiStore = create<UiState>((set) => ({
   setFilter: (key, value) =>
     set((state) => ({ filters: { ...state.filters, [key]: value } })),
   resetFilters: () => set({ filters: DEFAULT_FILTERS }),
-  toggleSelected: (id) =>
-    set((state) => ({
-      selectedIds: state.selectedIds.includes(id)
-        ? state.selectedIds.filter((selected) => selected !== id)
-        : [...state.selectedIds, id],
-    })),
-  setSelected: (selectedIds) => set({ selectedIds }),
 }));

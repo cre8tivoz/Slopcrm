@@ -12,7 +12,7 @@ export default function TableFooter({ companies }: TableFooterProps) {
   const summary = summarise(companies);
   const stats = [
     { label: "Total value", value: `$${formatMoney(summary.total)}` },
-    { label: "Likely to close", value: `$${formatMoney(summary.weighted)}` },
+    { label: "Likely to land", value: `$${formatMoney(summary.weighted)}` },
     { label: "Avg chance to win", value: `${summary.avgWin}%` },
   ];
 

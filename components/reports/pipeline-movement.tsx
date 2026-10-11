@@ -12,16 +12,15 @@ import { useCompaniesStore } from "@/stores/companies-store";
 import { useUiStore } from "@/stores/ui-store";
 import { cn } from "@/lib/utils";
 
-const PANEL =
-  "border-border bg-card/50 rounded-xl border p-3.5 flex flex-col gap-3";
+const PANEL = "flex flex-col gap-3";
 
 const STATUS_BADGE: Record<
   DealHealthStatus,
   { label: string; tone: "danger" | "warning" | "success" }
 > = {
-  slipping: { label: "Slipping", tone: "danger" },
-  "at-risk": { label: "At Risk", tone: "warning" },
-  active: { label: "Active", tone: "success" },
+  slipping: { label: "Going cold", tone: "danger" },
+  "at-risk": { label: "Needs a nudge", tone: "warning" },
+  active: { label: "Warm", tone: "success" },
 };
 
 export default function PipelineMovement() {
@@ -44,7 +43,7 @@ export default function PipelineMovement() {
       <div className={cn(PANEL, "w-full max-w-full min-w-0")}>
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="lead-style font-medium">
+            <h2 className="eyebrow-style text-muted-foreground">
               Pipeline Activity Velocity
             </h2>
             <p className="caption-style text-muted-foreground">
@@ -73,10 +72,10 @@ export default function PipelineMovement() {
         </div>
 
         {/* 14-Week Bar + Moving Average visual */}
-        <div className="border-border bg-card/30 flex w-full max-w-full min-w-0 flex-col gap-3 rounded-lg border p-3 sm:p-4">
+        <div className="flex w-full max-w-full min-w-0 flex-col gap-3 rounded-2xl bg-white/[0.03] p-4 sm:p-4">
           <div className="w-full max-w-full min-w-0 overflow-x-auto pt-8 [scrollbar-width:none]">
             <div className="flex h-36 min-w-[280px] items-end gap-1 sm:gap-2.5">
-              {velocity.weeklyPoints.map((pt) => {
+              {velocity.weeklyPoints.map((pt, index) => {
                 const barHeightPct = Math.max(
                   4,
                   Math.round((pt.touches / maxWeeklyTouches) * 100),
@@ -99,18 +98,24 @@ export default function PipelineMovement() {
 
                     {/* 4w Moving Average tick marker */}
                     <div
-                      className="bg-primary/90 absolute z-10 h-1 w-full rounded-full transition-all"
-                      style={{ bottom: `${maHeightPct}%` }}
+                      className="bg-primary/90 animate-rise absolute z-10 h-1 w-full rounded-full transition-all"
+                      style={{
+                        bottom: `${maHeightPct}%`,
+                        animationDelay: `${500 + index * 35}ms`,
+                      }}
                       title={`4-week MA: ${pt.movingAverage4w}`}
                     />
 
                     {/* Weekly touch bar */}
                     <div
                       className={cn(
-                        "w-full rounded-t transition-all duration-300",
+                        "animate-grow-y w-full origin-bottom rounded-t transition-all duration-300",
                         pt.touches > 0 ? "bg-trend" : "bg-trend-muted",
                       )}
-                      style={{ height: `${barHeightPct}%` }}
+                      style={{
+                        height: `${barHeightPct}%`,
+                        animationDelay: `${index * 35}ms`,
+                      }}
                     />
 
                     <span className="text-muted-foreground block truncate text-[9px] tabular-nums sm:text-[10px]">
@@ -140,21 +145,22 @@ export default function PipelineMovement() {
         </div>
       </div>
 
-      {/* Slipping & At-Risk Deals Radar */}
       <div className={cn(PANEL, "w-full max-w-full min-w-0")}>
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="lead-style font-medium">Slipping & At-Risk Deals</h3>
+            <h3 className="eyebrow-style text-muted-foreground">
+              Who needs a follow-up
+            </h3>
             <p className="caption-style text-muted-foreground">
               High-value opportunities requiring immediate sales engagement.
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="caption-style bg-danger/10 text-danger border-danger/30 rounded-full border px-2 py-0.5 font-medium tabular-nums">
-              {velocity.slippingCount} Slipping
+            <span className="caption-style bg-danger/10 text-danger rounded-full px-2 py-0.5 font-medium tabular-nums">
+              {velocity.slippingCount} going cold
             </span>
-            <span className="caption-style bg-warning/10 text-warning border-warning/30 rounded-full border px-2 py-0.5 font-medium tabular-nums">
-              {velocity.atRiskCount} At Risk
+            <span className="caption-style bg-warning/10 text-warning rounded-full px-2 py-0.5 font-medium tabular-nums">
+              {velocity.atRiskCount} need a nudge
             </span>
           </div>
         </div>
@@ -212,16 +218,16 @@ export default function PipelineMovement() {
                       ${formatMoney(deal.pipelineValue)}
                     </span>
                     <span className="caption-style text-muted-foreground block text-[11px] tabular-nums">
-                      ${formatMoney(deal.weightedValue)} wtd
+                      ${formatMoney(deal.weightedValue)} likely
                     </span>
                   </div>
 
                   <span
                     className={cn(
-                      "caption-style shrink-0 rounded px-2 py-0.5 text-[11px] font-medium tracking-wider uppercase",
+                      "caption-style shrink-0 rounded-full px-2.5 py-1 font-medium",
                       deal.status === "slipping"
-                        ? "bg-danger/15 text-danger border-danger/30 border"
-                        : "bg-warning/15 text-warning border-warning/30 border",
+                        ? "bg-danger/12 text-danger"
+                        : "bg-warning/12 text-warning",
                     )}
                   >
                     {badge.label}

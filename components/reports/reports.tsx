@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import CountUp from "@/components/motion-primitives/count-up";
 import ConversionFunnel from "./conversion-funnel";
 import PipelineMovement from "./pipeline-movement";
 import RepPerformance from "./rep-performance";
@@ -23,8 +24,7 @@ const TABS: { id: ReportingTab; label: string }[] = [
   { id: "reps", label: "Rep Performance" },
 ];
 
-const KPI_CARD =
-  "border-border bg-card/50 flex flex-col gap-1 rounded-xl border p-3.5";
+const KPI_CARD = "flex flex-col gap-1.5";
 
 export default function Reports() {
   const activeTab = useUiStore((state) => state.reportingTab);
@@ -38,24 +38,28 @@ export default function Reports() {
 
   const kpis = [
     {
-      label: "Pipeline Win Probability",
-      value: `${funnel.overallWinRate}%`,
+      label: "Avg chance to win",
+      n: funnel.overallWinRate,
+      format: (v: number) => `${Math.round(v)}%`,
       sub: `${funnel.totalOpenDeals} open deals`,
     },
     {
-      label: "Total Pipeline",
-      value: `$${formatMoney(funnel.totalPipeline)}`,
-      sub: `$${formatMoney(funnel.totalWeighted)} weighted`,
+      label: "In the pipeline",
+      n: funnel.totalPipeline,
+      format: (v: number) => `$${formatMoney(Math.round(v))}`,
+      sub: `$${formatMoney(funnel.totalWeighted)} likely to land`,
     },
     {
-      label: "4-Wk Touch Pace",
-      value: `${velocity.fourWeekMovingAverage}/wk`,
+      label: "Touches per week",
+      n: velocity.fourWeekMovingAverage,
+      format: (v: number) => `${v.toFixed(1)}/wk`,
       sub: `${velocity.currentWeekTouches} this week`,
     },
     {
-      label: "Accounts Needing Attention",
-      value: String(velocity.slippingCount + velocity.atRiskCount),
-      sub: `${velocity.slippingCount} slipping, ${velocity.atRiskCount} at risk`,
+      label: "Need a follow-up",
+      n: velocity.slippingCount + velocity.atRiskCount,
+      format: (v: number) => String(Math.round(v)),
+      sub: `${velocity.slippingCount} going cold, ${velocity.atRiskCount} need a nudge`,
     },
   ];
 
@@ -64,16 +68,15 @@ export default function Reports() {
       aria-label="Reporting"
       className="min-h-0 w-full max-w-full flex-1 overflow-x-hidden overflow-y-auto"
     >
-      <div className="flex w-full max-w-full min-w-0 flex-col gap-4 p-4">
-        {/* Executive KPI ribbon */}
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="mx-auto flex w-full max-w-[72em] min-w-0 flex-col gap-8 px-4 pt-2 pb-24 lg:px-8 lg:pt-8 lg:pb-12">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-6 lg:grid-cols-4">
           {kpis.map((kpi) => (
             <div key={kpi.label} className={KPI_CARD}>
               <span className="caption-style text-muted-foreground">
                 {kpi.label}
               </span>
-              <span className="text-[20px] leading-tight font-semibold tracking-[-0.01em] tabular-nums">
-                {kpi.value}
+              <span className="text-[24px] leading-none font-semibold tracking-[-0.02em] tabular-nums">
+                <CountUp value={kpi.n} format={kpi.format} />
               </span>
               <span className="caption-style text-subtle text-[11px] tabular-nums">
                 {kpi.sub}
@@ -82,17 +85,16 @@ export default function Reports() {
           ))}
         </div>
 
-        {/* Sub-tab navigation bar */}
-        <div className="border-border bg-card/30 flex max-w-full items-center gap-1.5 overflow-x-auto rounded-lg border p-1 [scrollbar-width:none]">
+        <div className="flex max-w-full items-center gap-1 overflow-x-auto rounded-xl bg-white/5 p-1 [scrollbar-width:none]">
           {TABS.map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "caption-style ease-power3-out rounded-md px-3 py-1.5 font-medium whitespace-nowrap transition-[background-color,color]",
+                "caption-style ease-power3-out min-h-9 rounded-lg px-3 font-medium whitespace-nowrap transition-[background-color,color]",
                 activeTab === tab.id
-                  ? "bg-muted text-foreground shadow-sm"
+                  ? "text-foreground bg-white/10"
                   : "text-muted-foreground hover:text-foreground hover:bg-white/4",
               )}
             >
@@ -101,18 +103,19 @@ export default function Reports() {
           ))}
         </div>
 
-        {/* Active Tab Screen Content */}
-        {activeTab === "overview" && (
-          <div className="flex w-full max-w-full min-w-0 flex-col gap-6">
-            <ConversionFunnel />
-            <PipelineMovement />
-            <RepPerformance />
-          </div>
-        )}
+        <div key={activeTab} className="animate-rise min-w-0">
+          {activeTab === "overview" && (
+            <div className="flex w-full max-w-full min-w-0 flex-col gap-12">
+              <ConversionFunnel />
+              <PipelineMovement />
+              <RepPerformance />
+            </div>
+          )}
 
-        {activeTab === "conversion" && <ConversionFunnel />}
-        {activeTab === "velocity" && <PipelineMovement />}
-        {activeTab === "reps" && <RepPerformance />}
+          {activeTab === "conversion" && <ConversionFunnel />}
+          {activeTab === "velocity" && <PipelineMovement />}
+          {activeTab === "reps" && <RepPerformance />}
+        </div>
       </div>
     </section>
   );
