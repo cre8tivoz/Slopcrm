@@ -47,7 +47,7 @@ def upload(ftp, folder, files):
     # This folder must already exist in the WDL FTP account's locked root.
     # Fail instead of guessing another docroot or creating a new deployment root.
     ftp.cwd(TARGET)
-    directories = sorted({p.parent.relative_to(folder).as_posix() for p in files if p.parent != folder}, key=lambda p: (p.count('/'), p))
+    directories = sorted({parent.as_posix() for path in files for parent in path.relative_to(folder).parents if parent != Path('.')}, key=lambda p: (p.count('/'), p))
     for directory in directories:
         target = remote_path(directory)
         try:

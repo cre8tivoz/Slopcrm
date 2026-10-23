@@ -1,4 +1,5 @@
 import importlib.util
+import ftplib
 from pathlib import Path
 import tempfile
 import unittest
@@ -14,12 +15,20 @@ class FakeFTP:
         self.files = {}
         self.uploaded = []
         self.visited = []
+        self.directories = {'/slopcrm'}
     def cwd(self, path):
+        if path not in self.directories:
+            raise ftplib.error_perm('550 No such directory')
         self.visited.append(path)
     def mkd(self, path):
+        if str(Path(path).parent) not in self.directories:
+            raise ftplib.error_perm('550 Parent missing')
+        self.directories.add(path)
         self.visited.append(path)
     def storbinary(self, command, stream):
         path = command.removeprefix('STOR ')
+        if str(Path(path).parent) not in self.directories:
+            raise ftplib.error_perm('550 Parent missing')
         self.files[path] = stream.read()
         self.uploaded.append(path)
     def size(self, path):
@@ -73,6 +82,17 @@ class DeployTests(unittest.TestCase):
             ftp.size = lambda path: 0
             with self.assertRaises(RuntimeError):
                 deploy.upload(ftp, root, [root / 'index.html'])
+
+    def test_all_missing_ancestor_directories_are_created(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            asset = root / '_next/static/build-id/chunks/main.js'
+            asset.parent.mkdir(parents=True)
+            asset.write_text('bundle')
+            ftp = FakeFTP()
+            deploy.upload(ftp, root, [asset])
+            self.assertEqual(ftp.files['/slopcrm/_next/static/build-id/chunks/main.js'], b'bundle')
+            self.assertTrue({'/slopcrm/_next', '/slopcrm/_next/static', '/slopcrm/_next/static/build-id', '/slopcrm/_next/static/build-id/chunks'} <= ftp.directories)
 
     def test_live_content_must_match_bytes_not_just_size(self):
         with tempfile.TemporaryDirectory() as folder:
