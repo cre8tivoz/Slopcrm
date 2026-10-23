@@ -32,11 +32,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `history.scrollRestoration="manual";${SIDEBAR_WIDTH_SCRIPT}`,
-          }}
-        />
+        <script>{`history.scrollRestoration="manual";${SIDEBAR_WIDTH_SCRIPT}`}</script>
       </head>
       <body className="relative z-0 font-sans antialiased">
         <ScrollToTop />
