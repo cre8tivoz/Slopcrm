@@ -320,12 +320,17 @@ export function getRepPerformance(
       const owner = ownerByName(ownerName);
       const summary = summarise(repCompanies);
       const repInteractions = interactionsByOwner.get(ownerName) ?? [];
-      const touches30d = repInteractions.filter(
-        (i) => daysSince(i.date) <= 30,
-      ).length;
-      const touches90d = repInteractions.filter(
-        (i) => daysSince(i.date) <= 90,
-      ).length;
+      let touches30d = 0;
+      let touches90d = 0;
+      for (const interaction of repInteractions) {
+        const days = daysSince(interaction.date);
+        if (days <= 90) {
+          touches90d++;
+          if (days <= 30) {
+            touches30d++;
+          }
+        }
+      }
 
       const activityRatio =
         summary.openDeals > 0
