@@ -1,18 +1,24 @@
-name: CI
+name: CI & deploy to VentraIP
 
 on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # PR checks may be replaced, but never interrupt a production file upload.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   gate:
     name: Lint, test & build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -30,6 +36,9 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Test deployment boundary
+        run: python3 -m unittest discover -s scripts -p test_deploy_ftp.py -v
+
       - name: Build
         run: npm run build
 
@@ -37,3 +46,38 @@ jobs:
         run: npm run build:static
         env:
           NEXT_PUBLIC_BASE_PATH: /slopcrm
+          NEXT_PUBLIC_SITE_URL: https://witchdaddylabs.com/slopcrm
+
+      - name: Save tested production export
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: slopcrm-static-${{ github.sha }}
+          path: out/
+          if-no-files-found: error
+          retention-days: 7
+
+  deploy:
+    name: Deploy Slopcrm & verify live
+    needs: gate
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: https://witchdaddylabs.com/slopcrm/
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download the tested export
+        uses: actions/download-artifact@v4
+        with:
+          name: slopcrm-static-${{ github.sha }}
+          path: out/
+
+      - name: Deploy only /slopcrm over FTPS and verify HTTPS bytes
+        run: python3 scripts/deploy_ftp.py
+        env:
+          WDL_FTP_HOST: ${{ secrets.WDL_FTP_HOST }}
+          WDL_FTP_USER: ${{ secrets.WDL_FTP_USER }}
+          WDL_FTP_PASS: ${{ secrets.WDL_FTP_PASS }}
