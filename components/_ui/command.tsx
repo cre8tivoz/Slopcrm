@@ -2,17 +2,17 @@
 
 import type { ComponentProps, ReactNode } from "react";
 import { Command as CommandPrimitive } from "cmdk";
-import { Dialog as DialogPrimitive } from "radix-ui";
+import { Dialog } from "radix-ui";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/_ui/scroll-area";
 import SearchIcon from "@/public/assets/images/_common/search.svg";
 
-type CommandDialogProps = ComponentProps<typeof DialogPrimitive.Root> & {
+type CommandDialogProps = ComponentProps<typeof Dialog.Root> & {
   title: string;
   description: string;
   className?: string;
   onCloseAutoFocus?: ComponentProps<
-    typeof DialogPrimitive.Content
+    typeof Dialog.Content
   >["onCloseAutoFocus"];
 };
 
@@ -25,26 +25,26 @@ function CommandDialog({
   ...props
 }: CommandDialogProps) {
   return (
-    <DialogPrimitive.Root data-slot="command-dialog" {...props}>
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:ease-power3-in data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:ease-power3-out fixed inset-0 z-50 bg-black/60 backdrop-blur-[6px] duration-200 data-[state=closed]:duration-150" />
-        <DialogPrimitive.Content
+    <Dialog.Root data-slot="command-dialog" {...props}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:ease-power3-in data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:ease-power3-out fixed inset-0 z-50 bg-black/60 backdrop-blur-[6px] duration-200 data-[state=closed]:duration-150" />
+        <Dialog.Content
           onCloseAutoFocus={onCloseAutoFocus}
           className={cn(
             "border-line-strong bg-popover text-popover-foreground data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-[0.98] data-[state=closed]:ease-power3-in data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-[0.98] data-[state=open]:ease-power3-out fixed top-[12dvh] left-1/2 z-50 w-[calc(100%-2rem)] max-w-[560px] -translate-x-1/2 overflow-hidden rounded-xl border shadow-overlay duration-200 outline-none data-[state=closed]:duration-150",
             className,
           )}
         >
-          <DialogPrimitive.Title className="sr-only">
+          <Dialog.Title className="sr-only">
             {title}
-          </DialogPrimitive.Title>
-          <DialogPrimitive.Description className="sr-only">
+          </Dialog.Title>
+          <Dialog.Description className="sr-only">
             {description}
-          </DialogPrimitive.Description>
+          </Dialog.Description>
           {children}
-        </DialogPrimitive.Content>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }
 
