@@ -99,7 +99,6 @@ function Video({
 
     // Handle autoplay failure and detect low power mode
     const handleAutoplayFailure = () => {
-      console.log("Autoplay failed, removing video sources");
       clearAllVideoSources(video);
     };
 
