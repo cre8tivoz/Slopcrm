@@ -14,6 +14,7 @@ import re
 import ssl
 import urllib.parse
 import urllib.request
+import uuid
 
 TARGET = '/slopcrm'
 PUBLIC_URL = 'https://witchdaddylabs.com/slopcrm/'
@@ -60,10 +61,12 @@ def upload(ftp, folder, files):
         return (2 if relative == 'deployment.json' else 1 if path.suffix == '.html' else 0, relative == 'index.html', relative)
     for path in sorted(files, key=order):
         target = remote_path(path.relative_to(folder).as_posix())
+        temporary = f'{target}.upload-{uuid.uuid4().hex}'
         with path.open('rb') as stream:
-            ftp.storbinary(f'STOR {target}', stream)
-        if ftp.size(target) != path.stat().st_size:
+            ftp.storbinary(f'STOR {temporary}', stream)
+        if ftp.size(temporary) != path.stat().st_size:
             raise RuntimeError(f'Uploaded file size mismatch: {path.relative_to(folder)}')
+        ftp.rename(temporary, target)
 
 
 def live_bytes(relative):

@@ -14,6 +14,7 @@ class FakeFTP:
     def __init__(self):
         self.files = {}
         self.uploaded = []
+        self.renamed = []
         self.visited = []
         self.directories = {'/slopcrm'}
     def cwd(self, path):
@@ -33,6 +34,9 @@ class FakeFTP:
         self.uploaded.append(path)
     def size(self, path):
         return len(self.files[path])
+    def rename(self, source, target):
+        self.files[target] = self.files.pop(source)
+        self.renamed.append((source, target))
 
 
 class DeployTests(unittest.TestCase):
@@ -71,7 +75,7 @@ class DeployTests(unittest.TestCase):
             files = [root / n for n in ['index.html', 'deployment.json', 'app.js']]
             ftp = FakeFTP()
             deploy.upload(ftp, root, files)
-            self.assertEqual(ftp.uploaded, ['/slopcrm/app.js', '/slopcrm/index.html', '/slopcrm/deployment.json'])
+            self.assertEqual([target for _, target in ftp.renamed], ['/slopcrm/app.js', '/slopcrm/index.html', '/slopcrm/deployment.json'])
             self.assertTrue(all(p.startswith('/slopcrm') for p in ftp.visited))
 
     def test_failed_size_check_fails_the_deploy(self):
@@ -82,6 +86,22 @@ class DeployTests(unittest.TestCase):
             ftp.size = lambda path: 0
             with self.assertRaises(RuntimeError):
                 deploy.upload(ftp, root, [root / 'index.html'])
+            self.assertEqual(ftp.renamed, [])
+
+    def test_interrupted_transfer_preserves_existing_live_file(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / 'index.html').write_text('new homepage')
+            ftp = FakeFTP()
+            ftp.files['/slopcrm/index.html'] = b'working homepage'
+            def interrupted(command, stream):
+                ftp.files[command.removeprefix('STOR ')] = stream.read(3)
+                raise OSError('Connection lost mid-transfer')
+            ftp.storbinary = interrupted
+            with self.assertRaises(OSError):
+                deploy.upload(ftp, root, [root / 'index.html'])
+            self.assertEqual(ftp.files['/slopcrm/index.html'], b'working homepage')
+            self.assertEqual(ftp.renamed, [])
 
     def test_all_missing_ancestor_directories_are_created(self):
         with tempfile.TemporaryDirectory() as folder:
