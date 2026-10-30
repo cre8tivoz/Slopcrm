@@ -1,7 +1,6 @@
 "use client";
 
-import Image from "next/image";
-import type { StaticImageData } from "next/image";
+import Image, { type StaticImageData } from "next/image";
 import type { MouseEvent, ReactEventHandler, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useLightboxGallery } from "./lightbox-gallery";
