@@ -17,6 +17,9 @@ import {
 export const UNSTAGED = "Unstaged";
 export type StageKey = Stage | typeof UNSTAGED;
 
+/** Set representation of stages for O(1) membership check. */
+const STAGE_SET = new Set<string>(STAGES);
+
 /** Board column order: every stage, then the Unstaged catch-all. */
 export const STAGE_KEYS: readonly StageKey[] = [...STAGES, UNSTAGED];
 
@@ -43,7 +46,7 @@ export type PipelineGroup<K extends string> = {
  */
 export function primaryStage(company: Company): StageKey {
   const stage = company.tags.find((tag): tag is Stage =>
-    (STAGES as readonly string[]).includes(tag),
+    STAGE_SET.has(tag),
   );
   return stage ?? UNSTAGED;
 }
