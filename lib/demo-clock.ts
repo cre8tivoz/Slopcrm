@@ -11,17 +11,28 @@ export const DEMO_TODAY = "2026-09-14";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-function toUtc(iso: string) {
-  const [year, month, day] = iso.split("-").map(Number);
-  return Date.UTC(year, month - 1, day);
+const utcCache = new Map<string, number>();
+
+function toUtc(iso: string): number {
+  let cached = utcCache.get(iso);
+  if (cached === undefined) {
+    const [year, month, day] = iso.split("-").map(Number);
+    cached = Date.UTC(year, month - 1, day);
+    utcCache.set(iso, cached);
+  }
+  return cached;
 }
+
+const DEMO_TODAY_UTC = toUtc(DEMO_TODAY);
 
 /** ISO date (YYYY-MM-DD) `days` before `from`. */
 export function isoDaysAgo(days: number, from: string = DEMO_TODAY): string {
-  return new Date(toUtc(from) - days * DAY_MS).toISOString().slice(0, 10);
+  const fromUtc = from === DEMO_TODAY ? DEMO_TODAY_UTC : toUtc(from);
+  return new Date(fromUtc - days * DAY_MS).toISOString().slice(0, 10);
 }
 
 /** Whole days between an ISO date and `today`; never negative. */
 export function daysSince(iso: string, today: string = DEMO_TODAY): number {
-  return Math.max(0, Math.round((toUtc(today) - toUtc(iso)) / DAY_MS));
+  const todayUtc = today === DEMO_TODAY ? DEMO_TODAY_UTC : toUtc(today);
+  return Math.max(0, Math.round((todayUtc - toUtc(iso)) / DAY_MS));
 }
