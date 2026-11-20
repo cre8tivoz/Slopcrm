@@ -1,20 +1,18 @@
 "use client";
 
 import CountUp from "@/components/motion-primitives/count-up";
-import ConversionFunnel from "./conversion-funnel";
+import StagePipeline from "./stage-pipeline";
 import PipelineMovement from "./pipeline-movement";
 import RepPerformance from "./rep-performance";
 import { formatMoney } from "@/lib/companies";
-import { getPipelineVelocity, getStageConversionFunnel } from "@/lib/reporting";
+import { getPipelineVelocity, getStagePipeline } from "@/lib/reporting";
 import { useCompaniesStore } from "@/stores/companies-store";
-import { useUiStore } from "@/stores/ui-store";
+import { type ReportingTab, useUiStore } from "@/stores/ui-store";
 import { cn } from "@/lib/utils";
-
-type ReportingTab = "overview" | "conversion" | "velocity" | "reps";
 
 const TABS: { id: ReportingTab; label: string }[] = [
   { id: "overview", label: "Overview" },
-  { id: "conversion", label: "Conversion & Funnel" },
+  { id: "pipeline", label: "Pipeline by stage" },
   { id: "velocity", label: "Pipeline Velocity" },
   { id: "reps", label: "Rep Performance" },
 ];
@@ -27,21 +25,21 @@ export default function Reports() {
   const companies = useCompaniesStore((state) => state.companies);
   const interactions = useCompaniesStore((state) => state.interactions);
 
-  const funnel = getStageConversionFunnel(companies);
+  const pipeline = getStagePipeline(companies);
   const velocity = getPipelineVelocity(companies, interactions);
 
   const kpis = [
     {
       label: "Avg chance to win",
-      n: funnel.overallWinRate,
+      n: pipeline.overallWinProbability,
       format: (v: number) => `${Math.round(v)}%`,
-      sub: `${funnel.totalOpenDeals} open deals`,
+      sub: `${pipeline.totalOpenDeals} open deals`,
     },
     {
       label: "In the pipeline",
-      n: funnel.totalPipeline,
+      n: pipeline.totalPipeline,
       format: (v: number) => `$${formatMoney(Math.round(v))}`,
-      sub: `$${formatMoney(funnel.totalWeighted)} likely to land`,
+      sub: `$${formatMoney(pipeline.totalWeighted)} likely to land`,
     },
     {
       label: "Touches per week",
@@ -100,13 +98,13 @@ export default function Reports() {
         <div key={activeTab} className="animate-rise min-w-0">
           {activeTab === "overview" && (
             <div className="flex w-full max-w-full min-w-0 flex-col gap-12">
-              <ConversionFunnel />
+              <StagePipeline />
               <PipelineMovement />
               <RepPerformance />
             </div>
           )}
 
-          {activeTab === "conversion" && <ConversionFunnel />}
+          {activeTab === "pipeline" && <StagePipeline />}
           {activeTab === "velocity" && <PipelineMovement />}
           {activeTab === "reps" && <RepPerformance />}
         </div>

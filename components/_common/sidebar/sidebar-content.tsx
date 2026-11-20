@@ -45,13 +45,13 @@ export default function SidebarContent() {
     return () => window.clearTimeout(timer);
   }, [confirming]);
 
-  function reset() {
+  async function reset() {
     if (!confirming) {
       setConfirming(true);
       return;
     }
     setConfirming(false);
-    resetDemo();
+    await resetDemo();
     showToast("Back to factory slop");
   }
 

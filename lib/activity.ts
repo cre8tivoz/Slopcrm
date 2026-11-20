@@ -1,5 +1,5 @@
 import type { Interaction, InteractionChannel } from "@/data/interactions";
-import { daysSince } from "./demo-clock";
+import { daysSince, isWithinDemoDays, DEMO_TODAY } from "./demo-clock";
 
 export const CHANNEL_LABEL: Record<InteractionChannel, string> = {
   email: "Email",
@@ -21,8 +21,8 @@ export function withinDays(
   interactions: readonly Interaction[],
   days: number,
 ): Interaction[] {
-  return interactions.filter(
-    (interaction) => daysSince(interaction.date) <= days,
+  return interactions.filter((interaction) =>
+    isWithinDemoDays(interaction.date, days),
   );
 }
 
@@ -58,6 +58,7 @@ export function weeklyTouches(
 ): number[] {
   const buckets = new Array<number>(weeks).fill(0);
   for (const interaction of interactions) {
+    if (interaction.date > DEMO_TODAY) continue;
     const week = Math.floor(daysSince(interaction.date) / 7);
     if (week >= 0 && week < weeks) buckets[weeks - 1 - week] += 1;
   }

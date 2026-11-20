@@ -1,21 +1,23 @@
 import type { Company, SortKey } from "@/data/companies";
-import { daysSince } from "./demo-clock";
+import { primaryStage } from "./pipeline";
+import { isWithinDemoDays } from "./demo-clock";
 
 export type CompanyFilters = {
   sortBy: SortKey;
   owner: string;
   stage: string;
-  activityWindow: number;
+  activityWindow: number | typeof ALL_TIME;
 };
 
 export const ALL_OWNERS = "all";
 export const ANY_STAGE = "any";
+export const ALL_TIME = "all";
 
 export const DEFAULT_FILTERS: CompanyFilters = {
   sortBy: "pipelineValue",
   owner: ALL_OWNERS,
   stage: ANY_STAGE,
-  activityWindow: 90,
+  activityWindow: ALL_TIME,
 };
 
 export function activeFilterCount({
@@ -38,10 +40,13 @@ export function filterCompanies(
 ): Company[] {
   const filtered = companies.filter((company) => {
     if (owner !== ALL_OWNERS && company.owner !== owner) return false;
-    if (stage !== ANY_STAGE && !company.tags.some((tag) => tag === stage)) {
+    if (stage !== ANY_STAGE && primaryStage(company) !== stage) {
       return false;
     }
-    return daysSince(company.lastInteraction.date) <= activityWindow;
+    return (
+      activityWindow === ALL_TIME ||
+      isWithinDemoDays(company.lastInteraction.date, activityWindow)
+    );
   });
 
   return filtered.sort((a, b) => {

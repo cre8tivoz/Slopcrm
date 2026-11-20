@@ -31,6 +31,19 @@ export function isoDaysAgo(days: number, from: string = DEMO_TODAY): string {
   return new Date(fromUtc - days * DAY_MS).toISOString().slice(0, 10);
 }
 
+/** Valid calendar date in the same YYYY-MM-DD format used by the demo. */
+export function isIsoDate(iso: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return false;
+  const date = new Date(`${iso}T00:00:00Z`);
+  return (
+    Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === iso
+  );
+}
+
+export function isWithinDemoDays(iso: string, days: number): boolean {
+  return iso <= DEMO_TODAY && daysSince(iso) <= days;
+}
+
 /** Whole days between an ISO date and `today`; never negative. */
 export function daysSince(iso: string, today: string = DEMO_TODAY): number {
   const todayUtc = today === DEMO_TODAY ? DEMO_TODAY_UTC : toUtc(today);

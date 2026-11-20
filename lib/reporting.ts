@@ -5,7 +5,8 @@ import {
   type TagTone,
 } from "@/data/companies";
 import type { Interaction } from "@/data/interactions";
-import { daysSince } from "./demo-clock";
+import { weeklyTouches } from "./activity";
+import { daysSince, isWithinDemoDays } from "./demo-clock";
 import {
   UNSTAGED,
   byStage,
@@ -21,7 +22,7 @@ import {
  * Natural lifecycle progression order for stages.
  * Early discovery -> evaluation -> partnership -> initial contract -> growth -> retention.
  */
-export const FUNNEL_STAGE_ORDER: readonly StageKey[] = [
+export const REPORT_STAGE_ORDER: readonly StageKey[] = [
   "New Logo",
   "Pilot",
   "Co-Sell",
@@ -32,13 +33,13 @@ export const FUNNEL_STAGE_ORDER: readonly StageKey[] = [
   UNSTAGED,
 ];
 
-export type StageConversionMetric = {
+export type StagePipelineMetric = {
   stage: StageKey;
   tone: TagTone;
   companies: Company[];
   summary: PipelineSummary;
   /** Mean win probability for this stage (0-100%). */
-  winRate: number;
+  winProbability: number;
   /** Estimated loss / unrealized risk ($ total - $ weighted). */
   lossRisk: number;
   /** Average deal size (total / openDeals, or 0 if no deals). */
@@ -47,27 +48,27 @@ export type StageConversionMetric = {
   pipelineShare: number;
 };
 
-export type ConversionFunnelSummary = {
-  stages: StageConversionMetric[];
+export type StagePipelineSummary = {
+  stages: StagePipelineMetric[];
   totalPipeline: number;
   totalWeighted: number;
-  overallWinRate: number;
+  overallWinProbability: number;
   totalOpenDeals: number;
   highestValueStage: StageKey;
-  highestWinStage: StageKey;
+  highestProbabilityStage: StageKey;
 };
 
 /**
- * Computes win/loss and conversion metrics by stage across the pipeline.
+ * Summarizes current pipeline value and estimated win probability by primary stage.
  */
-export function getStageConversionFunnel(
+export function getStagePipeline(
   companies: readonly Company[],
-): ConversionFunnelSummary {
+): StagePipelineSummary {
   const overall = summarise(companies);
   const stageGroups = byStage(companies);
   const stageMap = new Map(stageGroups.map((g) => [g.stage, g]));
 
-  const stages: StageConversionMetric[] = FUNNEL_STAGE_ORDER.map((stage) => {
+  const stages: StagePipelineMetric[] = REPORT_STAGE_ORDER.map((stage) => {
     const group = stageMap.get(stage);
     const summary = group ? group.summary : summarise([]);
     const compList = group ? group.companies : [];
@@ -82,7 +83,7 @@ export function getStageConversionFunnel(
       tone: stageTone(stage),
       companies: compList,
       summary,
-      winRate: summary.avgWin,
+      winProbability: summary.avgWin,
       lossRisk,
       avgDealSize,
       pipelineShare,
@@ -97,19 +98,20 @@ export function getStageConversionFunnel(
       ? [...activeStages].sort((a, b) => b.summary.total - a.summary.total)[0]
           .stage
       : UNSTAGED;
-  const highestWinStage =
+  const highestProbabilityStage =
     activeStages.length > 0
-      ? [...activeStages].sort((a, b) => b.winRate - a.winRate)[0].stage
+      ? [...activeStages].sort((a, b) => b.winProbability - a.winProbability)[0]
+          .stage
       : UNSTAGED;
 
   return {
     stages,
     totalPipeline: overall.total,
     totalWeighted: overall.weighted,
-    overallWinRate: overall.avgWin,
+    overallWinProbability: overall.avgWin,
     totalOpenDeals: overall.openDeals,
     highestValueStage,
-    highestWinStage,
+    highestProbabilityStage,
   };
 }
 
@@ -186,13 +188,7 @@ export function getPipelineVelocity(
   weeks = 14,
 ): PipelineVelocitySummary {
   // 1. Weekly touch buckets
-  const rawBuckets = new Array<number>(weeks).fill(0);
-  for (const item of interactions) {
-    const ageWeeks = Math.floor(daysSince(item.date) / 7);
-    if (ageWeeks >= 0 && ageWeeks < weeks) {
-      rawBuckets[weeks - 1 - ageWeeks] += 1;
-    }
-  }
+  const rawBuckets = weeklyTouches(interactions, weeks);
 
   const weeklyPoints: WeeklyVelocityPoint[] = rawBuckets.map((touches, idx) => {
     // 4-week simple moving average up to this index
@@ -255,8 +251,12 @@ export function getPipelineVelocity(
     .sort((a, b) => b.pipelineValue - a.pipelineValue);
 
   // Momentum score: touches in last 30d vs prior 30d (or relative velocity)
-  const touches30d = interactions.filter((i) => daysSince(i.date) <= 30).length;
-  const touches90d = interactions.filter((i) => daysSince(i.date) <= 90).length;
+  const touches30d = interactions.filter((i) =>
+    isWithinDemoDays(i.date, 30),
+  ).length;
+  const touches90d = interactions.filter((i) =>
+    isWithinDemoDays(i.date, 90),
+  ).length;
   const momentumScore =
     touches90d > 0 ? Math.round((touches30d / (touches90d / 3)) * 100) : 100;
 
@@ -279,7 +279,7 @@ export type RepPerformanceRow = {
   openDeals: number;
   totalPipeline: number;
   weightedPipeline: number;
-  avgWinRate: number;
+  avgWinProbability: number;
   touches30d: number;
   touches90d: number;
   activityRatio: number;
@@ -323,13 +323,8 @@ export function getRepPerformance(
       let touches30d = 0;
       let touches90d = 0;
       for (const interaction of repInteractions) {
-        const days = daysSince(interaction.date);
-        if (days <= 90) {
-          touches90d++;
-          if (days <= 30) {
-            touches30d++;
-          }
-        }
+        if (isWithinDemoDays(interaction.date, 90)) touches90d++;
+        if (isWithinDemoDays(interaction.date, 30)) touches30d++;
       }
 
       const activityRatio =
@@ -368,7 +363,7 @@ export function getRepPerformance(
         openDeals: summary.openDeals,
         totalPipeline: summary.total,
         weightedPipeline: summary.weighted,
-        avgWinRate: summary.avgWin,
+        avgWinProbability: summary.avgWin,
         touches30d,
         touches90d,
         activityRatio,
@@ -388,7 +383,7 @@ export function getRepPerformance(
       : null;
   const highestWinRep =
     reps.length > 0
-      ? [...reps].sort((a, b) => b.avgWinRate - a.avgWinRate)[0]
+      ? [...reps].sort((a, b) => b.avgWinProbability - a.avgWinProbability)[0]
       : null;
 
   return {

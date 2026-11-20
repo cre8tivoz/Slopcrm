@@ -5,6 +5,7 @@ import FilterMenu from "@/components/_common/filter-menu";
 import MobileFilters from "./mobile-filters";
 import {
   ACTIVITY_OPTIONS,
+  parseActivityWindow,
   OWNER_OPTIONS,
   SORT_MENU_OPTIONS,
   STAGE_OPTIONS,
@@ -60,7 +61,9 @@ export default function CompaniesToolbar() {
           label="Last Activity"
           value={String(filters.activityWindow)}
           options={ACTIVITY_OPTIONS}
-          onChange={(value) => setFilter("activityWindow", Number(value))}
+          onChange={(value) =>
+            setFilter("activityWindow", parseActivityWindow(value))
+          }
         />
       </div>
 

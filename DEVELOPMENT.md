@@ -199,5 +199,5 @@ The aim is an app with a point of view, not generic SaaS. When in doubt, flag it
 
 - ~~Reconcile README/docs/naming with the actual product.~~ Done in S5, apart from the missing `CONVENTIONS.md`/`OPTIMIZATION.md`.
 - **Toasts aren't announced while a sheet is open:** Radix marks everything outside the open dialog `aria-hidden`, including the toast's live region. The change is still visible inside the sheet.
-- **No component or browser tests** cover the new journeys (log activity, stage change, reset, persistence). They're verified by headless QA per PR.
+- Local Playwright smoke tests now cover creating an account, logging activity, focus restoration, reload, reset, and concurrent tab saves. Run `npm run test:browser`; CI does not run this suite.
 - Deeper UX: pagination/virtualisation if company counts grow, loading/empty states beyond the filters case, and Contacts/Email Sequences if real data ever arrives.

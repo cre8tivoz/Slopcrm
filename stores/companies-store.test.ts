@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { COMPANIES, type Company } from "@/data/companies";
 import { primaryStage } from "@/lib/pipeline";
-import { DEMO_TODAY } from "@/lib/demo-clock";
-import { safeStorage, useCompaniesStore } from "./companies-store";
+import { DEMO_TODAY, isoDaysAgo } from "@/lib/demo-clock";
+import { createCompaniesStore, useCompaniesStore } from "./companies-store";
 import { useUiStore } from "./ui-store";
 
 const initial = useCompaniesStore.getState();
@@ -75,6 +75,26 @@ describe("companies store", () => {
     });
   });
 
+  it("does not move a legacy future last-contact date backwards", () => {
+    const company = {
+      ...acme,
+      lastInteraction: { date: isoDaysAgo(-1), label: "Demo" },
+    };
+    useCompaniesStore.getState().addCompany(company);
+    useCompaniesStore
+      .getState()
+      .logActivity({ companyId: acme.id, type: "Pricing", channel: "call" });
+    const { companies, interactions } = useCompaniesStore.getState();
+    expect(
+      companies.find((item) => item.id === acme.id)?.lastInteraction,
+    ).toEqual(company.lastInteraction);
+    expect(
+      interactions
+        .filter((item) => item.companyId === acme.id)
+        .map((item) => item.date),
+    ).toEqual([company.lastInteraction.date, DEMO_TODAY]);
+  });
+
   it("ignores an activity for an unknown company", () => {
     const before = useCompaniesStore.getState().interactions;
     useCompaniesStore
@@ -106,23 +126,79 @@ describe("companies store", () => {
   });
 
   describe("saving in the browser", () => {
-    afterEach(() => {
-      vi.useRealTimers();
-      vi.unstubAllGlobals();
+    function fakeBrowser(legacyValue: string | null = null) {
+      let json = legacyValue;
+      let queue = Promise.resolve();
+      return {
+        read: () => json,
+        write: (value: string) => {
+          json = value;
+        },
+        exclusive: (write: () => void) => {
+          const task = queue.then(write);
+          queue = task.catch(() => {});
+          return task;
+        },
+      };
+    }
+
+    afterEach(() => vi.useRealTimers());
+
+    it("hydrates existing v1 data and serializes stale tabs' edits", async () => {
+      const storage = fakeBrowser(
+        JSON.stringify({
+          version: 1,
+          state: {
+            companies: [...initial.companies, acme],
+            interactions: initial.interactions,
+            unreadNotificationIds: [],
+          },
+        }),
+      );
+      const left = createCompaniesStore(() => storage);
+      const right = createCompaniesStore(() => storage);
+      left.getState().refresh();
+      right.getState().refresh();
+      expect(left.getState().companies.some((c) => c.id === acme.id)).toBe(
+        true,
+      );
+      await Promise.all([
+        left.getState().addCompany({ ...acme, id: "left" }),
+        right.getState().addCompany({ ...acme, id: "right" }),
+      ]);
+      for (const tab of [left, right]) {
+        tab.getState().refresh();
+        expect(tab.getState().companies.map((c) => c.id)).toEqual(
+          expect.arrayContaining([acme.id, "left", "right"]),
+        );
+        expect(tab.getState().unreadNotificationIds).toEqual([]);
+      }
+      await left.getState().resetDemo();
+      await right.getState().addCompany({ ...acme, id: "after-reset" });
+      expect(right.getState().companies).toHaveLength(
+        initial.companies.length + 1,
+      );
+      expect(right.getState().companies[0].id).toBe("after-reset");
     });
 
-    it("tells the user when the browser refuses to save", () => {
+    it("warns on failed writes and preserves subsequent session edits", async () => {
       vi.useFakeTimers();
-      vi.stubGlobal("localStorage", {
-        setItem: () => {
-          throw new DOMException("full", "QuotaExceededError");
-        },
-      });
+      const storage = fakeBrowser();
+      storage.write = () => {
+        throw new DOMException("full", "QuotaExceededError");
+      };
+      const store = createCompaniesStore(() => storage);
       useUiStore.getState().dismissToast();
-      expect(() => safeStorage.setItem("k", "v")).not.toThrow();
+      await store.getState().addCompany(acme);
+      await store.getState().addCompany({ ...acme, id: "second" });
+      store.getState().refresh();
       useUiStore.getState().showToast("Acme added");
       vi.runAllTimers();
+      expect(store.getState().companies).toHaveLength(
+        initial.companies.length + 2,
+      );
       expect(useUiStore.getState().toast?.message).toMatch(/Couldn't save/);
+      expect(storage.read()).toBeNull();
     });
   });
 });
