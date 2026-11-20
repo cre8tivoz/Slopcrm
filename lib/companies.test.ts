@@ -7,7 +7,8 @@ import {
   activeFilterCount,
   filterCompanies,
 } from "./companies";
-import { daysSince } from "./demo-clock";
+import { daysSince, isoDaysAgo } from "./demo-clock";
+import { primaryStage } from "./pipeline";
 
 const withWindow = (activityWindow: number) =>
   filterCompanies(COMPANIES, { ...DEFAULT_FILTERS, activityWindow });
@@ -35,7 +36,18 @@ describe("filterCompanies", () => {
     );
   });
 
-  it("filters by owner and by any tag (segment or stage)", () => {
+  it("includes accounts older than the largest activity window by default", () => {
+    const company = {
+      ...COMPANIES[0],
+      lastInteraction: { date: isoDaysAgo(91), label: "Demo" },
+    };
+    expect(filterCompanies([company], DEFAULT_FILTERS)).toEqual([company]);
+    expect(
+      filterCompanies([company], { ...DEFAULT_FILTERS, activityWindow: 90 }),
+    ).toEqual([]);
+  });
+
+  it("filters by owner and primary stage, ignoring secondary stage tags", () => {
     const owned = filterCompanies(COMPANIES, {
       ...DEFAULT_FILTERS,
       owner: "Sarah Nguyen",
@@ -43,11 +55,17 @@ describe("filterCompanies", () => {
     expect(owned.length).toBeGreaterThan(0);
     expect(owned.every((c) => c.owner === "Sarah Nguyen")).toBe(true);
 
-    const enterprise = filterCompanies(COMPANIES, {
-      ...DEFAULT_FILTERS,
-      stage: "Enterprise",
-    });
-    expect(enterprise.every((c) => c.tags.includes("Enterprise"))).toBe(true);
+    const company = {
+      ...COMPANIES[0],
+      tags: ["Enterprise", "Renewal", "Pilot"],
+    } satisfies (typeof COMPANIES)[number];
+    const stage = primaryStage(company);
+    expect(filterCompanies([company], { ...DEFAULT_FILTERS, stage })).toEqual([
+      company,
+    ]);
+    expect(
+      filterCompanies([company], { ...DEFAULT_FILTERS, stage: "Pilot" }),
+    ).toEqual([]);
   });
 
   it("sorts by most recent interaction", () => {

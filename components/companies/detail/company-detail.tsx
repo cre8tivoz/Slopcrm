@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import Avatar from "@/components/_ui/avatar";
 import Button from "@/components/_ui/button";
 import Tag from "@/components/_ui/tag";
@@ -73,6 +73,7 @@ function Fact({
 
 export default function CompanyDetail() {
   const stageId = useId();
+  const returnFocus = useRef<HTMLElement | null>(null);
   const desktop = useMediaQuery("(min-width: 1024px)");
   const detailId = useUiStore((state) => state.detailId);
   const detailOpen = useUiStore((state) => state.detailOpen);
@@ -84,6 +85,7 @@ export default function CompanyDetail() {
   const logFormOpen = useUiStore((state) => state.logFormOpen);
   const setLogFormOpen = useUiStore((state) => state.setLogFormOpen);
   const showToast = useUiStore((state) => state.showToast);
+  const feedback = useUiStore((state) => state.toast?.message);
   const [trendWindow, setTrendWindow] = useState(DEFAULT_WINDOW);
 
   const company = companies.find((item) => item.id === detailId);
@@ -101,12 +103,27 @@ export default function CompanyDetail() {
     >
       <SheetContent
         side={desktop ? "right" : "bottom"}
+        onOpenAutoFocus={() => {
+          returnFocus.current =
+            document.activeElement instanceof HTMLElement
+              ? document.activeElement
+              : null;
+        }}
+        onCloseAutoFocus={(event) => {
+          if (returnFocus.current?.isConnected) {
+            event.preventDefault();
+            returnFocus.current.focus();
+          }
+        }}
         className={
           desktop
             ? "w-[560px] max-w-[560px]"
             : "h-[94dvh] max-h-[94dvh] rounded-t-3xl"
         }
       >
+        <div className="sr-only" role="status" aria-atomic="true">
+          {feedback}
+        </div>
         {!desktop && (
           <span
             aria-hidden
@@ -183,8 +200,8 @@ export default function CompanyDetail() {
                   </label>
                   <Select
                     value={stage === UNSTAGED ? undefined : stage}
-                    onValueChange={(value) => {
-                      setStage(company.id, value as Stage);
+                    onValueChange={async (value) => {
+                      await setStage(company.id, value as Stage);
                       showToast(`${company.name} moved to ${value}`);
                     }}
                   >

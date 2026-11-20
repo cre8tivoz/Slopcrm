@@ -1,8 +1,8 @@
 """Deploy only Slopcrm's static export using the WDL folder-locked FTPS login.
 
 No deletes, root-site writes, plaintext FTP or disabled certificate verification.
-Assets precede pages; the release marker is last. Every public file is read back
-via HTTPS and byte-checked. Revert the source commit to roll back through CI.
+Assets precede pages. Release bytes are checked over HTTPS before publishing
+the release marker; the marker is then checked separately. Revert the source commit to roll back through CI.
 """
 import concurrent.futures
 import ftplib
@@ -58,7 +58,7 @@ def upload(ftp, folder, files):
     ftp.cwd(TARGET)
     def order(path):
         relative = path.relative_to(folder).as_posix()
-        return (2 if relative == 'deployment.json' else 1 if path.suffix == '.html' else 0, relative == 'index.html', relative)
+        return (path.suffix == '.html', relative == 'index.html', relative)
     for path in sorted(files, key=order):
         target = remote_path(path.relative_to(folder).as_posix())
         temporary = f'{target}.upload-{uuid.uuid4().hex}'
@@ -86,6 +86,13 @@ def verify_live(folder, files, fetch=live_bytes):
     return len(files)
 
 
+def publish_release(ftp, folder, files, marker, fetch=live_bytes):
+    upload(ftp, folder, files)
+    count = verify_live(folder, files, fetch)
+    upload(ftp, folder, [marker])
+    return count + verify_live(folder, [marker], fetch)
+
+
 def main():
     if os.environ.get('GITHUB_REPOSITORY', '').lower() != 'cre8tivoz/slopcrm' or os.environ.get('GITHUB_REF') != 'refs/heads/main':
         raise RuntimeError('Production deploy is restricted to cre8tivoz/Slopcrm main.')
@@ -96,18 +103,16 @@ def main():
     if not all(credentials.values()):
         raise RuntimeError('Add WDL_FTP_HOST, WDL_FTP_USER and WDL_FTP_PASS to this repository Actions secrets using the existing WDL FTP login.')
     folder = Path('out').resolve()
-    files = collect_files(folder)
     marker = folder / 'deployment.json'
+    files = [path for path in collect_files(folder) if path != marker]
     marker.write_text(json.dumps({'commit': commit, 'repository': 'cre8tivoz/Slopcrm', 'basePath': TARGET,
-        'files': {p.relative_to(folder).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in files if p != marker}}, sort_keys=True) + '\n')
-    files = collect_files(folder)
+        'files': {p.relative_to(folder).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}}, sort_keys=True) + '\n')
     with ftplib.FTP_TLS(context=ssl.create_default_context()) as ftp:
         ftp.connect(credentials['WDL_FTP_HOST'], 21, timeout=60)
         ftp.login(credentials['WDL_FTP_USER'], credentials['WDL_FTP_PASS'])
         ftp.prot_p()
         ftp.voidcmd('TYPE I')
-        upload(ftp, folder, files)
-    count = verify_live(folder, files)
+        count = publish_release(ftp, folder, files, marker)
     print(f'Deployed {commit} to {PUBLIC_URL}; {count} files match over HTTPS. No remote files deleted.')
 
 

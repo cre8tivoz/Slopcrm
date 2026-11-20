@@ -3,32 +3,32 @@ import { COMPANIES } from "@/data/companies";
 import { INTERACTIONS } from "@/data/interactions";
 import { DEMO_TODAY, isoDaysAgo } from "./demo-clock";
 import {
-  FUNNEL_STAGE_ORDER,
+  REPORT_STAGE_ORDER,
   dealHealth,
   followUpQueue,
   getPipelineVelocity,
   getRepPerformance,
-  getStageConversionFunnel,
+  getStagePipeline,
 } from "./reporting";
 
 describe("lib/reporting", () => {
-  describe("getStageConversionFunnel", () => {
+  describe("getStagePipeline", () => {
     it("preserves total pipeline and weighted values from summarise", () => {
-      const funnel = getStageConversionFunnel(COMPANIES);
-      expect(funnel.totalPipeline).toBe(5138594);
-      expect(funnel.totalWeighted).toBe(2681163);
-      expect(funnel.totalOpenDeals).toBe(90);
-      expect(funnel.overallWinRate).toBe(51);
+      const pipeline = getStagePipeline(COMPANIES);
+      expect(pipeline.totalPipeline).toBe(5138594);
+      expect(pipeline.totalWeighted).toBe(2681163);
+      expect(pipeline.totalOpenDeals).toBe(90);
+      expect(pipeline.overallWinProbability).toBe(51);
     });
 
     it("orders stages by lifecycle progression order", () => {
-      const funnel = getStageConversionFunnel(COMPANIES);
-      expect(funnel.stages.map((s) => s.stage)).toEqual(FUNNEL_STAGE_ORDER);
+      const pipeline = getStagePipeline(COMPANIES);
+      expect(pipeline.stages.map((s) => s.stage)).toEqual(REPORT_STAGE_ORDER);
     });
 
     it("calculates loss risk as unweighted minus weighted value", () => {
-      const funnel = getStageConversionFunnel(COMPANIES);
-      for (const stage of funnel.stages) {
+      const pipeline = getStagePipeline(COMPANIES);
+      for (const stage of pipeline.stages) {
         expect(stage.lossRisk).toBe(
           stage.summary.total - stage.summary.weighted,
         );
@@ -36,9 +36,9 @@ describe("lib/reporting", () => {
     });
 
     it("identifies highest value and win stages", () => {
-      const funnel = getStageConversionFunnel(COMPANIES);
-      expect(funnel.highestValueStage).toBeDefined();
-      expect(funnel.highestWinStage).toBeDefined();
+      const pipeline = getStagePipeline(COMPANIES);
+      expect(pipeline.highestValueStage).toBeDefined();
+      expect(pipeline.highestProbabilityStage).toBeDefined();
     });
   });
 

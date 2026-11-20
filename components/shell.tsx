@@ -12,7 +12,7 @@ import Activities from "./activities/activities";
 import Home from "./home/home";
 import Toast from "./_common/toast";
 import MobileNav from "./_common/mobile-nav";
-import { useCompaniesStore } from "@/stores/companies-store";
+import { STORAGE_KEY, useCompaniesStore } from "@/stores/companies-store";
 import type { ViewId } from "@/lib/views";
 import { useUiStore } from "@/stores/ui-store";
 
@@ -60,7 +60,13 @@ export default function Shell() {
   const showNewCompany = useEver(newCompanyOpen);
 
   useEffect(() => {
-    void useCompaniesStore.persist.rehydrate();
+    const { refresh } = useCompaniesStore.getState();
+    function sync(event: StorageEvent) {
+      if (event.key === STORAGE_KEY || event.key === null) refresh();
+    }
+    window.addEventListener("storage", sync);
+    refresh();
+    return () => window.removeEventListener("storage", sync);
   }, []);
 
   // Global ⌘K/Ctrl+K must work before CommandMenu has ever mounted, so the

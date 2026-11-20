@@ -35,6 +35,7 @@ import {
   type Stage,
 } from "@/data/companies";
 import { DEMO_TODAY } from "@/lib/demo-clock";
+import { validateNewCompany } from "@/lib/new-company";
 import { slugify } from "@/lib/utils";
 import { useCompaniesStore } from "@/stores/companies-store";
 import { useUiStore } from "@/stores/ui-store";
@@ -73,50 +74,89 @@ export default function NewCompanyDialog() {
   const openDetail = useUiStore((state) => state.openDetail);
   const showToast = useUiStore((state) => state.showToast);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
-  const [nameError, setNameError] = useState<string | null>(null);
-  const nameRef = useRef<HTMLInputElement>(null);
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof FormState, string>>
+  >({});
+  const [saving, setSaving] = useState(false);
+  const createdId = useRef<string | null>(null);
+
+  function fieldError(field: keyof FormState, id: string) {
+    return {
+      "aria-invalid": !!errors[field],
+      "aria-describedby": errors[field] ? `${id}-error` : undefined,
+    };
+  }
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
+    setErrors((current) => ({ ...current, [key]: undefined }));
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const name = form.name.trim();
-    if (!name) {
-      setNameError("Enter a company name.");
-      nameRef.current?.focus();
+    if (saving) return;
+    const result = validateNewCompany(form);
+    if (!result.ok) {
+      setErrors(result.errors);
+      const fields = {
+        name: "company-name",
+        pipelineValue: "company-pipeline",
+        openDeals: "company-deals",
+        interactionDate: "company-interaction-date",
+      } as const;
+      const first = (Object.keys(fields) as (keyof typeof fields)[]).find(
+        (field) => result.errors[field],
+      );
+      if (first)
+        event.currentTarget
+          .querySelector<HTMLInputElement>(`#${fields[first]}`)
+          ?.focus();
       return;
     }
-
+    const { name, pipelineValue, openDeals, interactionDate } = result;
     const company: Company = {
-      id: `${slugify(name)}-${Date.now()}`,
+      id: `${slugify(name)}-${crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`}`,
       name,
       logo: form.logo ?? undefined,
       tags: [form.segment, form.stage],
       owner: form.owner,
-      openDeals: Math.max(0, Math.round(Number(form.openDeals) || 0)),
-      pipelineValue: Math.max(0, Math.round(Number(form.pipelineValue) || 0)),
+      openDeals: openDeals,
+      pipelineValue: pipelineValue,
       winProbability: form.winProbability,
       lastInteraction: {
-        date: form.interactionDate || DEMO_TODAY,
+        date: interactionDate,
         label: form.interactionType,
       },
     };
 
-    addCompany(company);
-    setOpen(false);
-    showToast(`${company.name} added`);
-    window.setTimeout(() => openDetail(company.id), 260);
+    setSaving(true);
+    try {
+      await addCompany(company);
+      createdId.current = company.id;
+      setOpen(false);
+      showToast(`${company.name} added`);
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!saving) setOpen(next);
+      }}
+    >
       <DialogContent
         className="max-w-[560px]"
-        onCloseAutoFocus={() => {
+        onCloseAutoFocus={(event) => {
           setForm(EMPTY_FORM);
-          setNameError(null);
+          setErrors({});
+          if (createdId.current) {
+            event.preventDefault();
+            openDetail(createdId.current);
+            createdId.current = null;
+          }
         }}
       >
         <form onSubmit={handleSubmit} noValidate className="flex flex-col">
@@ -138,20 +178,15 @@ export default function NewCompanyDialog() {
               label="Company name"
               htmlFor="company-name"
               required
-              error={nameError ?? undefined}
+              error={errors.name}
             >
               <Input
-                ref={nameRef}
                 id="company-name"
                 value={form.name}
-                onChange={(event) => {
-                  update("name", event.target.value);
-                  if (nameError) setNameError(null);
-                }}
+                onChange={(event) => update("name", event.target.value)}
                 placeholder="Acme Inc."
                 autoComplete="off"
-                aria-invalid={nameError ? true : undefined}
-                aria-describedby={nameError ? "company-name-error" : undefined}
+                {...fieldError("name", "company-name")}
                 className="aria-invalid:border-danger"
                 autoFocus
               />
@@ -218,7 +253,11 @@ export default function NewCompanyDialog() {
             </Field>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Pipeline value" htmlFor="company-pipeline">
+              <Field
+                label="Pipeline value"
+                htmlFor="company-pipeline"
+                error={errors.pipelineValue}
+              >
                 <div className="relative">
                   <span
                     aria-hidden
@@ -228,9 +267,10 @@ export default function NewCompanyDialog() {
                   </span>
                   <Input
                     id="company-pipeline"
+                    {...fieldError("pipelineValue", "company-pipeline")}
                     type="number"
                     min={0}
-                    step={1000}
+                    step={1}
                     inputMode="numeric"
                     value={form.pipelineValue}
                     onChange={(event) =>
@@ -241,9 +281,14 @@ export default function NewCompanyDialog() {
                   />
                 </div>
               </Field>
-              <Field label="Open deals" htmlFor="company-deals">
+              <Field
+                label="Open deals"
+                htmlFor="company-deals"
+                error={errors.openDeals}
+              >
                 <Input
                   id="company-deals"
+                  {...fieldError("openDeals", "company-deals")}
                   type="number"
                   min={0}
                   inputMode="numeric"
@@ -286,9 +331,14 @@ export default function NewCompanyDialog() {
 
           <FormSection title="Last interaction">
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Date" htmlFor="company-interaction-date">
+              <Field
+                label="Date"
+                htmlFor="company-interaction-date"
+                error={errors.interactionDate}
+              >
                 <Input
                   id="company-interaction-date"
+                  {...fieldError("interactionDate", "company-interaction-date")}
                   type="date"
                   max={DEMO_TODAY}
                   value={form.interactionDate}
@@ -332,6 +382,7 @@ export default function NewCompanyDialog() {
               variant="primary"
               size="sm"
               type="submit"
+              disabled={saving}
               className="fine:min-h-0 min-h-11"
             >
               <PlusIcon aria-hidden className="size-3" />

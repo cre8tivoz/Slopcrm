@@ -67,16 +67,36 @@ class DeployTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 deploy.collect_files(root)
 
-    def test_assets_uploaded_before_pages_and_release_marker_last(self):
+    def test_assets_uploaded_before_pages_and_release_marker_after_verification(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             for name in ['index.html', 'app.js', 'deployment.json']:
                 (root / name).write_text(name)
-            files = [root / n for n in ['index.html', 'deployment.json', 'app.js']]
+            marker = root / 'deployment.json'
+            files = [root / name for name in ['index.html', 'app.js']]
             ftp = FakeFTP()
-            deploy.upload(ftp, root, files)
+
+            def fetch(relative):
+                if relative != marker.name:
+                    self.assertNotIn('/slopcrm/deployment.json', ftp.files)
+                return ftp.files[f'/slopcrm/{relative}']
+
+            self.assertEqual(deploy.publish_release(ftp, root, files, marker, fetch), 3)
             self.assertEqual([target for _, target in ftp.renamed], ['/slopcrm/app.js', '/slopcrm/index.html', '/slopcrm/deployment.json'])
             self.assertTrue(all(p.startswith('/slopcrm') for p in ftp.visited))
+
+    def test_live_mismatch_does_not_replace_previous_release_marker(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            index = root / 'index.html'
+            index.write_text('new content')
+            marker = root / 'deployment.json'
+            marker.write_text('new release')
+            ftp = FakeFTP()
+            ftp.files['/slopcrm/deployment.json'] = b'previous release'
+            with self.assertRaisesRegex(RuntimeError, 'index.html'):
+                deploy.publish_release(ftp, root, [index], marker, lambda _: b'stale content')
+            self.assertEqual(ftp.files['/slopcrm/deployment.json'], b'previous release')
 
     def test_failed_size_check_fails_the_deploy(self):
         with tempfile.TemporaryDirectory() as folder:

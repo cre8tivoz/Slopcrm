@@ -82,7 +82,7 @@ export default function RepPerformance() {
                   {repSummary.highestWinRep.owner.name}
                 </span>
                 <span className="caption-style text-success block truncate text-[11px] font-medium">
-                  {repSummary.highestWinRep.avgWinRate}% win probability
+                  {repSummary.highestWinRep.avgWinProbability}% win probability
                 </span>
               </div>
             </div>
@@ -156,10 +156,10 @@ export default function RepPerformance() {
                     Win:
                   </span>
                   <span className="caption-style font-semibold tabular-nums">
-                    {rep.avgWinRate}%
+                    {rep.avgWinProbability}%
                   </span>
                   <SegmentBar
-                    percent={rep.avgWinRate}
+                    percent={rep.avgWinProbability}
                     segments={8}
                     animated
                     delay={index * 50}

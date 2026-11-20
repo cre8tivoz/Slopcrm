@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { DEFAULT_FILTERS, type CompanyFilters } from "@/lib/companies";
 import { DEFAULT_VIEW, type ViewId } from "@/lib/views";
 
-export type ReportingTab = "overview" | "conversion" | "velocity" | "reps";
+export type ReportingTab = "overview" | "pipeline" | "velocity" | "reps";
 
 /**
  * What the interface is doing: current view, open panels, table filters. Nothing here is business data — that lives in

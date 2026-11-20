@@ -1,10 +1,5 @@
 import { create } from "zustand";
 import {
-  createJSONStorage,
-  persist,
-  type StateStorage,
-} from "zustand/middleware";
-import {
   COMPANIES,
   STAGES,
   type Company,
@@ -26,58 +21,51 @@ import { useUiStore } from "./ui-store";
  * state. Seeded from `data/`; this is the store a real backend would replace.
  * Interface state (views, panels, filters, selection) lives in `ui-store`.
  */
-type CompaniesState = {
+type Snapshot = {
   companies: Company[];
   interactions: Interaction[];
   unreadNotificationIds: string[];
-  /** Adds the company and logs its first touch. */
-  addCompany: (company: Company) => void;
-  /** Logs a touch dated today; it becomes the company's last interaction. */
+};
+
+type Mutation = (state: Snapshot) => Partial<Snapshot>;
+type ActionResult = void | Promise<void>;
+
+type CompaniesState = Snapshot & {
+  addCompany: (company: Company) => ActionResult;
   logActivity: (entry: {
     companyId: string;
     type: InteractionType;
     channel: InteractionChannel;
     note?: string;
-  }) => void;
-  /** Makes `stage` the company's primary stage (its first stage tag). */
-  setStage: (companyId: string, stage: Stage) => void;
-  markNotificationRead: (id: string) => void;
-  markAllNotificationsRead: () => void;
-  /** Throws away everything this browser changed and restores the seed. */
-  resetDemo: () => void;
+  }) => ActionResult;
+  setStage: (companyId: string, stage: Stage) => ActionResult;
+  markNotificationRead: (id: string) => ActionResult;
+  markAllNotificationsRead: () => ActionResult;
+  resetDemo: () => ActionResult;
+  refresh: () => void;
 };
 
 export const STORAGE_KEY = "slopcrm:data";
 
-/** localStorage that never throws: private mode, full quota or no window. */
-export const safeStorage: StateStorage = {
-  getItem: (name) => {
-    try {
-      return localStorage.getItem(name);
-    } catch {
-      return null;
-    }
-  },
-  setItem: (name, value) => {
-    try {
-      localStorage.setItem(name, value);
-    } catch {
-      // Quota full or storage blocked: the change still applies on screen,
-      // so say plainly that it won't survive a reload. Deferred so it lands
-      // after (and replaces) any "saved" toast the same action shows.
-      setTimeout(() =>
-        useUiStore
-          .getState()
-          .showToast("Couldn't save in this browser. Changes reset on reload."),
-      );
-    }
-  },
-  removeItem: (name) => {
-    try {
-      localStorage.removeItem(name);
-    } catch {}
-  },
+export type BrowserStorage = {
+  read: () => string | null;
+  write: (value: string) => void;
+  exclusive: (write: () => void) => Promise<void>;
 };
+
+const browserStorage = (): BrowserStorage | undefined =>
+  typeof window === "undefined"
+    ? undefined
+    : {
+        read: () => window.localStorage.getItem(STORAGE_KEY),
+        write: (value) => window.localStorage.setItem(STORAGE_KEY, value),
+        exclusive: (write) => {
+          if (!navigator.locks) {
+            return Promise.reject(new Error("Web Locks unavailable"));
+          }
+          return navigator.locks.request(STORAGE_KEY, write);
+        },
+      };
 
 const SEED = {
   companies: COMPANIES,
@@ -87,12 +75,78 @@ const SEED = {
   ),
 };
 
-export const useCompaniesStore = create<CompaniesState>()(
-  persist(
-    (set) => ({
+function readSnapshot(storage: BrowserStorage): Snapshot {
+  const raw = storage.read();
+  if (raw === null) return SEED;
+  // Same key and v1 payload as Zustand persist: existing data needs no rewrite.
+  const { state, version } = JSON.parse(raw);
+  if (
+    version !== 1 ||
+    !Array.isArray(state?.companies) ||
+    !Array.isArray(state?.interactions) ||
+    !Array.isArray(state?.unreadNotificationIds)
+  ) {
+    throw new Error("Unsupported saved Slopcrm data");
+  }
+  return {
+    companies: state.companies,
+    interactions: state.interactions,
+    unreadNotificationIds: state.unreadNotificationIds,
+  };
+}
+
+function warnUnsaved() {
+  // Let the existing interaction feedback run before showing the save warning.
+  setTimeout(() =>
+    useUiStore
+      .getState()
+      .showToast("Couldn't save in this browser. Changes reset on reload."),
+  );
+}
+
+export function createCompaniesStore(getStorage = browserStorage) {
+  return create<CompaniesState>()((set, get) => {
+    let sessionOnly = false;
+    const mutate = (update: Mutation): ActionResult => {
+      const storage = getStorage();
+      if (!storage) return set(update(get()));
+      const applyInMemory = () => {
+        sessionOnly = true;
+        set(update(get()));
+        warnUnsaved();
+      };
+      if (sessionOnly) return applyInMemory();
+      // Read, apply the action and write under one origin-wide lock. Reading
+      // the latest snapshot here (not from this tab's UI) prevents lost edits.
+      return storage
+        .exclusive(() => {
+          if (sessionOnly) return applyInMemory();
+          const base = readSnapshot(storage);
+          const next = { ...base, ...update(base) };
+          try {
+            storage.write(JSON.stringify({ state: next, version: 1 }));
+          } catch {
+            sessionOnly = true;
+            warnUnsaved();
+          }
+          set(next);
+        })
+        .catch(applyInMemory);
+    };
+
+    return {
       ...SEED,
+      refresh: () => {
+        const storage = getStorage();
+        if (!storage || sessionOnly) return;
+        try {
+          set(readSnapshot(storage));
+        } catch {
+          // Do not overwrite unreadable data. A write will warn and stay local.
+        }
+      },
       addCompany: (company) =>
-        set((state) => {
+        mutate((state) => {
           // A new company arrives with its first logged touch, so it shows up in
           // the Activities feed and the detail sheet counts straight away.
           const type = company.lastInteraction.label as InteractionType;
@@ -112,9 +166,9 @@ export const useCompaniesStore = create<CompaniesState>()(
           };
         }),
       logActivity: ({ companyId, type, channel, note }) =>
-        set((state) => {
+        mutate((state) => {
           const company = state.companies.find((item) => item.id === companyId);
-          if (!company) return state;
+          if (!company) return {};
           const entry: Interaction = {
             id: `${companyId}-log-${state.interactions.length}`,
             companyId,
@@ -125,9 +179,11 @@ export const useCompaniesStore = create<CompaniesState>()(
             ...(note?.trim() ? { note: note.trim() } : {}),
           };
           return {
-            interactions: [entry, ...state.interactions],
+            interactions: [entry, ...state.interactions].sort((a, b) =>
+              b.date.localeCompare(a.date),
+            ),
             companies: state.companies.map((item) =>
-              item.id === companyId
+              item.id === companyId && item.lastInteraction.date <= DEMO_TODAY
                 ? {
                     ...item,
                     lastInteraction: { date: DEMO_TODAY, label: type },
@@ -137,7 +193,7 @@ export const useCompaniesStore = create<CompaniesState>()(
           };
         }),
       setStage: (companyId, stage) =>
-        set((state) => ({
+        mutate((state) => ({
           companies: state.companies.map((item) => {
             if (item.id !== companyId) return item;
             const isStage = (tag: string) =>
@@ -150,26 +206,16 @@ export const useCompaniesStore = create<CompaniesState>()(
           }),
         })),
       markNotificationRead: (id) =>
-        set((state) => ({
+        mutate((state) => ({
           unreadNotificationIds: state.unreadNotificationIds.filter(
             (unread) => unread !== id,
           ),
         })),
-      markAllNotificationsRead: () => set({ unreadNotificationIds: [] }),
-      resetDemo: () => set(SEED),
-    }),
-    {
-      name: STORAGE_KEY,
-      version: 1,
-      storage: createJSONStorage(() => safeStorage),
-      // The prerendered HTML is the seed; the browser's copy is applied
-      // after mount (see Shell) so the first render matches the server.
-      skipHydration: true,
-      partialize: ({ companies, interactions, unreadNotificationIds }) => ({
-        companies,
-        interactions,
-        unreadNotificationIds,
-      }),
-    },
-  ),
-);
+      markAllNotificationsRead: () =>
+        mutate(() => ({ unreadNotificationIds: [] })),
+      resetDemo: () => mutate(() => SEED),
+    };
+  });
+}
+
+export const useCompaniesStore = createCompaniesStore();

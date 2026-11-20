@@ -2,19 +2,19 @@ import Tag from "@/components/_ui/tag";
 import SegmentBar from "@/components/_common/segment-bar";
 import CompanyLogo from "@/components/company/company-logo";
 import { formatMoney } from "@/lib/companies";
-import { getStageConversionFunnel } from "@/lib/reporting";
+import { getStagePipeline } from "@/lib/reporting";
 import { useCompaniesStore } from "@/stores/companies-store";
 import { useUiStore } from "@/stores/ui-store";
 import { cn } from "@/lib/utils";
 
 const PANEL = "flex flex-col gap-3";
 
-export default function ConversionFunnel() {
+export default function StagePipeline() {
   const companies = useCompaniesStore((state) => state.companies);
   const openDetail = useUiStore((state) => state.openDetail);
 
-  const funnel = getStageConversionFunnel(companies);
-  const activeStages = funnel.stages.filter(
+  const pipeline = getStagePipeline(companies);
+  const activeStages = pipeline.stages.filter(
     (s) => s.companies.length > 0 || s.summary.openDeals > 0,
   );
   const maxTotal = Math.max(1, ...activeStages.map((s) => s.summary.total));
@@ -25,18 +25,18 @@ export default function ConversionFunnel() {
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="eyebrow-style text-muted-foreground">
-              Stage Conversion Funnel
+              Pipeline by stage
             </h2>
             <p className="caption-style text-muted-foreground">
-              Lifecycle progression from early discovery to renewal, with win
-              rates and expected yields.
+              Current pipeline value and estimated win probability by primary
+              stage.
             </p>
           </div>
           <div className="flex items-center gap-3 self-start sm:self-auto">
             <span className="caption-style text-muted-foreground">
               Total Yield:{" "}
               <span className="text-foreground font-semibold tabular-nums">
-                ${formatMoney(funnel.totalWeighted)}
+                ${formatMoney(pipeline.totalWeighted)}
               </span>
             </span>
           </div>
@@ -73,10 +73,10 @@ export default function ConversionFunnel() {
                         Chance to win:
                       </span>
                       <span className="caption-style text-foreground font-medium tabular-nums">
-                        {metric.winRate}%
+                        {metric.winProbability}%
                       </span>
                       <SegmentBar
-                        percent={metric.winRate}
+                        percent={metric.winProbability}
                         segments={10}
                         animated
                         delay={200 + index * 60}
@@ -171,7 +171,7 @@ export default function ConversionFunnel() {
 
         <div className={PANEL}>
           <h3 className="eyebrow-style text-muted-foreground">
-            Funnel Efficiency Highlights
+            Stage highlights
           </h3>
           <div className="flex flex-col gap-3 pt-1">
             <div className="flex items-start justify-between rounded-2xl bg-white/[0.03] p-4">
@@ -180,14 +180,15 @@ export default function ConversionFunnel() {
                   Top Volume Stage
                 </span>
                 <span className="lead-style text-foreground font-semibold">
-                  {funnel.highestValueStage}
+                  {pipeline.highestValueStage}
                 </span>
               </div>
               <span className="caption-style text-foreground font-semibold tabular-nums">
                 $
                 {formatMoney(
-                  activeStages.find((s) => s.stage === funnel.highestValueStage)
-                    ?.summary.total ?? 0,
+                  activeStages.find(
+                    (s) => s.stage === pipeline.highestValueStage,
+                  )?.summary.total ?? 0,
                 )}
               </span>
             </div>
@@ -198,13 +199,14 @@ export default function ConversionFunnel() {
                   Best chance to win
                 </span>
                 <span className="lead-style text-foreground font-semibold">
-                  {funnel.highestWinStage}
+                  {pipeline.highestProbabilityStage}
                 </span>
               </div>
               <span className="caption-style text-success font-semibold tabular-nums">
-                {activeStages.find((s) => s.stage === funnel.highestWinStage)
-                  ?.winRate ?? 0}
-                % win rate
+                {activeStages.find(
+                  (s) => s.stage === pipeline.highestProbabilityStage,
+                )?.winProbability ?? 0}
+                % estimated win probability
               </span>
             </div>
 
@@ -214,11 +216,11 @@ export default function ConversionFunnel() {
                   Avg chance to win
                 </span>
                 <span className="lead-style text-foreground font-semibold">
-                  {funnel.overallWinRate}%
+                  {pipeline.overallWinProbability}%
                 </span>
               </div>
               <span className="caption-style text-muted-foreground tabular-nums">
-                Across {funnel.totalOpenDeals} active deals
+                Across {pipeline.totalOpenDeals} active deals
               </span>
             </div>
           </div>

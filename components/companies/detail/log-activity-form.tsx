@@ -46,9 +46,14 @@ export default function LogActivityForm({
   const [type, setType] = useState<InteractionType>("Discovery");
   const [note, setNote] = useState("");
 
-  function submit(event: FormEvent) {
+  const [saving, setSaving] = useState(false);
+
+  async function submit(event: FormEvent) {
     event.preventDefault();
-    logActivity({ companyId: company.id, type, channel, note });
+    if (saving) return;
+    setSaving(true);
+    await logActivity({ companyId: company.id, type, channel, note });
+    setSaving(false);
     showToast(`${PAST_TENSE[channel]} logged for ${company.name}`);
     setNote("");
     onDone();
@@ -126,6 +131,7 @@ export default function LogActivityForm({
         </Button>
         <Button
           type="submit"
+          disabled={saving}
           variant="primary"
           size="sm"
           className="fine:min-h-0 min-h-11"

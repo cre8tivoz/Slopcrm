@@ -24,6 +24,7 @@ import {
 } from "@/components/_ui/sheet";
 import {
   ACTIVITY_OPTIONS,
+  parseActivityWindow,
   OWNER_OPTIONS,
   SORT_MENU_OPTIONS,
   STAGE_OPTIONS,
@@ -156,7 +157,7 @@ export default function MobileFilters({ className }: MobileFiltersProps) {
               <Select
                 value={String(filters.activityWindow)}
                 onValueChange={(value) =>
-                  setFilter("activityWindow", Number(value))
+                  setFilter("activityWindow", parseActivityWindow(value))
                 }
               >
                 <SelectTrigger id="mobile-activity">
