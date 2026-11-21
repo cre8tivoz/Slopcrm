@@ -1,17 +1,21 @@
+import { useState } from "react";
+import FilterMenu from "@/components/_common/filter-menu";
 import Avatar from "@/components/_ui/avatar";
 import Tag from "@/components/_ui/tag";
 import CompanyLogo from "@/components/company/company-logo";
 import { ownerByName } from "@/data/companies";
 import { CHANNEL_LABEL, groupByDay, withinDays } from "@/lib/activity";
 import { formatDate } from "@/lib/companies";
-import { daysSince } from "@/lib/demo-clock";
+import { DEMO_HISTORY_DAYS, daysSince } from "@/lib/demo-clock";
 import { useCompaniesStore } from "@/stores/companies-store";
 import { useUiStore } from "@/stores/ui-store";
 
 const KPI_CARD = "flex flex-col gap-1.5";
 
-/** The feed covers the same span as the widest Last-activity filter. */
-const FEED_DAYS = 90;
+const FEED_WINDOWS = [90, DEMO_HISTORY_DAYS].map((days) => ({
+  value: String(days),
+  label: `Last ${days} days`,
+}));
 
 function dayHeading(date: string) {
   const age = daysSince(date);
@@ -24,6 +28,8 @@ export default function Activities() {
   const companies = useCompaniesStore((state) => state.companies);
   const interactions = useCompaniesStore((state) => state.interactions);
   const openDetail = useUiStore((state) => state.openDetail);
+  const [feedWindow, setFeedWindow] = useState(FEED_WINDOWS[0].value);
+  const feedDays = Number(feedWindow);
 
   const companyById = new Map(companies.map((c) => [c.id, c]));
   const lastWeek = withinDays(interactions, 7);
@@ -45,7 +51,7 @@ export default function Activities() {
     { label: "Most frequent · 30 days", value: topType ? topType[0] : "—" },
   ];
 
-  const days = groupByDay(withinDays(interactions, FEED_DAYS));
+  const days = groupByDay(withinDays(interactions, feedDays));
   let rowIndex = 0;
 
   return (
@@ -64,17 +70,28 @@ export default function Activities() {
           ))}
         </div>
 
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="eyebrow-style text-muted-foreground">Activity feed</h2>
+          <FilterMenu
+            label="Feed range"
+            value={feedWindow}
+            options={FEED_WINDOWS}
+            onChange={setFeedWindow}
+            align="end"
+          />
+        </div>
+
         {days.length === 0 ? (
           <p className="text-subtle py-10 text-center">
-            {FEED_DAYS} days of nothing. Bold strategy.
+            {feedDays} days of nothing. Bold strategy.
           </p>
         ) : (
           <ol className="flex flex-col gap-6">
             {days.map((day) => (
               <li key={day.date} className="flex flex-col gap-1.5">
-                <h2 className="eyebrow-style text-muted-foreground tabular-nums">
+                <h3 className="eyebrow-style text-muted-foreground tabular-nums">
                   {dayHeading(day.date)}
-                </h2>
+                </h3>
                 <ul className="divide-border flex flex-col divide-y">
                   {day.items.map((item) => {
                     const company = companyById.get(item.companyId);

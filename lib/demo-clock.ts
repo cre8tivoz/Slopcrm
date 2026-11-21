@@ -8,6 +8,8 @@
  * whole dataset consistently.
  */
 export const DEMO_TODAY = "2026-09-14";
+/** Oldest seeded touch, in days before DEMO_TODAY (inclusive). */
+export const DEMO_HISTORY_DAYS = 180;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 

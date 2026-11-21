@@ -4,7 +4,7 @@ import {
   type Company,
   type InteractionType,
 } from "./companies";
-import { daysSince, isoDaysAgo } from "@/lib/demo-clock";
+import { DEMO_HISTORY_DAYS, daysSince, isoDaysAgo } from "@/lib/demo-clock";
 
 /**
  * Seeded interaction history — every touch with every company.
@@ -47,8 +47,12 @@ export const CHANNEL_OF: Record<InteractionType, InteractionChannel> = {
   Expansion: "meeting",
 };
 
-/** History never reaches further back than this. */
-const HISTORY_DAYS = 180;
+const ARCHIVE_AFTER_DAYS = 90;
+const ARCHIVE_CADENCES = [
+  [4, 9],
+  [10, 18],
+  [19, 31],
+] as const;
 
 /** mulberry32 — small, fast, good enough for demo data. */
 function createRng(seed: number) {
@@ -69,7 +73,8 @@ function hash(text: string) {
 }
 
 function historyFor(company: Company): Interaction[] {
-  const rng = createRng(hash(company.id));
+  const seed = hash(company.id);
+  const rng = createRng(seed);
   const between = (min: number, max: number) =>
     min + Math.floor(rng() * (max - min + 1));
 
@@ -85,21 +90,44 @@ function historyFor(company: Company): Interaction[] {
     },
   ];
 
-  // Busier accounts get more history: 3 + open deals earlier touches.
-  let daysAgo = daysSince(company.lastInteraction.date);
-  for (let n = 1; n <= 3 + company.openDeals; n++) {
-    daysAgo += between(2, 12);
-    if (daysAgo > HISTORY_DAYS) break;
+  function addEarlierTouch(age: number) {
     const type = INTERACTION_TYPES[between(0, INTERACTION_TYPES.length - 1)];
     entries.push({
-      id: `${company.id}-${n}`,
+      id: `${company.id}-${entries.length}`,
       companyId: company.id,
-      date: isoDaysAgo(daysAgo),
+      date: isoDaysAgo(age),
       type,
       // Roughly one in five earlier touches is an internal note.
       channel: rng() < 0.2 ? "note" : CHANNEL_OF[type],
       owner: company.owner,
     });
+  }
+
+  // Busier accounts get more touches around their most recent engagement.
+  let lastAge = daysSince(company.lastInteraction.date);
+  for (let n = 0; n < 3 + company.openDeals; n++) {
+    const nextAge = lastAge + between(2, 12);
+    if (nextAge > DEMO_HISTORY_DAYS) break;
+    addEarlierTouch(nextAge);
+    lastAge = nextAge;
+  }
+
+  // Backfill the older months without inflating the recent activity KPIs.
+  // Different cadences leave some accounts with a quiet gap before they re-engage.
+  const [minGap, maxGap] =
+    ARCHIVE_CADENCES[(seed >>> 0) % ARCHIVE_CADENCES.length];
+  for (
+    let age = Math.max(lastAge, ARCHIVE_AFTER_DAYS) + between(minGap, maxGap);
+    age <= DEMO_HISTORY_DAYS;
+    age += between(minGap, maxGap)
+  ) {
+    addEarlierTouch(age);
+    lastAge = age;
+  }
+
+  // The dormant LVMH account anchors the inclusive 180-day cutoff.
+  if (company.id === "lvmh" && lastAge < DEMO_HISTORY_DAYS) {
+    addEarlierTouch(DEMO_HISTORY_DAYS);
   }
   return entries;
 }

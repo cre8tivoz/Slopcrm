@@ -4,6 +4,8 @@ A mobile-first sales CRM demo: companies, a deals board, a forecast and an activ
 
 It's a front-end demo. There's no backend: the data is seeded in `data/`, and anything you change saves in your browser (`localStorage`). **Reset demo data** at the bottom of the menu puts the seed back. Writes are coordinated across tabs with Web Locks (available on HTTPS and localhost in current browsers). If the browser blocks storage or does not support Web Locks, changes are session-only and the UI warns that they were not saved.
 
+The seed covers 180 days of fictional touch history up to the fixed demo date. In **Activities**, switch **Feed range** from the default 90 days to 180 days. In a company’s **Activity trend**, **Count range** controls the totals; the labeled sparkline stays at 14 weeks so it can be compared with the Companies table. Existing browser saves are left alone; use a fresh browser profile or choose **Reset demo data** to see the new seed. Reset discards local edits.
+
 ## Getting started
 
 ```bash
@@ -29,6 +31,8 @@ Open [http://localhost:3000](http://localhost:3000). The Geist font is bundled l
 ## Local browser verification
 
 Run `npx playwright install chromium` once, then `npm run test:browser`. The command builds and serves `out/` under `/slopcrm/` on loopback and tests desktop and mobile layouts. It does not call GitHub Actions or contact the production host. `SLOPCRM_BROWSER_PORT` overrides port 4173; `SLOPCRM_CHROMIUM_PATH` optionally points to an existing Chromium executable.
+
+For a separate volume check, `SLOPCRM_STRESS=1 npm run test:browser -- history.spec.ts` also runs an opt-in fixture with 12 times the seed in an isolated browser context. It checks whether the full feed and Companies view are usable and prints approximate timings, without changing the shipped seed or enforcing timing thresholds.
 
 ## Static hosting
 
