@@ -1,7 +1,12 @@
 import type { ComponentType, SVGProps } from "react";
 import Sparkline from "@/components/_common/sparkline";
 import type { Interaction } from "@/data/interactions";
-import { activityCounts, weeklyTouches, withinDays } from "@/lib/activity";
+import {
+  TREND_WEEKS,
+  activityCounts,
+  weeklyTouches,
+  withinDays,
+} from "@/lib/activity";
 import { formatDate } from "@/lib/companies";
 import CursorClickIcon from "@/public/assets/images/companies/detail/cursor-click.svg";
 import MailIcon from "@/public/assets/images/companies/detail/mail-03.svg";
@@ -36,21 +41,28 @@ export default function ActivityTrend({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-col gap-1">
-        <div className="flex items-baseline gap-[3px]">
-          <span className="block text-[24px] leading-none tabular-nums">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <p className="caption-style text-soft flex flex-col gap-1">
+          <span className="text-foreground text-[24px] leading-none tabular-nums">
             {counts.total}
-          </span>
+          </span>{" "}
+          {counts.total === 1 ? "Touch" : "Touches"} in the last {days} days
+        </p>
+        <div className="flex flex-col gap-1">
           <Sparkline
             values={weeklyTouches(interactions)}
             className="h-[22px]"
           />
+          <span className="caption-style text-soft">
+            Last {TREND_WEEKS} weeks
+          </span>
         </div>
-        <span className="caption-style text-soft block">
-          {counts.total === 1 ? "Touch" : "Touches"} in the last {days} days
-          {latest && ` · last: ${latest.type}, ${formatDate(latest.date)}`}
-        </span>
       </div>
+      {latest && (
+        <p className="caption-style text-soft">
+          Last touch: {latest.type}, {formatDate(latest.date)}
+        </p>
+      )}
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {stats.map((stat) => (
           <div

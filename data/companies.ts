@@ -1,4 +1,4 @@
-import { isoDaysAgo } from "@/lib/demo-clock";
+import { DEMO_HISTORY_DAYS, isoDaysAgo } from "@/lib/demo-clock";
 import { withBasePath } from "@/lib/base-path";
 
 export const SEGMENTS = [
@@ -134,7 +134,7 @@ const COMPANY_RECORDS: CompanySeed[] = [
     openDeals: 7,
     pipelineValue: 420000,
     winProbability: 70,
-    lastInteraction: { daysAgo: 88, label: "QBR Call" },
+    lastInteraction: { daysAgo: 116, label: "QBR Call" },
   },
   {
     id: "disney",
@@ -351,4 +351,4 @@ export const ACTIVITY_WINDOWS = [7, 30, 60, 90] as const;
 export type ActivityWindow = (typeof ACTIVITY_WINDOWS)[number];
 
 /** Period picker windows (days) on the company detail sheet. */
-export const TREND_WINDOWS = [7, 30, 90] as const;
+export const TREND_WINDOWS = [7, 30, 90, DEMO_HISTORY_DAYS] as const;

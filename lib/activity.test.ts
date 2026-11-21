@@ -7,7 +7,7 @@ import {
   weeklyTouches,
   withinDays,
 } from "./activity";
-import { DEMO_TODAY, isoDaysAgo } from "./demo-clock";
+import { DEMO_HISTORY_DAYS, DEMO_TODAY, isoDaysAgo } from "./demo-clock";
 
 function touch(date: string, channel: Interaction["channel"]): Interaction {
   return {
@@ -31,6 +31,15 @@ describe("activity", () => {
   it("windows are inclusive of the boundary day", () => {
     expect(withinDays(LOG, 4)).toHaveLength(3);
     expect(withinDays(LOG, 3)).toHaveLength(1);
+  });
+
+  it("includes the oldest demo day but not older or future touches", () => {
+    const boundary = touch(isoDaysAgo(DEMO_HISTORY_DAYS), "email");
+    const older = touch(isoDaysAgo(DEMO_HISTORY_DAYS + 1), "call");
+    const future = touch(isoDaysAgo(-1), "meeting");
+    expect(withinDays([future, boundary, older], DEMO_HISTORY_DAYS)).toEqual([
+      boundary,
+    ]);
   });
 
   it("counts touches by channel", () => {

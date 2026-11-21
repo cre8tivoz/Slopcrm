@@ -47,7 +47,7 @@ import PhoneIcon from "@/public/assets/images/companies/detail/phone.svg";
 
 const WINDOW_OPTIONS = TREND_WINDOWS.map((days) => ({
   value: String(days),
-  label: `Last ${days} Days`,
+  label: `Last ${days} days`,
 }));
 const DEFAULT_WINDOW = String(TREND_WINDOWS[1]);
 
@@ -257,6 +257,7 @@ export default function CompanyDetail() {
                 className="shadow-none"
                 action={
                   <FilterMenu
+                    label="Count range"
                     value={trendWindow}
                     options={WINDOW_OPTIONS}
                     onChange={setTrendWindow}

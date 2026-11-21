@@ -26,7 +26,7 @@ describe("filterCompanies", () => {
 
   it("seed data gives each window a meaningfully different slice", () => {
     expect([7, 30, 60, 90].map((d) => withWindow(d).length)).toEqual([
-      2, 5, 9, 18,
+      2, 5, 9, 17,
     ]);
   });
 
