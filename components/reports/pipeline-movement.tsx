@@ -1,14 +1,15 @@
+import ActivityChart from "./activity-chart";
+import FilterMenu from "@/components/_common/filter-menu";
 import Avatar from "@/components/_ui/avatar";
 import Tag from "@/components/_ui/tag";
 import CompanyLogo from "@/components/company/company-logo";
 import { formatMoney } from "@/lib/companies";
 import {
-  getPipelineVelocity,
+  type PipelineVelocitySummary,
   type DealHealthStatus,
   type SlippingDeal,
 } from "@/lib/reporting";
 import { stageTone } from "@/lib/pipeline";
-import { useCompaniesStore } from "@/stores/companies-store";
 import { useUiStore } from "@/stores/ui-store";
 import { cn } from "@/lib/utils";
 
@@ -23,122 +24,70 @@ const STATUS_BADGE: Record<
   active: { label: "Warm", tone: "success" },
 };
 
-export default function PipelineMovement() {
-  const companies = useCompaniesStore((state) => state.companies);
-  const interactions = useCompaniesStore((state) => state.interactions);
+export type ReportingWeeks = 14 | 26;
+const RANGES: { value: string; label: string }[] = [
+  { value: "14", label: "Last 14 weeks" },
+  { value: "26", label: "Last 26 weeks" },
+];
+
+export default function PipelineMovement({
+  velocity,
+  weeks,
+  onWeeksChange,
+  selectedWeekAge,
+  onWeekChange,
+}: {
+  velocity: PipelineVelocitySummary;
+  weeks: ReportingWeeks;
+  onWeeksChange: (weeks: ReportingWeeks) => void;
+  selectedWeekAge: number;
+  onWeekChange: (age: number) => void;
+}) {
   const openDetail = useUiStore((state) => state.openDetail);
   const openProfile = useUiStore((state) => state.openProfile);
 
-  const velocity = getPipelineVelocity(companies, interactions, 14);
-  const maxWeeklyTouches = Math.max(
-    1,
-    ...velocity.weeklyPoints.map((pt) =>
-      Math.max(pt.touches, pt.movingAverage4w),
-    ),
-  );
-
   return (
-    <div className="flex w-full max-w-full min-w-0 flex-col gap-4">
-      <div className={cn(PANEL, "w-full max-w-full min-w-0")}>
-        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex w-full max-w-full min-w-0 flex-col gap-8">
+      <section aria-label="Weekly activity" className={PANEL}>
+        <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
             <h2 className="eyebrow-style text-muted-foreground">
-              Pipeline Activity Velocity
+              Weekly activity
             </h2>
             <p className="caption-style text-muted-foreground">
-              Touches per week over the 14-week window, overlaid with a 4-week
-              rolling moving average.
+              Touches in seven-day periods ending at the demo date.
             </p>
           </div>
-          <div className="flex items-center gap-4 self-start text-right sm:self-auto">
-            <div>
-              <span className="caption-style text-muted-foreground block text-[11px]">
-                4-Wk Moving Avg
-              </span>
-              <span className="lead-style text-foreground font-semibold tabular-nums">
-                {velocity.fourWeekMovingAverage} / wk
-              </span>
-            </div>
-            <div>
-              <span className="caption-style text-muted-foreground block text-[11px]">
-                Current Week
-              </span>
-              <span className="lead-style text-foreground font-semibold tabular-nums">
-                {velocity.currentWeekTouches} touches
-              </span>
-            </div>
-          </div>
+          <FilterMenu
+            label="Chart range"
+            value={String(weeks)}
+            options={RANGES}
+            onChange={(value) => onWeeksChange(value === "26" ? 26 : 14)}
+            align="end"
+          />
         </div>
-
-        <div className="flex w-full max-w-full min-w-0 flex-col gap-3 rounded-2xl bg-white/[0.03] p-4 sm:p-4">
-          <div className="w-full max-w-full min-w-0 overflow-x-auto pt-8 [scrollbar-width:none]">
-            <div className="flex h-36 min-w-[280px] items-end gap-1 sm:gap-2.5">
-              {velocity.weeklyPoints.map((pt, index) => {
-                const barHeightPct = Math.max(
-                  4,
-                  Math.round((pt.touches / maxWeeklyTouches) * 100),
-                );
-                const maHeightPct = Math.max(
-                  4,
-                  Math.round((pt.movingAverage4w / maxWeeklyTouches) * 100),
-                );
-
-                return (
-                  <div
-                    key={pt.label}
-                    className="group relative flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1.5"
-                  >
-                    <div className="border-border bg-popover/90 text-popover-foreground pointer-events-none absolute -top-8 z-10 hidden rounded border px-2 py-0.5 text-[10px] whitespace-nowrap shadow group-hover:block">
-                      {pt.label}: {pt.touches} touches (4w MA:{" "}
-                      {pt.movingAverage4w})
-                    </div>
-
-                    <div
-                      className="bg-primary/90 animate-rise absolute z-10 h-1 w-full rounded-full transition-all"
-                      style={{
-                        bottom: `${maHeightPct}%`,
-                        animationDelay: `${500 + index * 35}ms`,
-                      }}
-                      title={`4-week MA: ${pt.movingAverage4w}`}
-                    />
-
-                    <div
-                      className={cn(
-                        "animate-grow-y w-full origin-bottom rounded-t transition-all duration-300",
-                        pt.touches > 0 ? "bg-trend" : "bg-trend-muted",
-                      )}
-                      style={{
-                        height: `${barHeightPct}%`,
-                        animationDelay: `${index * 35}ms`,
-                      }}
-                    />
-
-                    <span className="text-muted-foreground block truncate text-[9px] tabular-nums sm:text-[10px]">
-                      {pt.label === "This week" ? "Now" : pt.label}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="border-border flex flex-wrap items-center justify-between gap-2 border-t pt-2">
-            <div className="text-muted-foreground flex items-center gap-3 text-xs sm:gap-4">
-              <span className="inline-flex items-center gap-1.5">
-                <span className="bg-trend inline-block size-2 rounded-[1px]" />
-                Weekly Touches
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <span className="bg-primary inline-block h-1 w-3 rounded-full" />
-                4-Week Moving Average
-              </span>
-            </div>
-            <span className="caption-style text-muted-foreground text-[11px] tabular-nums">
-              Avg deal dormancy: {velocity.averageDaysDormant} days
-            </span>
-          </div>
+        <div className="caption-style text-muted-foreground flex flex-wrap gap-x-4 gap-y-1">
+          <span className="inline-flex items-center gap-1.5">
+            <span aria-hidden="true" className="bg-trend size-2 rounded-sm" />
+            Weekly touches
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span
+              aria-hidden="true"
+              className="h-0.5 w-3 bg-[var(--tag-purple-text)]"
+            />
+            4-week moving average
+          </span>
         </div>
-      </div>
+        <ActivityChart
+          points={velocity.weeklyPoints}
+          selectedWeekAge={selectedWeekAge}
+          onWeekChange={onWeekChange}
+        />
+        <p className="caption-style text-muted-foreground">
+          Average time since contact: {velocity.averageDaysDormant} days
+        </p>
+      </section>
 
       <div className={cn(PANEL, "w-full max-w-full min-w-0")}>
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
@@ -160,6 +109,11 @@ export default function PipelineMovement() {
           </div>
         </div>
 
+        {velocity.slippingDeals.length === 0 && (
+          <p className="caption-style text-muted-foreground">
+            No accounts need a follow-up.
+          </p>
+        )}
         <ul className="divide-border flex w-full max-w-full min-w-0 flex-col divide-y pt-1">
           {velocity.slippingDeals.map((deal: SlippingDeal, index) => {
             const badge = STATUS_BADGE[deal.status];
@@ -173,7 +127,7 @@ export default function PipelineMovement() {
                 <button
                   type="button"
                   onClick={() => openDetail(deal.company.id)}
-                  className="flex min-w-0 items-center gap-3 text-left transition-opacity hover:opacity-85"
+                  className="focus-visible:outline-foreground flex min-h-11 min-w-0 items-center gap-3 rounded-sm text-left transition-opacity hover:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2"
                   aria-label={`Open details for ${deal.company.name}`}
                 >
                   <CompanyLogo company={deal.company} size="md" />
@@ -199,7 +153,7 @@ export default function PipelineMovement() {
                   <button
                     type="button"
                     onClick={() => openProfile(deal.owner.name)}
-                    className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-xs transition-colors"
+                    className="text-muted-foreground hover:text-foreground focus-visible:outline-foreground flex min-h-11 items-center gap-1.5 rounded-sm text-xs transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
                     aria-label={`Open profile for ${deal.owner.name}`}
                   >
                     <Avatar src={deal.owner.avatar} alt="" className="size-5" />

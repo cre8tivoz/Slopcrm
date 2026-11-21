@@ -28,6 +28,10 @@ Open [http://localhost:3000](http://localhost:3000). The Geist font is bundled l
 | `npm run extract:avif` | Pull the first frame of every `.webm` under `public/` as a poster    |
 | `npm run frame:rive`   | Render a still from a `.riv` file for use as its poster              |
 
+## Reporting and Forecast
+
+Reporting’s **Weekly activity** chart shows touches in seven-day buckets ending at the fixed demo date, with a four-week moving average. Switch between 14 and 26 weeks, or inspect a week by tapping the plot, using the previous/next buttons, or pressing the arrow keys when the plot is focused. Changing the range does not change the average for a week visible in both ranges. Reporting and Forecast compare **total pipeline** and **likely to land** on the same stage scale; the latter is a probability-weighted estimate, not a historical conversion rate.
+
 ## Local browser verification
 
 Run `npx playwright install chromium` once, then `npm run test:browser`. The command builds and serves `out/` under `/slopcrm/` on loopback and tests desktop and mobile layouts. It does not call GitHub Actions or contact the production host. `SLOPCRM_BROWSER_PORT` overrides port 4173; `SLOPCRM_CHROMIUM_PATH` optionally points to an existing Chromium executable.

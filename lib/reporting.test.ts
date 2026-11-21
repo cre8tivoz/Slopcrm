@@ -54,6 +54,50 @@ describe("lib/reporting", () => {
       }
     });
 
+    it("keeps the same four-week average for overlapping weeks", () => {
+      const touch = (age: number) => ({
+        ...INTERACTIONS[0],
+        date: isoDaysAgo(age),
+      });
+      const log = [91, 98, 99, 105, 112, 6, 0].map(touch);
+      const short = getPipelineVelocity([], log, 14).weeklyPoints;
+      const long = getPipelineVelocity([], log, 26).weeklyPoints;
+      const values = ({
+        startDate,
+        endDate,
+        touches,
+        movingAverage4w,
+      }: (typeof short)[number]) => ({
+        startDate,
+        endDate,
+        touches,
+        movingAverage4w,
+      });
+      expect(short.map(values)).toEqual(long.slice(-14).map(values));
+      expect(short[0]).toMatchObject({
+        startDate: isoDaysAgo(97),
+        endDate: isoDaysAgo(91),
+        touches: 1,
+        movingAverage4w: 1.3,
+      });
+      expect(short.at(-1)).toMatchObject({
+        startDate: isoDaysAgo(6),
+        endDate: DEMO_TODAY,
+        touches: 2,
+        movingAverage4w: 0.5,
+      });
+    });
+
+    it("returns zero touches and average for an empty log", () => {
+      const velocity = getPipelineVelocity([], [], 26);
+      expect(velocity.weeklyPoints).toHaveLength(26);
+      expect(
+        velocity.weeklyPoints.every(
+          (week) => week.touches === 0 && week.movingAverage4w === 0,
+        ),
+      ).toBe(true);
+    });
+
     it("categorizes deals into active, at-risk, and slipping", () => {
       const velocity = getPipelineVelocity(COMPANIES, INTERACTIONS);
       const totalDeals =

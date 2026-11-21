@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import Avatar from "@/components/_ui/avatar";
 import Button from "@/components/_ui/button";
 import { ScrollArea } from "@/components/_ui/scroll-area";
@@ -25,6 +26,7 @@ import MailIcon from "@/public/assets/images/companies/detail/mail-04.svg";
 import PhoneIcon from "@/public/assets/images/companies/detail/phone.svg";
 
 export default function Profile() {
+  const returnFocus = useRef<HTMLElement | null>(null);
   const profileName = useUiStore((state) => state.profileName);
   const profileOpen = useUiStore((state) => state.profileOpen);
   const companies = useCompaniesStore((state) => state.companies);
@@ -61,7 +63,22 @@ export default function Profile() {
       open={profileOpen && person !== null}
       onOpenChange={(open) => !open && closeProfile()}
     >
-      <SheetContent side="right" className="sm:w-[480px] sm:max-w-[480px]">
+      <SheetContent
+        side="right"
+        className="sm:w-[480px] sm:max-w-[480px]"
+        onOpenAutoFocus={() => {
+          returnFocus.current =
+            document.activeElement instanceof HTMLElement
+              ? document.activeElement
+              : null;
+        }}
+        onCloseAutoFocus={(event) => {
+          if (returnFocus.current?.isConnected) {
+            event.preventDefault();
+            returnFocus.current.focus();
+          }
+        }}
+      >
         <SheetHeader>
           <div className="flex items-center gap-2">
             <UsersIcon aria-hidden className="text-icon size-3.5" />

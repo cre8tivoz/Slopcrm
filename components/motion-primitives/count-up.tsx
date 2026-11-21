@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { animate, useReducedMotion } from "motion/react";
 import { ease } from "@/kit/easings";
 
@@ -12,7 +12,7 @@ type CountUpProps = {
   className?: string;
 };
 
-/** Counts from 0 to `value` once on mount; jumps straight there for reduced motion. */
+/** Render the value on entry; animate changes from the number last displayed. */
 export default function CountUp({
   value,
   format = (n) => String(Math.round(n)),
@@ -21,22 +21,26 @@ export default function CountUp({
 }: CountUpProps) {
   const ref = useRef<HTMLSpanElement>(null);
   const reduce = useReducedMotion();
+  const current = useRef(value);
   const formatRef = useRef(format);
-  useEffect(() => {
+  useLayoutEffect(() => {
     formatRef.current = format;
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const node = ref.current;
     if (!node) return;
-    if (reduce) {
+    if (reduce || current.current === value) {
+      current.current = value;
       node.textContent = formatRef.current(value);
       return;
     }
-    const controls = animate(0, value, {
+    node.textContent = formatRef.current(current.current);
+    const controls = animate(current.current, value, {
       duration,
       ease: ease.power3Out,
       onUpdate: (latest) => {
+        current.current = latest;
         node.textContent = formatRef.current(latest);
       },
     });
@@ -44,8 +48,11 @@ export default function CountUp({
   }, [value, duration, reduce]);
 
   return (
-    <span ref={ref} className={className}>
-      {format(value)}
+    <span className={className}>
+      <span className="sr-only">{format(value)}</span>
+      <span aria-hidden="true" ref={ref}>
+        {format(value)}
+      </span>
     </span>
   );
 }

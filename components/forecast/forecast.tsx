@@ -1,3 +1,6 @@
+import { cn } from "@/lib/utils";
+import KpiCard from "@/components/_common/kpi-card";
+import PipelineComparison from "@/components/_common/pipeline-comparison";
 import Avatar from "@/components/_ui/avatar";
 import Tag from "@/components/_ui/tag";
 import SegmentBar from "@/components/_common/segment-bar";
@@ -17,8 +20,6 @@ import { useCompaniesStore } from "@/stores/companies-store";
 import { useUiStore } from "@/stores/ui-store";
 
 const money = (v: number) => `$${formatMoney(Math.round(v))}`;
-
-const KPI_CARD = "flex flex-col gap-1.5";
 
 const PANEL = "flex flex-col gap-3";
 
@@ -40,9 +41,9 @@ export default function Forecast() {
   );
   const top = topByWeighted(companies, 8);
   const byOwnerRows = byOwner(companies).slice(0, 6);
-  const maxOwnerWeighted = Math.max(
+  const maxOwnerTotal = Math.max(
     1,
-    ...byOwnerRows.map((row) => row.summary.weighted),
+    ...byOwnerRows.map((row) => row.summary.total),
   );
 
   const kpis = [
@@ -63,50 +64,39 @@ export default function Forecast() {
   return (
     <section aria-label="Forecast" className="min-h-0 flex-1 overflow-y-auto">
       <div className="mx-auto flex w-full max-w-[72em] flex-col gap-10 px-4 pt-2 pb-24 lg:px-8 lg:pt-8 lg:pb-12">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-6 lg:grid-cols-4">
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-6 lg:grid-cols-4">
           {kpis.map((kpi) => (
-            <div key={kpi.label} className={KPI_CARD}>
-              <span className="caption-style text-muted-foreground">
-                {kpi.label}
-              </span>
-              <span className="text-[24px] leading-none font-semibold tracking-[-0.02em] tabular-nums">
-                <CountUp value={kpi.n} format={kpi.format} />
-              </span>
-            </div>
+            <KpiCard
+              key={kpi.label}
+              label={kpi.label}
+              value={<CountUp value={kpi.n} format={kpi.format} />}
+            />
           ))}
-        </div>
+        </dl>
 
         <div className={PANEL}>
           <h2 className="eyebrow-style text-muted-foreground">
             Pipeline by stage
           </h2>
-          <ul className="flex flex-col gap-2.5">
-            {byStageRows.map((row, index) => (
+          {byStageRows.length === 0 && (
+            <p className="caption-style text-muted-foreground">
+              No stages to compare yet.
+            </p>
+          )}
+          <ul className="flex flex-col gap-3">
+            {byStageRows.map((row) => (
               <li
                 key={row.stage}
-                className="animate-rise"
-                style={{ animationDelay: `${index * 40}ms` }}
+                className="flex min-w-0 flex-col gap-2 rounded-xl bg-white/[0.03] p-3 sm:grid sm:grid-cols-[8rem_minmax(0,1fr)] sm:items-start"
               >
-                <div className="flex items-center gap-3">
-                  <Tag tone={stageTone(row.stage)} size="sm" className="w-28">
-                    {row.stage}
-                  </Tag>
-                  <span className="bg-track h-1.5 min-w-0 flex-1 overflow-hidden rounded-full">
-                    <span
-                      className="bg-primary/70 animate-grow-x block h-full origin-left rounded-full"
-                      style={{
-                        width: `${Math.round((row.summary.total / maxStageValue) * 100)}%`,
-                        animationDelay: `${index * 50}ms`,
-                      }}
-                    />
-                  </span>
-                  <span className="caption-style w-20 shrink-0 text-right tabular-nums">
-                    ${formatMoney(row.summary.total)}
-                  </span>
-                  <span className="caption-style text-muted-foreground hidden w-28 shrink-0 truncate text-right tabular-nums sm:block">
-                    ${formatMoney(row.summary.weighted)} likely
-                  </span>
-                </div>
+                <Tag tone={stageTone(row.stage)} size="sm" className="w-fit">
+                  {row.stage}
+                </Tag>
+                <PipelineComparison
+                  total={row.summary.total}
+                  weighted={row.summary.weighted}
+                  scale={maxStageValue}
+                />
               </li>
             ))}
           </ul>
@@ -116,7 +106,12 @@ export default function Forecast() {
           <h2 className="eyebrow-style text-muted-foreground">
             Top opportunities
           </h2>
-          <ul className="flex flex-col">
+          {top.length === 0 && (
+            <p className="caption-style text-muted-foreground">
+              No opportunities yet.
+            </p>
+          )}
+          <ul aria-label="Top opportunities" className="flex flex-col">
             {top.map((company, index) => {
               const owner = ownerByName(company.owner);
               const stage = primaryStage(company);
@@ -154,10 +149,11 @@ export default function Forecast() {
                       <SegmentBar
                         percent={company.winProbability}
                         animated
-                        delay={index * 50}
+                        delay={Math.min(index, 4) * 25}
+                        label="Estimated win probability"
                       />
                     </span>
-                    <span className="caption-style hidden w-[3ch] shrink-0 text-right tabular-nums sm:block">
+                    <span className="caption-style shrink-0 text-right tabular-nums">
                       {company.winProbability}%
                     </span>
                     <span className="lead-style shrink-0 tabular-nums">
@@ -174,49 +170,52 @@ export default function Forecast() {
           <h2 className="eyebrow-style text-muted-foreground">
             Forecast by owner
           </h2>
-          <ul className="flex flex-col">
+          {byOwnerRows.length === 0 && (
+            <p className="caption-style text-muted-foreground">
+              No owners to compare yet.
+            </p>
+          )}
+          <ul aria-label="Forecast by owner" className="flex flex-col gap-2">
             {byOwnerRows.map((row, index) => {
               const owner = ownerByName(row.owner);
               return (
-                <li
-                  key={row.owner}
-                  className="animate-rise"
-                  style={{ animationDelay: `${index * 40}ms` }}
-                >
+                <li key={row.owner} className="rounded-xl bg-white/[0.03] p-2">
                   <button
                     type="button"
                     onClick={() => openProfile(row.owner)}
-                    className={ROW_BUTTON}
+                    className={cn(
+                      ROW_BUTTON,
+                      "flex-col items-stretch gap-2 sm:flex-row sm:items-center",
+                    )}
+                    aria-label={`Open ${row.owner} profile`}
+                    aria-describedby={`forecast-owner-amounts-${index}`}
                   >
-                    <Avatar src={owner.avatar} alt="" className="size-6" />
-                    <span className="min-w-0 flex-1">
-                      <span className="lead-style block truncate font-medium">
+                    <span className="flex min-w-0 items-center gap-2 sm:w-40 sm:shrink-0">
+                      <Avatar src={owner.avatar} alt="" className="size-6" />
+                      <span className="lead-style truncate font-medium">
                         {row.owner}
                       </span>
-                      <span className="caption-style text-muted-foreground block truncate tabular-nums">
-                        ${formatMoney(row.summary.total)} pipeline
-                      </span>
                     </span>
-                    <span className="bg-track h-1.5 w-24 shrink-0 overflow-hidden rounded-full">
-                      <span
-                        className="bg-primary/70 animate-grow-x block h-full origin-left rounded-full"
-                        style={{
-                          width: `${Math.round((row.summary.weighted / maxOwnerWeighted) * 100)}%`,
-                          animationDelay: `${index * 50}ms`,
-                        }}
+                    <span
+                      id={`forecast-owner-amounts-${index}`}
+                      className="min-w-0 flex-1"
+                    >
+                      <PipelineComparison
+                        total={row.summary.total}
+                        weighted={row.summary.weighted}
+                        scale={maxOwnerTotal}
                       />
-                    </span>
-                    <span className="lead-style shrink-0 font-medium tabular-nums">
-                      ${formatMoney(row.summary.weighted)}
                     </span>
                   </button>
                 </li>
               );
             })}
           </ul>
-          <span className="caption-style text-muted-foreground">
-            Likely to land, per owner. Click one for their profile.
-          </span>
+          {byOwnerRows.length > 0 && (
+            <p className="caption-style text-muted-foreground">
+              Ranked by likely value. Select an owner to see their profile.
+            </p>
+          )}
         </div>
       </div>
     </section>

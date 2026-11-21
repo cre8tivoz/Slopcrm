@@ -162,7 +162,8 @@ export default function RepPerformance() {
                     percent={rep.avgWinProbability}
                     segments={8}
                     animated
-                    delay={index * 50}
+                    delay={Math.min(index, 4) * 25}
+                    label="Estimated win probability"
                     className="w-14"
                   />
                 </div>
@@ -189,7 +190,7 @@ export default function RepPerformance() {
                   <button
                     type="button"
                     onClick={() => openDetail(rep.topCompany!.id)}
-                    className="ease-power3-out hidden items-center gap-1.5 rounded-full bg-white/6 px-2.5 py-1 text-xs transition-[background-color,transform] hover:bg-white/5 hover:bg-white/10 active:scale-[0.98] sm:inline-flex"
+                    className="ease-power3-out focus-visible:outline-foreground hidden items-center gap-1.5 rounded-full bg-white/6 px-2.5 py-1 text-xs transition-[background-color,transform] hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] sm:inline-flex"
                     aria-label={`View ${rep.topCompany.name}`}
                   >
                     <CompanyLogo company={rep.topCompany} size="xs" />
