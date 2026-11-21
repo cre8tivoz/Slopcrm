@@ -6,7 +6,7 @@ import {
 } from "@/data/companies";
 import type { Interaction } from "@/data/interactions";
 import { weeklyTouches } from "./activity";
-import { daysSince, isWithinDemoDays } from "./demo-clock";
+import { daysSince, isWithinDemoDays, isoDaysAgo } from "./demo-clock";
 import {
   UNSTAGED,
   byStage,
@@ -119,6 +119,8 @@ export type WeeklyVelocityPoint = {
   weekIndex: number;
   /** Week label e.g. "W-13" (oldest) to "This week". */
   label: string;
+  startDate: string;
+  endDate: string;
   touches: number;
   /** 4-week simple moving average of touches. */
   movingAverage4w: number;
@@ -187,29 +189,29 @@ export function getPipelineVelocity(
   interactions: readonly Interaction[],
   weeks = 14,
 ): PipelineVelocitySummary {
-  // 1. Weekly touch buckets
-  const rawBuckets = weeklyTouches(interactions, weeks);
+  // Include three preceding buckets so changing the visible range never
+  // changes the average for a week shown in both ranges.
+  const lookback = 3;
+  const rawBuckets = weeklyTouches(interactions, weeks + lookback);
+  const weeklyPoints: WeeklyVelocityPoint[] = rawBuckets
+    .slice(lookback)
+    .map((touches, idx) => {
+      const window = rawBuckets.slice(idx, idx + lookback + 1);
+      const weeksAgo = weeks - 1 - idx;
+      return {
+        weekIndex: idx,
+        label: weeksAgo === 0 ? "This week" : `W-${weeksAgo}`,
+        startDate: isoDaysAgo(weeksAgo * 7 + 6),
+        endDate: isoDaysAgo(weeksAgo * 7),
+        touches,
+        movingAverage4w:
+          Math.round(
+            (window.reduce((sum, n) => sum + n, 0) / window.length) * 10,
+          ) / 10,
+      };
+    });
 
-  const weeklyPoints: WeeklyVelocityPoint[] = rawBuckets.map((touches, idx) => {
-    // 4-week simple moving average up to this index
-    const windowStart = Math.max(0, idx - 3);
-    const windowItems = rawBuckets.slice(windowStart, idx + 1);
-    const avg =
-      Math.round(
-        (windowItems.reduce((sum, n) => sum + n, 0) / windowItems.length) * 10,
-      ) / 10;
-
-    const weeksAgo = weeks - 1 - idx;
-    const label = weeksAgo === 0 ? "This week" : `W-${weeksAgo}`;
-    return {
-      weekIndex: idx,
-      label,
-      touches,
-      movingAverage4w: avg,
-    };
-  });
-
-  const currentWeekTouches = rawBuckets[weeks - 1] ?? 0;
+  const currentWeekTouches = weeklyPoints.at(-1)?.touches ?? 0;
   const fourWeekMovingAverage =
     weeklyPoints[weeklyPoints.length - 1]?.movingAverage4w ?? 0;
 

@@ -1,23 +1,28 @@
 "use client";
 
+import { useMemo, useState } from "react";
+import KpiCard from "@/components/_common/kpi-card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/_ui/tabs";
 import CountUp from "@/components/motion-primitives/count-up";
 import StagePipeline from "./stage-pipeline";
-import PipelineMovement from "./pipeline-movement";
+import PipelineMovement, { type ReportingWeeks } from "./pipeline-movement";
 import RepPerformance from "./rep-performance";
 import { formatMoney } from "@/lib/companies";
 import { getPipelineVelocity, getStagePipeline } from "@/lib/reporting";
 import { useCompaniesStore } from "@/stores/companies-store";
 import { type ReportingTab, useUiStore } from "@/stores/ui-store";
-import { cn } from "@/lib/utils";
 
 const TABS: { id: ReportingTab; label: string }[] = [
   { id: "overview", label: "Overview" },
   { id: "pipeline", label: "Pipeline by stage" },
-  { id: "velocity", label: "Pipeline Velocity" },
+  { id: "velocity", label: "Weekly activity" },
   { id: "reps", label: "Rep Performance" },
 ];
-
-const KPI_CARD = "flex flex-col gap-1.5";
 
 export default function Reports() {
   const activeTab = useUiStore((state) => state.reportingTab);
@@ -25,8 +30,25 @@ export default function Reports() {
   const companies = useCompaniesStore((state) => state.companies);
   const interactions = useCompaniesStore((state) => state.interactions);
 
-  const pipeline = getStagePipeline(companies);
-  const velocity = getPipelineVelocity(companies, interactions);
+  const [weeks, setWeeks] = useState<ReportingWeeks>(14);
+  const [selectedWeekAge, setSelectedWeekAge] = useState(0);
+  const pipeline = useMemo(() => getStagePipeline(companies), [companies]);
+  const velocity = useMemo(
+    () => getPipelineVelocity(companies, interactions, weeks),
+    [companies, interactions, weeks],
+  );
+  const movement = (
+    <PipelineMovement
+      velocity={velocity}
+      weeks={weeks}
+      selectedWeekAge={selectedWeekAge}
+      onWeekChange={setSelectedWeekAge}
+      onWeeksChange={(next) => {
+        setWeeks(next);
+        setSelectedWeekAge((age) => Math.min(age, next - 1));
+      }}
+    />
+  );
 
   const kpis = [
     {
@@ -61,53 +83,57 @@ export default function Reports() {
       className="min-h-0 w-full max-w-full flex-1 overflow-x-hidden overflow-y-auto"
     >
       <div className="mx-auto flex w-full max-w-[72em] min-w-0 flex-col gap-8 px-4 pt-2 pb-24 lg:px-8 lg:pt-8 lg:pb-12">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-6 lg:grid-cols-4">
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-6 lg:grid-cols-4">
           {kpis.map((kpi) => (
-            <div key={kpi.label} className={KPI_CARD}>
-              <span className="caption-style text-muted-foreground">
-                {kpi.label}
-              </span>
-              <span className="text-[24px] leading-none font-semibold tracking-[-0.02em] tabular-nums">
-                <CountUp value={kpi.n} format={kpi.format} />
-              </span>
-              <span className="caption-style text-subtle text-[11px] tabular-nums">
-                {kpi.sub}
-              </span>
-            </div>
+            <KpiCard
+              key={kpi.label}
+              label={kpi.label}
+              value={<CountUp value={kpi.n} format={kpi.format} />}
+              note={kpi.sub}
+            />
           ))}
-        </div>
-
-        <div className="flex max-w-full items-center gap-1 overflow-x-auto rounded-xl bg-white/5 p-1 [scrollbar-width:none]">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                "caption-style ease-power3-out min-h-9 rounded-lg px-3 font-medium whitespace-nowrap transition-[background-color,color]",
-                activeTab === tab.id
-                  ? "text-foreground bg-white/10"
-                  : "text-muted-foreground hover:text-foreground hover:bg-white/4",
-              )}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        <div key={activeTab} className="animate-rise min-w-0">
-          {activeTab === "overview" && (
-            <div className="flex w-full max-w-full min-w-0 flex-col gap-12">
-              <StagePipeline />
-              <PipelineMovement />
-              <RepPerformance />
-            </div>
-          )}
-
-          {activeTab === "pipeline" && <StagePipeline />}
-          {activeTab === "velocity" && <PipelineMovement />}
-          {activeTab === "reps" && <RepPerformance />}
-        </div>
+        </dl>
+        <Tabs
+          value={activeTab}
+          onValueChange={(tab) => setActiveTab(tab as ReportingTab)}
+          className="gap-5"
+        >
+          <TabsList
+            aria-label="Reporting views"
+            className="grid grid-cols-2 gap-1 rounded-xl bg-white/5 p-1 sm:grid-cols-4"
+          >
+            {TABS.map((tab) => (
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                className="focus-visible:ring-foreground/70 m-0 min-h-11 min-w-0 rounded-lg border-0 px-2 py-2 whitespace-normal focus-visible:ring-2 focus-visible:ring-inset data-[state=active]:bg-white/10"
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          <TabsContent
+            value="overview"
+            className="flex min-w-0 flex-col gap-10"
+          >
+            {activeTab === "overview" && (
+              <>
+                <StagePipeline pipeline={pipeline} />
+                {movement}
+                <RepPerformance />
+              </>
+            )}
+          </TabsContent>
+          <TabsContent value="pipeline" className="min-w-0">
+            {activeTab === "pipeline" && <StagePipeline pipeline={pipeline} />}
+          </TabsContent>
+          <TabsContent value="velocity" className="min-w-0">
+            {activeTab === "velocity" && movement}
+          </TabsContent>
+          <TabsContent value="reps" className="min-w-0">
+            {activeTab === "reps" && <RepPerformance />}
+          </TabsContent>
+        </Tabs>
       </div>
     </section>
   );

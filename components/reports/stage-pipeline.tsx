@@ -1,19 +1,21 @@
+import PipelineComparison from "@/components/_common/pipeline-comparison";
 import Tag from "@/components/_ui/tag";
 import SegmentBar from "@/components/_common/segment-bar";
 import CompanyLogo from "@/components/company/company-logo";
 import { formatMoney } from "@/lib/companies";
-import { getStagePipeline } from "@/lib/reporting";
-import { useCompaniesStore } from "@/stores/companies-store";
+import type { StagePipelineSummary } from "@/lib/reporting";
 import { useUiStore } from "@/stores/ui-store";
 import { cn } from "@/lib/utils";
 
 const PANEL = "flex flex-col gap-3";
 
-export default function StagePipeline() {
-  const companies = useCompaniesStore((state) => state.companies);
+export default function StagePipeline({
+  pipeline,
+}: {
+  pipeline: StagePipelineSummary;
+}) {
   const openDetail = useUiStore((state) => state.openDetail);
 
-  const pipeline = getStagePipeline(companies);
   const activeStages = pipeline.stages.filter(
     (s) => s.companies.length > 0 || s.summary.openDeals > 0,
   );
@@ -34,7 +36,7 @@ export default function StagePipeline() {
           </div>
           <div className="flex items-center gap-3 self-start sm:self-auto">
             <span className="caption-style text-muted-foreground">
-              Total Yield:{" "}
+              Likely to land:{" "}
               <span className="text-foreground font-semibold tabular-nums">
                 ${formatMoney(pipeline.totalWeighted)}
               </span>
@@ -42,18 +44,17 @@ export default function StagePipeline() {
           </div>
         </div>
 
+        {activeStages.length === 0 && (
+          <p className="caption-style text-muted-foreground">
+            No stages to compare yet.
+          </p>
+        )}
         <ul className="flex flex-col gap-3 pt-1">
           {activeStages.map((metric, index) => {
-            const widthPct = Math.max(
-              12,
-              Math.round((metric.summary.total / maxTotal) * 100),
-            );
-
             return (
               <li
                 key={metric.stage}
-                className="animate-rise flex flex-col gap-2 rounded-2xl bg-white/[0.03] p-4"
-                style={{ animationDelay: `${index * 35}ms` }}
+                className="flex min-w-0 flex-col gap-3 rounded-xl bg-white/[0.03] p-3 sm:p-4"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
@@ -79,30 +80,19 @@ export default function StagePipeline() {
                         percent={metric.winProbability}
                         segments={10}
                         animated
-                        delay={200 + index * 60}
+                        delay={Math.min(index, 4) * 25}
+                        label="Estimated win probability"
                         className="w-16"
                       />
-                    </div>
-                    <div className="w-24 text-right">
-                      <span className="caption-style block font-semibold tabular-nums">
-                        ${formatMoney(metric.summary.total)}
-                      </span>
-                      <span className="caption-style text-muted-foreground block text-[11px] tabular-nums">
-                        ${formatMoney(metric.summary.weighted)} likely
-                      </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-track h-2 w-full overflow-hidden rounded-full">
-                  <div
-                    className="bg-primary/80 animate-grow-x h-full origin-left rounded-full transition-all duration-300"
-                    style={{
-                      width: `${widthPct}%`,
-                      animationDelay: `${index * 60}ms`,
-                    }}
-                  />
-                </div>
+                <PipelineComparison
+                  total={metric.summary.total}
+                  weighted={metric.summary.weighted}
+                  scale={maxTotal}
+                />
 
                 <div className="flex flex-wrap items-center gap-1.5 pt-1">
                   <span className="caption-style text-muted-foreground text-[11px]">
@@ -113,7 +103,7 @@ export default function StagePipeline() {
                       key={c.id}
                       type="button"
                       onClick={() => openDetail(c.id)}
-                      className="ease-power3-out inline-flex items-center gap-1.5 rounded-full bg-white/6 px-2.5 py-0.5 text-xs transition-[background-color,transform] hover:bg-white/5 hover:bg-white/10 active:scale-[0.98]"
+                      className="ease-power3-out focus-visible:outline-foreground inline-flex items-center gap-1.5 rounded-full bg-white/6 px-2.5 py-0.5 text-xs transition-[background-color,transform] hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98]"
                       aria-label={`View details for ${c.name}`}
                     >
                       <CompanyLogo company={c} size="xs" />
